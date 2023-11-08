@@ -7,7 +7,7 @@ import java.util.Arrays;
 import java.util.List;
 
 public class InitValues {
-    public static final float UX = 0.2f;
+    public static final float UX = 0.02f;
     public static Velocity velocityInitZero() {
         return new Velocity(0f, 0f);
     }

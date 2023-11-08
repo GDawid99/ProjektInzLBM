@@ -65,22 +65,40 @@ public class Cell {
 //                }
 //            }
             case FLUID, VELOCITY_WALL -> {
-                if (velocity.ux > 0) {
-                    double color = 1 - velocity.ux / InitValues.UX;
-                    if (color > 1) color = 1.0;
-                    if (color < 0) color = 0.0;
-                    return Color.color(1, color, color);
-                }
-                else {
-                    double color = 1 - Math.abs(velocity.ux) / InitValues.UX;
-                    if (color > 1) color = 1.0;
-                    if (color < 0) color = 0.0;
-                    return Color.color(color, color, 1);
-                }
+//                if (velocity.ux > 0) {
+//                    double color = 1 - velocity.ux / 0.02;
+//                    if (color > 1) color = 1.0;
+//                    if (color < 0) color = 0.0;
+//                    return Color.color(1, color, color);
+//                }
+//                else {
+//                    double color = 1 - Math.abs(velocity.ux) / 0.02;
+//                    if (color > 1) color = 1.0;
+//                    if (color < 0) color = 0.0;
+//                    return Color.color(color, color, 1);
+//                }
+                return calcColorByValue(Lattice.MIN_VELOCITY.ux,Lattice.MAX_VELOCITY.ux, velocity.ux);
             }
 
         }
         return null;
+    }
+
+    private Color calcColorByValue(double min, double max, double value) {
+        //Color minColor = Color.color(0, 0, 0.75);
+        //Color maxColor = Color.color(0.75, 0, 0);
+        double firstColorValue = (value - min)/(max - min), colorValue;
+        if (firstColorValue < 1/6d) {
+            colorValue = (0.25*firstColorValue)/(1/6d) + 0.75;
+            return Color.color(0, 0, colorValue);
+        }
+        else if (firstColorValue >= 1/6d && firstColorValue < 5/6d) {
+            return Color.color(firstColorValue, 0, 1- firstColorValue);
+        }
+        else {
+            colorValue =(0.25*(1 - firstColorValue))/(1/6d) + 0.75;
+            return Color.color(colorValue, 0, 0);
+        }
     }
 
     @Override
