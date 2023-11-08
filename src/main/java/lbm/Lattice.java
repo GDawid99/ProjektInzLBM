@@ -35,16 +35,16 @@ public class Lattice {
                 else if (x == latticeWidth-1) {
                     board[y][x] = setInitialValues(x,y,1f,new Velocity(0f,0f),CellState.WALL);
                 }
-//                else if (x == 0 && y > 9 && y < 70) {
-//                    board[y][x] = setInitialValues(x,y,1f,new Velocity(0.005f,0f),CellState.VELOCITY_WALL);
-//                }
-                else if (x == 0) {
+                else if (x == 0 && y > 9 && y < 70) {
                     board[y][x] = setInitialValues(x,y,1f,new Velocity(0.0001f,0f),CellState.VELOCITY_WALL);
+                }
+                else if (x == 0) {
+                    board[y][x] = setInitialValues(x,y,1f,new Velocity(0f,0f),CellState.WALL);
                 }
 //                else if((x == 20 || x == 21) && ((y > 0 && y < 45) || y > 55 && y < 100)) {
 //                    board[y][x] = setInitialValues(x,y,1f,new Velocity(0f,0f),CellState.WALL);
 //                }
-                else if(x > latticeWidth*0.2 && x < latticeWidth*0.3 && y >= latticeHeight*0.4 && y <= latticeHeight*0.6) {
+                else if(x > latticeWidth*0.1 && x < latticeWidth*0.15 && y >= latticeHeight*0.4 && y <= latticeHeight*0.6) {
                     board[y][x] = setInitialValues(x,y,1f,new Velocity(0f,0f),CellState.WALL);
                 }
                 else {
@@ -64,7 +64,7 @@ public class Lattice {
     }
 
     public void executeOperations() {
-        float tau = 1.0f;
+        float tau = 0.52f;
         iter++;
         MIN_DENSITY = 0f;
         MAX_DENSITY = 0f;
@@ -109,9 +109,13 @@ public class Lattice {
                 if (cells[y][x].getCellState() == CellState.FLUID) {
                     ArrayList<Float> neighbourhoodFoutElements = new ArrayList<>(9);
                     for (int i = 0; i < 9; i++) {
-                        int deltaX = x + cells[y][x].model.getC().get(i).get(0);
-                        int deltaY = y - cells[y][x].model.getC().get(i).get(1);
-                        neighbourhoodFoutElements.add(cells[deltaY][deltaX].model.getFout().get(i));
+                        int deltaX = x - cells[y][x].model.getC().get(i).get(0);
+                        int deltaY = y + cells[y][x].model.getC().get(i).get(1);
+                        if (cells[deltaY][deltaX].getCellState() != CellState.WALL) neighbourhoodFoutElements.add(cells[deltaY][deltaX].model.getFout().get(i));
+                        else {
+                            if (i < 5) neighbourhoodFoutElements.add(cells[y][x].model.getFout().get(i+4));
+                            else neighbourhoodFoutElements.add(cells[y][x].model.getFout().get(i-4));
+                        }
                     }
                     cells[y][x].model.calcFinFunctions(neighbourhoodFoutElements);
                 }
