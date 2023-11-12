@@ -42,6 +42,6 @@
       </MenuBar>
    </top>
    <center>
-      <VisualCanvas fx:id="visualCanvas" height="80.0" width="300.0" BorderPane.alignment="CENTER" />
+      <VisualCanvas fx:id="visualCanvas" height="100.0" width="100.0" BorderPane.alignment="CENTER" />
    </center>
 </BorderPane>

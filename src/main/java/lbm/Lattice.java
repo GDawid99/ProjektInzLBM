@@ -27,26 +27,29 @@ public class Lattice {
         for (int y = 0; y < latticeHeight; y++) {
             for (int x = 0; x < latticeWidth; x++) {
                 if (y == 0) {
-                    board[y][x] = setInitialValues(x,y,1f,new Velocity(0f,0f),CellState.WALL);
+                    board[y][x] = setInitialValues(x,y,1f,new Velocity(InitValues.UX,0f),CellState.VELOCITY_WALL);
                 }
                 else if (y == latticeHeight-1) {
-                    board[y][x] = setInitialValues(x,y,1f,new Velocity(0f,0f),CellState.WALL);
+                    board[y][x] = setInitialValues(x,y,1f,new Velocity(0f,0f),CellState.VELOCITY_WALL);
                 }
+//                else if (x == latticeWidth-1 && y > latticeHeight*0.1 && y < latticeHeight*0.9) {
+//                    board[y][x] = setInitialValues(x,y,1f,new Velocity(0f,0f),CellState.VELOCITY_WALL);
+//                }
                 else if (x == latticeWidth-1) {
-                    board[y][x] = setInitialValues(x,y,1f,new Velocity(0f,0f),CellState.WALL);
+                    board[y][x] = setInitialValues(x,y,1f,new Velocity((latticeHeight-1-y)*InitValues.UX/100f,0f),CellState.VELOCITY_WALL);
                 }
-                else if (x == 0 && y > 9 && y < 70) {
-                    board[y][x] = setInitialValues(x,y,1f,new Velocity(0.0001f,0f),CellState.VELOCITY_WALL);
-                }
+//                else if (x == 0 && y > latticeHeight*0.1 && y < latticeHeight*0.9) {
+//                    board[y][x] = setInitialValues(x,y,1f,new Velocity(InitValues.UX,0.000f),CellState.VELOCITY_WALL);
+//                }
                 else if (x == 0) {
-                    board[y][x] = setInitialValues(x,y,1f,new Velocity(0f,0f),CellState.WALL);
+                    board[y][x] = setInitialValues(x,y,1f,new Velocity((latticeHeight-1-y)*InitValues.UX/100f,0f,0f),CellState.VELOCITY_WALL);
                 }
 //                else if((x == 20 || x == 21) && ((y > 0 && y < 45) || y > 55 && y < 100)) {
 //                    board[y][x] = setInitialValues(x,y,1f,new Velocity(0f,0f),CellState.WALL);
 //                }
-                else if(x > latticeWidth*0.1 && x < latticeWidth*0.15 && y >= latticeHeight*0.4 && y <= latticeHeight*0.6) {
-                    board[y][x] = setInitialValues(x,y,1f,new Velocity(0f,0f),CellState.WALL);
-                }
+//                else if(x > latticeWidth*0.15 && x < latticeWidth*0.2 && y >= latticeHeight*0.45 && y <= latticeHeight*0.55) {
+//                    board[y][x] = setInitialValues(x,y,1f,new Velocity(0f,0f),CellState.WALL);
+//                }
                 else {
                     board[y][x] = setInitialValues(x,y,1f,InitValues.velocityInitZero(),CellState.FLUID);
                 }
@@ -64,10 +67,10 @@ public class Lattice {
     }
 
     public void executeOperations() {
-        float tau = 0.52f;
+        float tau = 1f;
         iter++;
-        MIN_DENSITY = 0f;
-        MAX_DENSITY = 0f;
+        MIN_DENSITY = 1f;
+        MAX_DENSITY = 1f;
         MIN_VELOCITY = new Velocity(0f,0f,0f);
         MAX_VELOCITY = new Velocity(0f,0f,0f);
 
@@ -76,7 +79,7 @@ public class Lattice {
             for (int x = 0; x < latticeWidth; x++) {
                 cells[y][x].density = cells[y][x].model.calcDensity();
                 cells[y][x].velocity = cells[y][x].model.calcVelocity(cells[y][x].density);
-                //tau = (3f* (latticeHeight-2f) * cells[y][x].velocity.ux)/100f + 0.5f;
+                //tau = (3f* (latticeHeight-2f)*cells[y][x].velocity.uy)/100f + 0.5f;
                 cells[y][x].model.calcFeqFunctions(cells[y][x].velocity, cells[y][x].density);
                 cells[y][x].model.calcFoutFunctions(
                         (ArrayList<Float>) cells[y][x].model.getFin(),
@@ -85,21 +88,15 @@ public class Lattice {
                          tau);
                 if (cells[y][x].velocity.ux < MIN_VELOCITY.ux) MIN_VELOCITY.ux = cells[y][x].velocity.ux;
                 if (cells[y][x].velocity.ux > MAX_VELOCITY.ux) MAX_VELOCITY.ux = cells[y][x].velocity.ux;
+                if (cells[y][x].velocity.uy < MIN_VELOCITY.uy) MIN_VELOCITY.uy = cells[y][x].velocity.uy;
+                if (cells[y][x].velocity.uy > MAX_VELOCITY.uy) MAX_VELOCITY.uy = cells[y][x].velocity.uy;
                 if (cells[y][x].density < MIN_DENSITY) MIN_DENSITY = cells[y][x].density;
                 if (cells[y][x].density > MAX_DENSITY) MAX_DENSITY = cells[y][x].density;
 
             }
         }
-        if (iter % 50 == 0) {
-            System.out.println("Iteration: " + iter);
-            System.out.println("Velocity:");
-            System.out.println("MIN: " + MIN_VELOCITY);
-            System.out.println("MAX: " + MAX_VELOCITY);
-            System.out.println("Density:");
-            System.out.println("MIN: " + MIN_DENSITY);
-            System.out.println("MAX: " + MAX_DENSITY);
-            System.out.println("---------------------");
-        }
+
+        if (iter % 50 == 0) dataLog(tau);
 
         //cells = copy(tmpCells);
         //Cell [][] tmpCells = copy(cells);
@@ -140,6 +137,18 @@ public class Lattice {
             }
         }
         return copy;
+    }
+
+    private void dataLog(float tau) {
+        System.out.println("Iteration: " + iter);
+        System.out.println("Velocity:");
+        System.out.println("MIN: " + MIN_VELOCITY);
+        System.out.println("MAX: " + MAX_VELOCITY);
+        System.out.println("Density:");
+        System.out.println("MIN: " + MIN_DENSITY);
+        System.out.println("MAX: " + MAX_DENSITY);
+        System.out.println("Tau: " + tau);
+        System.out.println("---------------------");
     }
 
 

@@ -20,6 +20,7 @@ public class Cell {
     public Velocity velocity;
 
 
+
     public Cell(int x, int y, float density, Velocity velocity, CellState state, Model model) {
         this.x = x;
         this.y = y;
@@ -38,10 +39,6 @@ public class Cell {
         this.velocity = new Velocity(cell.velocity);
     }
 
-
-
-
-
     public CellState getCellState() {
         return this.cellState;
     }
@@ -51,19 +48,11 @@ public class Cell {
     }
 
 
-    public Color getColor() {
+    public Color getColor(float min, float max, float valueVisualization) {
         switch (cellState) {
             case WALL -> {
                 return Color.color(0,0,0);
             }
-//            case VELOCITY_WALL -> {
-//                if (velocity.ux > 0) {
-//                    return Color.color(1, 0, 0);
-//                }
-//                else {
-//                    return Color.color(0, 0, 1);
-//                }
-//            }
             case FLUID, VELOCITY_WALL -> {
 //                if (velocity.ux > 0) {
 //                    double color = 1 - velocity.ux / 0.02;
@@ -77,7 +66,7 @@ public class Cell {
 //                    if (color < 0) color = 0.0;
 //                    return Color.color(color, color, 1);
 //                }
-                return calcColorByValue(Lattice.MIN_VELOCITY.ux,Lattice.MAX_VELOCITY.ux, velocity.ux);
+                return calcColorByValue(min, max, valueVisualization);
             }
 
         }
@@ -87,13 +76,16 @@ public class Cell {
     private Color calcColorByValue(double min, double max, double value) {
         //Color minColor = Color.color(0, 0, 0.75);
         //Color maxColor = Color.color(0.75, 0, 0);
+        if (min > value) return Color.color(0, 0, 0.75);
+        if (max < value) return Color.color(0.75, 0, 0);
         double firstColorValue = (value - min)/(max - min), colorValue;
         if (firstColorValue < 1/6d) {
             colorValue = (0.25*firstColorValue)/(1/6d) + 0.75;
             return Color.color(0, 0, colorValue);
         }
         else if (firstColorValue >= 1/6d && firstColorValue < 5/6d) {
-            return Color.color(firstColorValue, 0, 1- firstColorValue);
+            colorValue = (firstColorValue - 1/6d)/(5/6d - 1/6d);
+            return Color.color(colorValue, 0, 1- colorValue);
         }
         else {
             colorValue =(0.25*(1 - firstColorValue))/(1/6d) + 0.75;
@@ -111,4 +103,7 @@ public class Cell {
                 ", velocity=" + velocity +
                 '}';
     }
+
+
+
 }
