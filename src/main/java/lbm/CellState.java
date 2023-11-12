@@ -1,7 +1,8 @@
 package lbm;
 
 public enum CellState {
-    WALL,
     FLUID,
-    VELOCITY_WALL;
+    CONST_BC,
+    BOUNCE_BACK_BC,
+    SYMMETRY_BC;
 }

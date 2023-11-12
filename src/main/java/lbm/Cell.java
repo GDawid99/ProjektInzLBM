@@ -3,7 +3,6 @@ package lbm;
 
 import javafx.scene.paint.Color;
 import lbm.model.D2Q9;
-import lbm.model.InitValues;
 import lbm.model.Model;
 import util.Velocity;
 
@@ -50,10 +49,10 @@ public class Cell {
 
     public Color getColor(float min, float max, float valueVisualization) {
         switch (cellState) {
-            case WALL -> {
+            case BOUNCE_BACK_BC, SYMMETRY_BC -> {
                 return Color.color(0,0,0);
             }
-            case FLUID, VELOCITY_WALL -> {
+            case FLUID, CONST_BC -> {
 //                if (velocity.ux > 0) {
 //                    double color = 1 - velocity.ux / 0.02;
 //                    if (color > 1) color = 1.0;

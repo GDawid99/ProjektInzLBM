@@ -5,6 +5,8 @@ import lbm.model.InitValues;
 import util.Velocity;
 
 import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.List;
 
 public class Lattice {
     private Cell[][] cells;
@@ -27,22 +29,22 @@ public class Lattice {
         for (int y = 0; y < latticeHeight; y++) {
             for (int x = 0; x < latticeWidth; x++) {
                 if (y == 0) {
-                    board[y][x] = setInitialValues(x,y,1f,new Velocity(InitValues.UX,0f),CellState.VELOCITY_WALL);
+                    board[y][x] = setInitialValues(x,y,1f,new Velocity(0f,InitValues.UX),CellState.CONST_BC);
                 }
                 else if (y == latticeHeight-1) {
-                    board[y][x] = setInitialValues(x,y,1f,new Velocity(0f,0f),CellState.VELOCITY_WALL);
+                    board[y][x] = setInitialValues(x,y,1f,new Velocity(0f,0f),CellState.BOUNCE_BACK_BC);
                 }
 //                else if (x == latticeWidth-1 && y > latticeHeight*0.1 && y < latticeHeight*0.9) {
 //                    board[y][x] = setInitialValues(x,y,1f,new Velocity(0f,0f),CellState.VELOCITY_WALL);
 //                }
                 else if (x == latticeWidth-1) {
-                    board[y][x] = setInitialValues(x,y,1f,new Velocity((latticeHeight-1-y)*InitValues.UX/100f,0f),CellState.VELOCITY_WALL);
+                    board[y][x] = setInitialValues(x,y,1f,new Velocity(0f,0f),CellState.SYMMETRY_BC);
                 }
 //                else if (x == 0 && y > latticeHeight*0.1 && y < latticeHeight*0.9) {
 //                    board[y][x] = setInitialValues(x,y,1f,new Velocity(InitValues.UX,0.000f),CellState.VELOCITY_WALL);
 //                }
                 else if (x == 0) {
-                    board[y][x] = setInitialValues(x,y,1f,new Velocity((latticeHeight-1-y)*InitValues.UX/100f,0f,0f),CellState.VELOCITY_WALL);
+                    board[y][x] = setInitialValues(x,y,1f,new Velocity(0f,0f,0f),CellState.SYMMETRY_BC);
                 }
 //                else if((x == 20 || x == 21) && ((y > 0 && y < 45) || y > 55 && y < 100)) {
 //                    board[y][x] = setInitialValues(x,y,1f,new Velocity(0f,0f),CellState.WALL);
@@ -61,8 +63,7 @@ public class Lattice {
     private Cell setInitialValues(int x, int y, float density, Velocity velocity, CellState cellState) {
         Cell cell = new Cell(x,y, density, velocity, cellState, new D2Q9());
         cell.model.calcFeqFunctions(cell.velocity, cell.density);
-        cell.model.calcFinFunctions((ArrayList<Float>)cell.model.getFeq());
-        //cell.model.calcFoutFunctions((ArrayList<Float>) cell.model.getFin(),(ArrayList<Float>)cell.model.getFeq(),1.0f,1.0f);
+        cell.model.calcFinFunctions(cell.model.getFeq());
         return cell;
     }
 
@@ -79,7 +80,6 @@ public class Lattice {
             for (int x = 0; x < latticeWidth; x++) {
                 cells[y][x].density = cells[y][x].model.calcDensity();
                 cells[y][x].velocity = cells[y][x].model.calcVelocity(cells[y][x].density);
-                //tau = (3f* (latticeHeight-2f)*cells[y][x].velocity.uy)/100f + 0.5f;
                 cells[y][x].model.calcFeqFunctions(cells[y][x].velocity, cells[y][x].density);
                 cells[y][x].model.calcFoutFunctions(
                         (ArrayList<Float>) cells[y][x].model.getFin(),
@@ -103,22 +103,14 @@ public class Lattice {
         //drugi etap: obliczenie operacji streaming i warunki brzegowe (nie uwzględniamy ścian w pętli)
         for (int y = 0; y < latticeHeight; y++) {
             for (int x = 0; x < latticeWidth; x++) {
-                if (cells[y][x].getCellState() == CellState.FLUID) {
-                    ArrayList<Float> neighbourhoodFoutElements = new ArrayList<>(9);
-                    for (int i = 0; i < 9; i++) {
-                        int deltaX = x - cells[y][x].model.getC().get(i).get(0);
-                        int deltaY = y + cells[y][x].model.getC().get(i).get(1);
-                        if (cells[deltaY][deltaX].getCellState() != CellState.WALL) neighbourhoodFoutElements.add(cells[deltaY][deltaX].model.getFout().get(i));
-                        else {
-                            if (i < 5) neighbourhoodFoutElements.add(cells[y][x].model.getFout().get(i+4));
-                            else neighbourhoodFoutElements.add(cells[y][x].model.getFout().get(i-4));
-                        }
-                    }
-                    cells[y][x].model.calcFinFunctions(neighbourhoodFoutElements);
+                List<Cell> neighbourhood = new LinkedList<>();
+                for (int i = 0; i < 9; i++) {
+                    int deltaX = x - cells[y][x].model.getC().get(i).get(0);
+                    int deltaY = y + cells[y][x].model.getC().get(i).get(1);
+                    if (deltaY >= 0 && deltaY <= latticeHeight-1 && deltaX >= 0 && deltaX <= latticeWidth-1) neighbourhood.add(cells[deltaY][deltaX]);
+                    else neighbourhood.add(null);
                 }
-                else {
-                    cells[y][x].model.calcFinFunctions((ArrayList<Float>) cells[y][x].model.getFout());
-                }
+                cells[y][x].model.calcStreamingAndBoundaryConditions(neighbourhood);
             }
         }
         //cells = copy(tmpCells);

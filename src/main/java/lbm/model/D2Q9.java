@@ -4,9 +4,7 @@ import lbm.Cell;
 import lbm.CellState;
 import util.Velocity;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 
 public class D2Q9 extends Model {
     public D2Q9() {
@@ -30,6 +28,7 @@ public class D2Q9 extends Model {
                 new ArrayList<>(Arrays.asList(-1,0)),
                 new ArrayList<>(Arrays.asList(-1,1))
         ));
+        this.neighbourhoodFoutElements = new LinkedList<>();
     }
 
     public D2Q9(D2Q9 model) {
@@ -83,7 +82,7 @@ public class D2Q9 extends Model {
     }
 
     @Override
-    public void calcFinFunctions(ArrayList<Float> f) {
+    public void calcFinFunctions(List<Float> f) {
         fin.clear();
         for (int i = 0; i < 9; i++) {
             this.fin.add(f.get(i));
@@ -107,25 +106,35 @@ public class D2Q9 extends Model {
     }
 
     @Override
-    public void calcStreaming(ArrayList<Cell> cells) {
-        cells.get(0).model.getFin().set(0, cells.get(0).model.getFout().get(0));
-        for (int i = 1; i < 9; i++) {
-            if (cells.get(i) == null) continue;
-            if (cells.get(i).getCellState() == CellState.FLUID) {
-                cells.get(i).model.getFin().set(i, cells.get(0).model.getFout().get(i));
-                //if (cells.get(0).x == 0 && cells.get(0).y == 50 && ref.x == 1 && ref.y == 50) System.out.println( i + ": " + ref.model.getFin().get(i));
-            }
+    public void calcStreamingAndBoundaryConditions(List<Cell> cells) {
+        if (cells.get(0).getCellState() != CellState.FLUID) {
+            cells.get(0).model.calcFinFunctions(cells.get(0).model.getFout());
         }
-    }
-
-    @Override
-    public void calcBoundaryConditions(ArrayList<Cell> cells) {
-        for (int i = 1; i < 9; i++) {
-            if (cells.get(i) == null) continue;
-            if (cells.get(i).getCellState() == CellState.WALL) {
-                if (i < 5) this.getFin().set(i+4, this.getFout().get(i));
-                else this.getFin().set(i-4, this.getFout().get(i));
+        else {
+            neighbourhoodFoutElements.clear();
+            neighbourhoodFoutElements.add(cells.get(0).model.getFout().get(0));
+            for (int i = 1; i < 9; i++) {
+                if (cells.get(i) == null) continue;
+                //Jeśli mamy do czynienia z obszarem zwykłym lub z stałymi warunkami na ścianie
+                if (cells.get(i).getCellState() == CellState.FLUID || cells.get(i).getCellState() == CellState.CONST_BC)
+                    neighbourhoodFoutElements.add(cells.get(i).model.getFout().get(i));
+                //W przypadku bounce-back
+                else if (cells.get(i).getCellState() == CellState.BOUNCE_BACK_BC) {
+                    if (i < 5) neighbourhoodFoutElements.add(cells.get(0).model.getFout().get(i + 4));
+                    else neighbourhoodFoutElements.add(cells.get(0).model.getFout().get(i - 4));
+                }
+                else if (cells.get(i).getCellState() == CellState.SYMMETRY_BC) {
+                    if (i % 2 == 0) {
+                        if (i == 2 || i == 4) neighbourhoodFoutElements.add(cells.get(0).model.getFout().get(i + 2));
+                        else neighbourhoodFoutElements.add(cells.get(0).model.getFout().get(i - 2));
+                    }
+                    else {
+                        if (i == 1 || i == 3) neighbourhoodFoutElements.add(cells.get(0).model.getFout().get(i + 4));
+                        else neighbourhoodFoutElements.add(cells.get(0).model.getFout().get(i - 4));
+                    }
+                }
             }
+            cells.get(0).model.calcFinFunctions(neighbourhoodFoutElements);
         }
     }
 
