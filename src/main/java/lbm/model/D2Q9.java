@@ -115,23 +115,15 @@ public class D2Q9 extends Model {
             neighbourhoodFoutElements.add(cells.get(0).model.getFout().get(0));
             for (int i = 1; i < 9; i++) {
                 if (cells.get(i) == null) continue;
-                //Jeśli mamy do czynienia z obszarem zwykłym lub z stałymi warunkami na ścianie
-                if (cells.get(i).getCellState() == CellState.FLUID || cells.get(i).getCellState() == CellState.CONST_BC)
-                    neighbourhoodFoutElements.add(cells.get(i).model.getFout().get(i));
-                //W przypadku bounce-back
-                else if (cells.get(i).getCellState() == CellState.BOUNCE_BACK_BC) {
-                    if (i < 5) neighbourhoodFoutElements.add(cells.get(0).model.getFout().get(i + 4));
-                    else neighbourhoodFoutElements.add(cells.get(0).model.getFout().get(i - 4));
-                }
-                else if (cells.get(i).getCellState() == CellState.SYMMETRY_BC) {
-                    if (i % 2 == 0) {
-                        if (i == 2 || i == 4) neighbourhoodFoutElements.add(cells.get(0).model.getFout().get(i + 2));
-                        else neighbourhoodFoutElements.add(cells.get(0).model.getFout().get(i - 2));
-                    }
-                    else {
-                        if (i == 1 || i == 3) neighbourhoodFoutElements.add(cells.get(0).model.getFout().get(i + 4));
+                switch (cells.get(i).getCellState()) {
+                    case FLUID, CONST_BC:
+                        neighbourhoodFoutElements.add(cells.get(i).model.getFout().get(i));
+                        break;
+                    case SYMMETRY_BC:
+                    case BOUNCE_BACK_BC:
+                        if (i < 5) neighbourhoodFoutElements.add(cells.get(0).model.getFout().get(i + 4));
                         else neighbourhoodFoutElements.add(cells.get(0).model.getFout().get(i - 4));
-                    }
+                        break;
                 }
             }
             cells.get(0).model.calcFinFunctions(neighbourhoodFoutElements);

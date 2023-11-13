@@ -29,29 +29,17 @@ public class Lattice {
         for (int y = 0; y < latticeHeight; y++) {
             for (int x = 0; x < latticeWidth; x++) {
                 if (y == 0) {
-                    board[y][x] = setInitialValues(x,y,1f,new Velocity(0f,InitValues.UX),CellState.CONST_BC);
+                    board[y][x] = setInitialValues(x,y,1f,new Velocity(0f,0f),CellState.SYMMETRY_BC);
                 }
                 else if (y == latticeHeight-1) {
                     board[y][x] = setInitialValues(x,y,1f,new Velocity(0f,0f),CellState.BOUNCE_BACK_BC);
                 }
-//                else if (x == latticeWidth-1 && y > latticeHeight*0.1 && y < latticeHeight*0.9) {
-//                    board[y][x] = setInitialValues(x,y,1f,new Velocity(0f,0f),CellState.VELOCITY_WALL);
-//                }
                 else if (x == latticeWidth-1) {
-                    board[y][x] = setInitialValues(x,y,1f,new Velocity(0f,0f),CellState.SYMMETRY_BC);
+                    board[y][x] = setInitialValues(x,y,1f,new Velocity(InitValues.UX - (latticeHeight-1-y)*InitValues.UX/100,0f),CellState.CONST_BC);
                 }
-//                else if (x == 0 && y > latticeHeight*0.1 && y < latticeHeight*0.9) {
-//                    board[y][x] = setInitialValues(x,y,1f,new Velocity(InitValues.UX,0.000f),CellState.VELOCITY_WALL);
-//                }
                 else if (x == 0) {
-                    board[y][x] = setInitialValues(x,y,1f,new Velocity(0f,0f,0f),CellState.SYMMETRY_BC);
+                    board[y][x] = setInitialValues(x,y,1f,new Velocity(0f,0f),CellState.CONST_BC);
                 }
-//                else if((x == 20 || x == 21) && ((y > 0 && y < 45) || y > 55 && y < 100)) {
-//                    board[y][x] = setInitialValues(x,y,1f,new Velocity(0f,0f),CellState.WALL);
-//                }
-//                else if(x > latticeWidth*0.15 && x < latticeWidth*0.2 && y >= latticeHeight*0.45 && y <= latticeHeight*0.55) {
-//                    board[y][x] = setInitialValues(x,y,1f,new Velocity(0f,0f),CellState.WALL);
-//                }
                 else {
                     board[y][x] = setInitialValues(x,y,1f,InitValues.velocityInitZero(),CellState.FLUID);
                 }
@@ -98,8 +86,6 @@ public class Lattice {
 
         if (iter % 50 == 0) dataLog(tau);
 
-        //cells = copy(tmpCells);
-        //Cell [][] tmpCells = copy(cells);
         //drugi etap: obliczenie operacji streaming i warunki brzegowe (nie uwzględniamy ścian w pętli)
         for (int y = 0; y < latticeHeight; y++) {
             for (int x = 0; x < latticeWidth; x++) {
@@ -113,7 +99,6 @@ public class Lattice {
                 cells[y][x].model.calcStreamingAndBoundaryConditions(neighbourhood);
             }
         }
-        //cells = copy(tmpCells);
     }
 
     public Cell[][] getCells() {

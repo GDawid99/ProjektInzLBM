@@ -15,8 +15,8 @@ public class VisualCanvas extends Canvas {
             for (int x = 0; x < this.getWidth(); x++) {
                 cell = lattice.getCells()[y][x];
                 if (visualValue.equals("VelocityX")) this.getGraphicsContext2D().getPixelWriter().setColor(x,y,cell.getColor(0.0f,InitValues.UX,cell.velocity.ux));
-                if (visualValue.equals("VelocityY")) this.getGraphicsContext2D().getPixelWriter().setColor(x,y,cell.getColor(0.0f, InitValues.UX ,cell.velocity.uy));
-                if (visualValue.equals("Density")) this.getGraphicsContext2D().getPixelWriter().setColor(x,y,cell.getColor(Lattice.MIN_DENSITY,Lattice.MAX_DENSITY,cell.density));
+                if (visualValue.equals("VelocityY")) this.getGraphicsContext2D().getPixelWriter().setColor(x,y,cell.getColor(-0.003f, 0.004f ,cell.velocity.uy));
+                if (visualValue.equals("Density")) this.getGraphicsContext2D().getPixelWriter().setColor(x,y,cell.getColor(0.9f,1.1f,cell.density));
             }
         }
     }

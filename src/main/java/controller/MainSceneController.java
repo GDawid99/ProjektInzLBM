@@ -19,24 +19,17 @@ public class MainSceneController implements Initializable {
 
     @FXML
     protected VisualCanvas visualCanvas;
-
     private Lattice lattice;
     public static String visualValue = "VelocityX";
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         lattice = new Lattice((int)visualCanvas.getWidth(),(int)visualCanvas.getHeight());
-        final int[] count = {0};
         AnimationTimer animationTimer = new AnimationTimer() {
             @Override
             public void handle(long l) {
                 lattice.executeOperations();
                 visualCanvas.draw(lattice,visualValue);
-                //try {
-                //    Thread.sleep(10);
-                //} catch (InterruptedException e) {
-                //    throw new RuntimeException(e);
-                //}
             }
         };
         animationTimer.start();

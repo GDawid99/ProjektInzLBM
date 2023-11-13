@@ -42,30 +42,14 @@ public class Cell {
         return this.cellState;
     }
 
-    public void setCellState(CellState cellState) {
-        this.cellState = cellState;
-    }
-
-
     public Color getColor(float min, float max, float valueVisualization) {
         switch (cellState) {
             case BOUNCE_BACK_BC, SYMMETRY_BC -> {
                 return Color.color(0,0,0);
             }
             case FLUID, CONST_BC -> {
-//                if (velocity.ux > 0) {
-//                    double color = 1 - velocity.ux / 0.02;
-//                    if (color > 1) color = 1.0;
-//                    if (color < 0) color = 0.0;
-//                    return Color.color(1, color, color);
-//                }
-//                else {
-//                    double color = 1 - Math.abs(velocity.ux) / 0.02;
-//                    if (color > 1) color = 1.0;
-//                    if (color < 0) color = 0.0;
-//                    return Color.color(color, color, 1);
-//                }
-                return calcColorByValue(min, max, valueVisualization);
+                return  calcColorByValueOtherScale(valueVisualization);
+                //return calcColorByValue(min, max, valueVisualization);
             }
 
         }
@@ -73,8 +57,6 @@ public class Cell {
     }
 
     private Color calcColorByValue(double min, double max, double value) {
-        //Color minColor = Color.color(0, 0, 0.75);
-        //Color maxColor = Color.color(0.75, 0, 0);
         if (min > value) return Color.color(0, 0, 0.75);
         if (max < value) return Color.color(0.75, 0, 0);
         double firstColorValue = (value - min)/(max - min), colorValue;
@@ -89,6 +71,21 @@ public class Cell {
         else {
             colorValue =(0.25*(1 - firstColorValue))/(1/6d) + 0.75;
             return Color.color(colorValue, 0, 0);
+        }
+    }
+
+    private Color calcColorByValueOtherScale(double value) {
+        if (value > 0) {
+            double color = 1 - value / 0.02;
+            if (color > 1) color = 1.0;
+            if (color < 0) color = 0.0;
+            return Color.color(1, color, color);
+        }
+        else {
+            double color = 1 - Math.abs(value) / 0.02;
+            if (color > 1) color = 1.0;
+            if (color < 0) color = 0.0;
+            return Color.color(color, color, 1);
         }
     }
 
