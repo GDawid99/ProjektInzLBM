@@ -1,7 +1,6 @@
 package graphics;
 
 import lbm.Cell;
-import lbm.CellState;
 import javafx.scene.canvas.Canvas;
 import lbm.Lattice;
 import lbm.model.InitValues;

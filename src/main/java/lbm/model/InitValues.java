@@ -2,10 +2,6 @@ package lbm.model;
 
 import util.Velocity;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-
 public class InitValues {
     public static final float UX = 0.02f;
     public static Velocity velocityInitZero() {

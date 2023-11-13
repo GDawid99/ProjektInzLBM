@@ -91,8 +91,8 @@ public class Lattice {
             for (int x = 0; x < latticeWidth; x++) {
                 List<Cell> neighbourhood = new LinkedList<>();
                 for (int i = 0; i < 9; i++) {
-                    int deltaX = x - cells[y][x].model.getC().get(i).get(0);
-                    int deltaY = y + cells[y][x].model.getC().get(i).get(1);
+                    int deltaX = x - D2Q9.c.get(i).get(0);
+                    int deltaY = y + D2Q9.c.get(i).get(1);
                     if (deltaY >= 0 && deltaY <= latticeHeight-1 && deltaX >= 0 && deltaX <= latticeWidth-1) neighbourhood.add(cells[deltaY][deltaX]);
                     else neighbourhood.add(null);
                 }

@@ -7,6 +7,8 @@ import util.Velocity;
 import java.util.*;
 
 public class D2Q9 extends Model {
+    public static final List<ArrayList<Integer>> c;
+    public static final List<Float> w;
     public D2Q9() {
         //wartości wejściowej funkcji rozkładu dla każdego kierunku komórki (model D2Q9)
         this.fin = new ArrayList<>(9);
@@ -14,20 +16,6 @@ public class D2Q9 extends Model {
         this.feq = new ArrayList<>(9);
         //wartości wyjściowej funkcji rozkładu dla każdego kierunku komórki (model D2Q9)
         this.fout = new ArrayList<>(9);
-        //współczynniki wag (model D2Q9)
-        this.w = new ArrayList<>(Arrays.asList(4f/9f,1f/9f,1f/36f,1f/9f,1f/36f,1f/9f,1f/36f,1f/9f,1f/36f));
-        //wektory kierunkowe w modelu D2Q9
-        this.c = new ArrayList<>(List.of(
-                new ArrayList<>(Arrays.asList(0,0)),
-                new ArrayList<>(Arrays.asList(0,1)),
-                new ArrayList<>(Arrays.asList(1,1)),
-                new ArrayList<>(Arrays.asList(1,0)),
-                new ArrayList<>(Arrays.asList(1,-1)),
-                new ArrayList<>(Arrays.asList(0,-1)),
-                new ArrayList<>(Arrays.asList(-1,-1)),
-                new ArrayList<>(Arrays.asList(-1,0)),
-                new ArrayList<>(Arrays.asList(-1,1))
-        ));
         this.neighbourhoodFoutElements = new LinkedList<>();
     }
 
@@ -37,20 +25,7 @@ public class D2Q9 extends Model {
         this.feq = new ArrayList<>(model.getFeq());
         //wartości wyjściowej funkcji rozkładu dla każdego kierunku komórki (model D2Q9)
         this.fout = new ArrayList<>(model.getFout());
-        //współczynniki wag (model D2Q9)
-        this.w = new ArrayList<>(Arrays.asList(4f/9f,1f/9f,1f/36f,1f/9f,1f/36f,1f/9f,1f/36f,1f/9f,1f/36f));
-        //wektory kierunkowe w modelu D2Q9
-        this.c = new ArrayList<>(List.of(
-                new ArrayList<>(Arrays.asList(0,0)),
-                new ArrayList<>(Arrays.asList(0,1)),
-                new ArrayList<>(Arrays.asList(1,1)),
-                new ArrayList<>(Arrays.asList(1,0)),
-                new ArrayList<>(Arrays.asList(1,-1)),
-                new ArrayList<>(Arrays.asList(0,-1)),
-                new ArrayList<>(Arrays.asList(-1,-1)),
-                new ArrayList<>(Arrays.asList(-1,0)),
-                new ArrayList<>(Arrays.asList(-1,1))
-        ));
+        this.neighbourhoodFoutElements = new LinkedList<>(model.neighbourhoodFoutElements);
     }
 
     private float scalar_prod(ArrayList<? extends Number> a, Velocity u) {
@@ -128,6 +103,23 @@ public class D2Q9 extends Model {
             }
             cells.get(0).model.calcFinFunctions(neighbourhoodFoutElements);
         }
+    }
+
+    static {
+        //wektory kierunkowe w modelu D2Q9
+        c = new ArrayList<>(List.of(
+                new ArrayList<>(Arrays.asList(0,0)),
+                new ArrayList<>(Arrays.asList(0,1)),
+                new ArrayList<>(Arrays.asList(1,1)),
+                new ArrayList<>(Arrays.asList(1,0)),
+                new ArrayList<>(Arrays.asList(1,-1)),
+                new ArrayList<>(Arrays.asList(0,-1)),
+                new ArrayList<>(Arrays.asList(-1,-1)),
+                new ArrayList<>(Arrays.asList(-1,0)),
+                new ArrayList<>(Arrays.asList(-1,1))
+        ));
+        //współczynniki wag (model D2Q9)
+        w = new ArrayList<>(Arrays.asList(4f/9f,1f/9f,1f/36f,1f/9f,1f/36f,1f/9f,1f/36f,1f/9f,1f/36f));
     }
 
 }

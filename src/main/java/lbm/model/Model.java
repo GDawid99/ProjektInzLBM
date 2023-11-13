@@ -7,8 +7,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 public abstract class Model {
-    protected List<ArrayList<Integer>> c;
-    protected List<Float> w;
     protected List<Float> fin;
     protected List<Float> feq;
     protected List<Float> fout;
@@ -21,10 +19,6 @@ public abstract class Model {
     public abstract void calcFoutFunctions(ArrayList<Float> fin, ArrayList<Float> feq, float time, float tau);
     public abstract void calcStreamingAndBoundaryConditions(List<Cell> cells);
 
-    public List<ArrayList<Integer>> getC() {
-        return c;
-    }
-
     public List<Float> getFin() {
         return fin;
     }
@@ -36,4 +30,5 @@ public abstract class Model {
     public List<Float> getFout() {
         return fout;
     }
+
 }
