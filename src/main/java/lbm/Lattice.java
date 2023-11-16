@@ -1,7 +1,7 @@
 package lbm;
 
 import lbm.model.D2Q9;
-import lbm.model.InitValues;
+import lbm.model.GlobalValues;
 import util.Velocity;
 
 import java.util.ArrayList;
@@ -12,10 +12,6 @@ public class Lattice {
     private Cell[][] cells;
     private int latticeWidth;
     private int latticeHeight;
-    public static Velocity MIN_VELOCITY = new Velocity(0f,0f,0f);
-    public static Velocity MAX_VELOCITY = new Velocity(0f,0f,0f);
-    public static float MIN_DENSITY = 0f;
-    public static float MAX_DENSITY = 0f;
     public int iter = 0;
 
     public Lattice(int width, int height) {
@@ -29,39 +25,45 @@ public class Lattice {
         for (int y = 0; y < latticeHeight; y++) {
             for (int x = 0; x < latticeWidth; x++) {
                 if (y == 0) {
-                    board[y][x] = setInitialValues(x,y,1f,new Velocity(0f,0f),CellState.SYMMETRY_BC);
+                    board[y][x] = setInitialValues(x,y,1f,1f,new Velocity(0f,0f),CellState.CONST_BC);
                 }
                 else if (y == latticeHeight-1) {
-                    board[y][x] = setInitialValues(x,y,1f,new Velocity(0f,0f),CellState.BOUNCE_BACK_BC);
+                    board[y][x] = setInitialValues(x,y,1f,GlobalValues.TEMPERATURE,new Velocity(0f,0f),CellState.CONST_BC);
                 }
                 else if (x == latticeWidth-1) {
-                    board[y][x] = setInitialValues(x,y,1f,new Velocity(InitValues.UX - (latticeHeight-1-y)*InitValues.UX/100,0f),CellState.CONST_BC);
+                    board[y][x] = setInitialValues(x,y,1f,(float)(latticeHeight-1-y)/latticeHeight,new Velocity((latticeHeight-1-y)* GlobalValues.UX/100,0f),CellState.CONST_BC);
                 }
                 else if (x == 0) {
-                    board[y][x] = setInitialValues(x,y,1f,new Velocity(0f,0f),CellState.CONST_BC);
+                    board[y][x] = setInitialValues(x,y,1f,GlobalValues.TEMPERATURE,new Velocity(0f,0f),CellState.CONST_BC);
                 }
+                //else if (x > latticeWidth*0.45  && x < latticeWidth*0.55 && y > latticeHeight*0.7) {
+                //    board[y][x] = setInitialValues(x,y,1f,0f,new Velocity(0f,0f),CellState.BOUNCE_BACK_BC);
+                //}
                 else {
-                    board[y][x] = setInitialValues(x,y,1f,InitValues.velocityInitZero(),CellState.FLUID);
+                    board[y][x] = setInitialValues(x,y,1f,GlobalValues.TEMPERATURE, GlobalValues.velocityInitZero(),CellState.FLUID);
                 }
             }
         }
         return board;
     }
 
-    private Cell setInitialValues(int x, int y, float density, Velocity velocity, CellState cellState) {
-        Cell cell = new Cell(x,y, density, velocity, cellState, new D2Q9());
+    private Cell setInitialValues(int x, int y, float density, float temperature, Velocity velocity, CellState cellState) {
+        Cell cell = new Cell(x,y, density, temperature, velocity, cellState, new D2Q9());
         cell.model.calcFeqFunctions(cell.velocity, cell.density);
         cell.model.calcFinFunctions(cell.model.getFeq());
+        cell.model.calcTeqFunctions(cell.velocity, cell.temperature);
+        cell.model.calcTinFunctions(cell.model.getTeq());
         return cell;
     }
 
     public void executeOperations() {
-        float tau = 1f;
         iter++;
-        MIN_DENSITY = 1f;
-        MAX_DENSITY = 1f;
-        MIN_VELOCITY = new Velocity(0f,0f,0f);
-        MAX_VELOCITY = new Velocity(0f,0f,0f);
+        GlobalValues.MIN_DENSITY = 1f;
+        GlobalValues.MAX_DENSITY = 1f;
+        GlobalValues.MIN_TEMPERATURE = GlobalValues.TEMPERATURE;
+        GlobalValues.MAX_TEMPERATURE = GlobalValues.TEMPERATURE;
+        GlobalValues.MIN_VELOCITY = new Velocity(0f,0f,0f);
+        GlobalValues.MAX_VELOCITY = new Velocity(0f,0f,0f);
 
         //pierwszy etap: obliczenie danych makroskopowych, feq i kolizje
         for (int y = 0; y < latticeHeight; y++) {
@@ -73,20 +75,31 @@ public class Lattice {
                         (ArrayList<Float>) cells[y][x].model.getFin(),
                         (ArrayList<Float>) cells[y][x].model.getFeq(),
                         1.0f,
-                         tau);
-                if (cells[y][x].velocity.ux < MIN_VELOCITY.ux) MIN_VELOCITY.ux = cells[y][x].velocity.ux;
-                if (cells[y][x].velocity.ux > MAX_VELOCITY.ux) MAX_VELOCITY.ux = cells[y][x].velocity.ux;
-                if (cells[y][x].velocity.uy < MIN_VELOCITY.uy) MIN_VELOCITY.uy = cells[y][x].velocity.uy;
-                if (cells[y][x].velocity.uy > MAX_VELOCITY.uy) MAX_VELOCITY.uy = cells[y][x].velocity.uy;
-                if (cells[y][x].density < MIN_DENSITY) MIN_DENSITY = cells[y][x].density;
-                if (cells[y][x].density > MAX_DENSITY) MAX_DENSITY = cells[y][x].density;
+                        GlobalValues.TAU);
 
+                cells[y][x].temperature = cells[y][x].model.calcTemperature();
+                cells[y][x].model.calcTeqFunctions(cells[y][x].velocity, cells[y][x].temperature);
+                cells[y][x].model.calcToutFunctions(
+                        (ArrayList<Float>) cells[y][x].model.getTin(),
+                        (ArrayList<Float>) cells[y][x].model.getTeq(),
+                        1.0f,
+                        GlobalValues.TAU_TEMPERATURE);
+
+
+                if (cells[y][x].velocity.ux < GlobalValues.MIN_VELOCITY.ux) GlobalValues.MIN_VELOCITY.ux = cells[y][x].velocity.ux;
+                if (cells[y][x].velocity.ux > GlobalValues.MAX_VELOCITY.ux) GlobalValues.MAX_VELOCITY.ux = cells[y][x].velocity.ux;
+                if (cells[y][x].velocity.uy < GlobalValues.MIN_VELOCITY.uy) GlobalValues.MIN_VELOCITY.uy = cells[y][x].velocity.uy;
+                if (cells[y][x].velocity.uy > GlobalValues.MAX_VELOCITY.uy) GlobalValues.MAX_VELOCITY.uy = cells[y][x].velocity.uy;
+                if (cells[y][x].density < GlobalValues.MIN_DENSITY) GlobalValues.MIN_DENSITY = cells[y][x].density;
+                if (cells[y][x].density > GlobalValues.MAX_DENSITY) GlobalValues.MAX_DENSITY = cells[y][x].density;
+                if (cells[y][x].temperature < GlobalValues.MIN_TEMPERATURE) GlobalValues.MIN_TEMPERATURE = cells[y][x].temperature;
+                if (cells[y][x].temperature > GlobalValues.MAX_TEMPERATURE) GlobalValues.MAX_TEMPERATURE = cells[y][x].temperature;
             }
         }
 
-        if (iter % 50 == 0) dataLog(tau);
+        if (iter % 50 == 0) dataLog();
 
-        //drugi etap: obliczenie operacji streaming i warunki brzegowe (nie uwzględniamy ścian w pętli)
+        //drugi etap: obliczenie operacji streaming i warunki brzegowe
         for (int y = 0; y < latticeHeight; y++) {
             for (int x = 0; x < latticeWidth; x++) {
                 List<Cell> neighbourhood = new LinkedList<>();
@@ -116,15 +129,19 @@ public class Lattice {
         return copy;
     }
 
-    private void dataLog(float tau) {
+    private void dataLog() {
         System.out.println("Iteration: " + iter);
         System.out.println("Velocity:");
-        System.out.println("MIN: " + MIN_VELOCITY);
-        System.out.println("MAX: " + MAX_VELOCITY);
+        System.out.println("MIN: " + GlobalValues.MIN_VELOCITY);
+        System.out.println("MAX: " + GlobalValues.MAX_VELOCITY);
         System.out.println("Density:");
-        System.out.println("MIN: " + MIN_DENSITY);
-        System.out.println("MAX: " + MAX_DENSITY);
-        System.out.println("Tau: " + tau);
+        System.out.println("MIN: " + GlobalValues.MIN_DENSITY);
+        System.out.println("MAX: " + GlobalValues.MAX_DENSITY);
+        System.out.println("Temperature:");
+        System.out.println("MIN: " + GlobalValues.MIN_TEMPERATURE);
+        System.out.println("MAX: " + GlobalValues.MAX_TEMPERATURE);
+        System.out.println("Tau: " + GlobalValues.TAU);
+        System.out.println("Temp. Tau: " + GlobalValues.TAU_TEMPERATURE);
         System.out.println("---------------------");
     }
 

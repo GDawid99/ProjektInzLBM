@@ -3,6 +3,7 @@ package lbm;
 
 import javafx.scene.paint.Color;
 import lbm.model.D2Q9;
+import lbm.model.GlobalValues;
 import lbm.model.Model;
 import util.Velocity;
 
@@ -17,6 +18,7 @@ public class Cell {
     private CellState cellState;
     public float density;
     public Velocity velocity;
+    public float temperature;
 
 
 
@@ -26,6 +28,17 @@ public class Cell {
         this.model = model;
         this.cellState = state;
         this.density = density;
+        this.temperature = 0f;
+        this.velocity = velocity;
+    }
+
+    public Cell(int x, int y, float density, float temperature, Velocity velocity, CellState state, Model model) {
+        this.x = x;
+        this.y = y;
+        this.model = model;
+        this.cellState = state;
+        this.density = density;
+        this.temperature = temperature;
         this.velocity = velocity;
     }
 
@@ -48,8 +61,8 @@ public class Cell {
                 return Color.color(0,0,0);
             }
             case FLUID, CONST_BC -> {
-                return  calcColorByValueOtherScale(valueVisualization);
-                //return calcColorByValue(min, max, valueVisualization);
+                //return  calcColorByValueOtherScale(valueVisualization);
+                return calcColorByValue(min, max, valueVisualization);
             }
 
         }
@@ -76,13 +89,13 @@ public class Cell {
 
     private Color calcColorByValueOtherScale(double value) {
         if (value > 0) {
-            double color = 1 - value / 0.02;
+            double color = 1 - value / GlobalValues.UX;
             if (color > 1) color = 1.0;
             if (color < 0) color = 0.0;
             return Color.color(1, color, color);
         }
         else {
-            double color = 1 - Math.abs(value) / 0.02;
+            double color = 1 - Math.abs(value) / GlobalValues.UX;
             if (color > 1) color = 1.0;
             if (color < 0) color = 0.0;
             return Color.color(color, color, 1);

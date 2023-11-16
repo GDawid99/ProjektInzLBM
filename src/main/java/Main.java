@@ -23,6 +23,7 @@ public class Main extends Application {
         EventHandler<MouseEvent> eventHandler = e -> {
             if (MainSceneController.visualValue.equals("VelocityX")) MainSceneController.visualValue = "VelocityY";
             else if (MainSceneController.visualValue.equals("VelocityY")) MainSceneController.visualValue = "Density";
+            else if (MainSceneController.visualValue.equals("Density")) MainSceneController.visualValue = "Temperature";
             else MainSceneController.visualValue = "VelocityX";
         };
         //Adding event Filter
