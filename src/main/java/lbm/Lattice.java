@@ -13,6 +13,8 @@ public class Lattice {
     private int latticeWidth;
     private int latticeHeight;
     public int iter = 0;
+    public float avg_density;
+    public Velocity avg_velocity;
 
     public Lattice(int width, int height) {
         this.latticeWidth = width;
@@ -25,20 +27,20 @@ public class Lattice {
         for (int y = 0; y < latticeHeight; y++) {
             for (int x = 0; x < latticeWidth; x++) {
                 if (y == 0) {
-                    board[y][x] = setInitialValues(x,y,1f,1f,new Velocity(0f,0f),CellState.CONST_BC);
+                    board[y][x] = setInitialValues(x,y,1f,1f,new Velocity(GlobalValues.UX,0f),CellState.CONST_BC);
                 }
                 else if (y == latticeHeight-1) {
-                    board[y][x] = setInitialValues(x,y,1f,GlobalValues.TEMPERATURE,new Velocity(0f,0f),CellState.CONST_BC);
+                    board[y][x] = setInitialValues(x,y,1f,1f,new Velocity(0f,0f),CellState.BOUNCE_BACK_BC);
                 }
                 else if (x == latticeWidth-1) {
-                    board[y][x] = setInitialValues(x,y,1f,(float)(latticeHeight-1-y)/latticeHeight,new Velocity((latticeHeight-1-y)* GlobalValues.UX/100,0f),CellState.CONST_BC);
+                    board[y][x] = setInitialValues(x,y,1f,GlobalValues.TEMPERATURE,new Velocity((latticeHeight-1-y)*GlobalValues.UX/latticeHeight,0f),CellState.CONST_BC);
                 }
                 else if (x == 0) {
-                    board[y][x] = setInitialValues(x,y,1f,GlobalValues.TEMPERATURE,new Velocity(0f,0f),CellState.CONST_BC);
+                    board[y][x] = setInitialValues(x,y,1f,GlobalValues.TEMPERATURE,new Velocity((latticeHeight-1-y)*GlobalValues.UX/latticeHeight,0f),CellState.CONST_BC);
                 }
-                //else if (x > latticeWidth*0.45  && x < latticeWidth*0.55 && y > latticeHeight*0.7) {
-                //    board[y][x] = setInitialValues(x,y,1f,0f,new Velocity(0f,0f),CellState.BOUNCE_BACK_BC);
-                //}
+                else if (x > latticeWidth*0.45  && x < latticeWidth*0.55 && y > latticeHeight*0.7) {
+                    board[y][x] = setInitialValues(x,y,1f,0f,new Velocity(0f,0f),CellState.BOUNCE_BACK_BC);
+                }
                 else {
                     board[y][x] = setInitialValues(x,y,1f,GlobalValues.TEMPERATURE, GlobalValues.velocityInitZero(),CellState.FLUID);
                 }
@@ -58,12 +60,9 @@ public class Lattice {
 
     public void executeOperations() {
         iter++;
-        GlobalValues.MIN_DENSITY = 1f;
-        GlobalValues.MAX_DENSITY = 1f;
-        GlobalValues.MIN_TEMPERATURE = GlobalValues.TEMPERATURE;
-        GlobalValues.MAX_TEMPERATURE = GlobalValues.TEMPERATURE;
-        GlobalValues.MIN_VELOCITY = new Velocity(0f,0f,0f);
-        GlobalValues.MAX_VELOCITY = new Velocity(0f,0f,0f);
+        GlobalValues.initGlobalValues();
+        avg_density = 0f;
+        avg_velocity = new Velocity(0f,0f);
 
         //pierwszy etap: obliczenie danych makroskopowych, feq i kolizje
         for (int y = 0; y < latticeHeight; y++) {
@@ -86,6 +85,9 @@ public class Lattice {
                         GlobalValues.TAU_TEMPERATURE);
 
 
+                avg_density += cells[y][x].density;
+                avg_velocity.ux += cells[y][x].velocity.ux;
+                avg_velocity.uy += cells[y][x].velocity.uy;
                 if (cells[y][x].velocity.ux < GlobalValues.MIN_VELOCITY.ux) GlobalValues.MIN_VELOCITY.ux = cells[y][x].velocity.ux;
                 if (cells[y][x].velocity.ux > GlobalValues.MAX_VELOCITY.ux) GlobalValues.MAX_VELOCITY.ux = cells[y][x].velocity.ux;
                 if (cells[y][x].velocity.uy < GlobalValues.MIN_VELOCITY.uy) GlobalValues.MIN_VELOCITY.uy = cells[y][x].velocity.uy;
@@ -97,8 +99,11 @@ public class Lattice {
             }
         }
 
-        if (iter % 50 == 0) dataLog();
-
+        if (iter % 50 == 0) {
+            dataLog();
+            System.out.println("AVERAGE DENSITY:" + (avg_density / (latticeHeight * latticeWidth)));
+            System.out.println("AVERAGE VELOCITY: [" + (avg_velocity.ux / (latticeHeight * latticeWidth)) + ", " + (avg_velocity.uy / (latticeHeight * latticeWidth)) + "]");
+        }
         //drugi etap: obliczenie operacji streaming i warunki brzegowe
         for (int y = 0; y < latticeHeight; y++) {
             for (int x = 0; x < latticeWidth; x++) {

@@ -13,16 +13,12 @@ public class VisualCanvas extends Canvas {
         for (int y = 0; y < this.getHeight(); y++) {
             for (int x = 0; x < this.getWidth(); x++) {
                 cell = lattice.getCells()[y][x];
-                if (visualValue.equals("VelocityX")) this.getGraphicsContext2D().getPixelWriter().setColor(x,y,cell.getColor(0.0f, GlobalValues.UX,cell.velocity.ux));
-                if (visualValue.equals("VelocityY")) this.getGraphicsContext2D().getPixelWriter().setColor(x,y,cell.getColor(-0.003f, 0.004f ,cell.velocity.uy));
-                if (visualValue.equals("Density")) this.getGraphicsContext2D().getPixelWriter().setColor(x,y,cell.getColor(0.9f,1.1f,cell.density));
-                if (visualValue.equals("Temperature")) this.getGraphicsContext2D().getPixelWriter().setColor(x,y,cell.getColor(GlobalValues.MIN_TEMPERATURE,GlobalValues.MAX_TEMPERATURE,cell.temperature));
+                if (visualValue.equals("VelocityX")) this.getGraphicsContext2D().getPixelWriter().setColor(x,y,cell.getColor(GlobalValues.MIN_VELOCITY.ux, GlobalValues.MAX_VELOCITY.ux,cell.velocity.ux));
+                if (visualValue.equals("VelocityY")) this.getGraphicsContext2D().getPixelWriter().setColor(x,y,cell.getColor(GlobalValues.MIN_VELOCITY.uy, GlobalValues.MAX_VELOCITY.uy ,cell.velocity.uy));
+                if (visualValue.equals("Density")) this.getGraphicsContext2D().getPixelWriter().setColor(x,y,cell.getColor(GlobalValues.MIN_DENSITY,GlobalValues.MAX_DENSITY,cell.density));
+                if (visualValue.equals("Temperature")) this.getGraphicsContext2D().getPixelWriter().setColor(x,y,cell.getColor(0.0f,1.0f,cell.temperature));
             }
         }
-    }
-
-    public void init() {
-        resize(this.getWidth()+2,this.getHeight()+2);   //powiększamy domyślny rozmiar płótna o 2 dla ścian
     }
 
     @Override

@@ -18,6 +18,8 @@ public class MainSceneController implements Initializable {
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
+        visualCanvas.setScaleX(3);
+        visualCanvas.setScaleY(3);
         lattice = new Lattice((int)visualCanvas.getWidth(),(int)visualCanvas.getHeight());
         AnimationTimer animationTimer = new AnimationTimer() {
             @Override

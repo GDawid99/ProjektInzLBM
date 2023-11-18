@@ -1,5 +1,6 @@
 package lbm.model;
 
+import com.sun.javafx.geom.Vec2f;
 import lbm.Cell;
 import lbm.CellState;
 import util.Velocity;
@@ -42,7 +43,7 @@ public class D2Q9 extends Model {
     }
 
     private float calc(ArrayList<Integer> c_i, Velocity u, float w_i , float variable) {
-        return w_i * variable * (1f+ (3f * scalar_prod(c_i, u)) + (4.5f * (float)Math.pow(scalar_prod(c_i,u),2)) - (1.5f * (float)Math.pow((u.ux + u.uy),2)));
+        return w_i * variable * (1f + (3f * scalar_prod(c_i, u)) + (4.5f * (float)Math.pow(scalar_prod(c_i,u),2)) - (1.5f * (float)Math.pow((u.ux + u.uy),2)));
     }
 
     public float calcDensity() {

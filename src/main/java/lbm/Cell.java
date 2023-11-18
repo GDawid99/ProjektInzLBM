@@ -1,6 +1,7 @@
 package lbm;
 
 
+import controller.MainSceneController;
 import javafx.scene.paint.Color;
 import lbm.model.D2Q9;
 import lbm.model.GlobalValues;
@@ -61,8 +62,8 @@ public class Cell {
                 return Color.color(0,0,0);
             }
             case FLUID, CONST_BC -> {
-                //return  calcColorByValueOtherScale(valueVisualization);
-                return calcColorByValue(min, max, valueVisualization);
+                if (MainSceneController.visualValue.equals("VelocityX") || MainSceneController.visualValue.equals("VelocityY")) return  calcColorByValueOtherScale(valueVisualization, max);
+                else return calcColorByValue(min, max, valueVisualization);
             }
 
         }
@@ -87,15 +88,15 @@ public class Cell {
         }
     }
 
-    private Color calcColorByValueOtherScale(double value) {
+    private Color calcColorByValueOtherScale(double value, double max) {
         if (value > 0) {
-            double color = 1 - value / GlobalValues.UX;
+            double color = 1 - value / max;
             if (color > 1) color = 1.0;
             if (color < 0) color = 0.0;
             return Color.color(1, color, color);
         }
         else {
-            double color = 1 - Math.abs(value) / GlobalValues.UX;
+            double color = 1 - Math.abs(value) / max;
             if (color > 1) color = 1.0;
             if (color < 0) color = 0.0;
             return Color.color(color, color, 1);
