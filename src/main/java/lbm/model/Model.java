@@ -25,7 +25,8 @@ public abstract class Model {
     public abstract void calcTinFunctions(List<Float> t);
     public abstract void calcTeqFunctions(Velocity velocity, float temperature);
     public abstract void calcToutFunctions(ArrayList<Float> tin, ArrayList<Float> teq, float time, float tau);
-    public abstract void calcStreamingAndBoundaryConditions(List<Cell> cells);
+    public abstract void calcStreaming(List<Cell> cells);
+    public abstract void calcBoundaryConditions(Cell cell, String direction);
 
     public List<Float> getFin() {
         return fin;

@@ -1,6 +1,5 @@
 package lbm.model;
 
-import com.sun.javafx.geom.Vec2f;
 import lbm.Cell;
 import lbm.CellState;
 import util.Velocity;
@@ -43,12 +42,13 @@ public class D2Q9 extends Model {
     }
 
     private float calc(ArrayList<Integer> c_i, Velocity u, float w_i , float variable) {
-        return w_i * variable * (1f + (3f * scalar_prod(c_i, u)) + (4.5f * (float)Math.pow(scalar_prod(c_i,u),2)) - (1.5f * (float)Math.pow((u.ux + u.uy),2)));
+        return w_i * variable * (1f + (3f * scalar_prod(c_i, u)) + (4.5f * scalar_prod(c_i,u) * scalar_prod(c_i,u)) - (1.5f * (u.ux*u.ux + u.uy*u.uy)));
     }
 
     public float calcDensity() {
         float d = 0f;
         for (int i =0 ; i < 9; i++) {
+            if (this.fin.get(i) == null) System.out.println(i);
             d += this.fin.get(i);
         }
         return d;
@@ -65,8 +65,8 @@ public class D2Q9 extends Model {
     public Velocity calcVelocity(float density) {
         float ux = 0f, uy = 0f;
         for (int i = 0; i < 9; i++) {
-            ux += this.fin.get(i) * this.c.get(i).get(0);
-            uy += this.fin.get(i) * this.c.get(i).get(1);
+            ux += this.fin.get(i) * c.get(i).get(0);
+            uy += this.fin.get(i) * c.get(i).get(1);
         }
         ux /= density;
         uy /= density;
@@ -123,38 +123,159 @@ public class D2Q9 extends Model {
     }
 
     @Override
-    public void calcStreamingAndBoundaryConditions(List<Cell> cells) {
-        if (cells.get(0).getCellState() != CellState.FLUID) {
-            cells.get(0).model.calcFinFunctions(cells.get(0).model.getFout());
-            cells.get(0).model.calcTinFunctions(cells.get(0).model.getTout());
+    public void calcStreaming(List<Cell> cells) {
+        neighbourhoodFoutElements.clear();
+        //neighbourhoodToutElements.clear();
+        neighbourhoodFoutElements.add(cells.get(0).model.getFout().get(0));
+        //neighbourhoodToutElements.add(cells.get(0).model.getTout().get(0));
+        for (int i = 1; i < 9; i++) {
+            if (cells.get(i) == null) {
+                neighbourhoodFoutElements.add(null);
+                //neighbourhoodToutElements.add(null);
+            }
+            else {
+                neighbourhoodFoutElements.add(cells.get(i).model.getFout().get(i));
+                //neighbourhoodToutElements.add(cells.get(i).model.getTout().get(i));
+            }
         }
-        else {
-            neighbourhoodFoutElements.clear();
-            neighbourhoodToutElements.clear();
-            neighbourhoodFoutElements.add(cells.get(0).model.getFout().get(0));
-            neighbourhoodToutElements.add(cells.get(0).model.getTout().get(0));
-            for (int i = 1; i < 9; i++) {
-                if (cells.get(i) == null) continue;
-                switch (cells.get(i).getCellState()) {
-                    case FLUID, CONST_BC:
-                        neighbourhoodFoutElements.add(cells.get(i).model.getFout().get(i));
-                        neighbourhoodToutElements.add(cells.get(i).model.getTout().get(i));
-                        break;
-                    case SYMMETRY_BC:
-                    case BOUNCE_BACK_BC:
-                        if (i < 5) {
-                            neighbourhoodFoutElements.add(cells.get(0).model.getFout().get(i + 4));
-                            neighbourhoodToutElements.add(cells.get(0).model.getTout().get(i + 4));
+        cells.get(0).model.calcFinFunctions(neighbourhoodFoutElements);
+        //cells.get(0).model.calcTinFunctions(neighbourhoodToutElements);
+    }
+
+    @Override
+    public void calcBoundaryConditions(Cell cell, String direction) {
+        Velocity v = new Velocity(0.0f,0.0f);
+        float density = 1f;
+        switch (cell.getCellState()) {
+            case CONST_BC -> {
+                cell.model.calcFinFunctions(cell.model.getFout());
+                //cell.model.calcTinFunctions(cell.model.getTout());
+            }
+            case BOUNCE_BACK_BC -> {
+//                for (int i = 0; i < 9; i++) {
+//                    if (cell.model.getFin().get(i) == null) {
+                        if (direction.equals("N")) {
+                            cell.model.fin.set(4,cell.model.getFout().get(8));
+                            cell.model.fin.set(5,cell.model.getFout().get(1));
+                            cell.model.fin.set(6,cell.model.getFout().get(2));
                         }
-                        else {
-                            neighbourhoodFoutElements.add(cells.get(0).model.getFout().get(i - 4));
-                            neighbourhoodToutElements.add(cells.get(0).model.getTout().get(i - 4));
+                        else if (direction.equals("S")) {
+                            cell.model.fin.set(8,cell.model.getFout().get(4));
+                            cell.model.fin.set(1,cell.model.getFout().get(5));
+                            cell.model.fin.set(2,cell.model.getFout().get(6));
                         }
-                        break;
+                        else if (direction.equals("W")) {
+                            cell.model.fin.set(2,cell.model.getFout().get(6));
+                            cell.model.fin.set(3,cell.model.getFout().get(7));
+                            cell.model.fin.set(4,cell.model.getFout().get(8));
+                        }
+                        else if (direction.equals("E")) {
+                            cell.model.fin.set(6,cell.model.getFout().get(2));
+                            cell.model.fin.set(7,cell.model.getFout().get(3));
+                            cell.model.fin.set(8,cell.model.getFout().get(4));
+                        }
+                        else if (direction.equals("NW")) {
+                            cell.model.fin.set(2,cell.model.getFout().get(8));
+                            cell.model.fin.set(3,cell.model.getFout().get(7));
+                            cell.model.fin.set(4,cell.model.getFout().get(8));
+                            cell.model.fin.set(5,cell.model.getFout().get(1));
+                            cell.model.fin.set(6,cell.model.getFout().get(8));
+                        }
+                        else if (direction.equals("NE")) {
+                            cell.model.fin.set(4,cell.model.getFout().get(2));
+                            cell.model.fin.set(5,cell.model.getFout().get(1));
+                            cell.model.fin.set(6,cell.model.getFout().get(2));
+                            cell.model.fin.set(7,cell.model.getFout().get(3));
+                            cell.model.fin.set(8,cell.model.getFout().get(2));
+                        }
+                        else if (direction.equals("SW")) {
+                            cell.model.fin.set(8,cell.model.getFout().get(6));
+                            cell.model.fin.set(1,cell.model.getFout().get(5));
+                            cell.model.fin.set(2,cell.model.getFout().get(6));
+                            cell.model.fin.set(3,cell.model.getFout().get(7));
+                            cell.model.fin.set(4,cell.model.getFout().get(6));
+                        }
+                        else if (direction.equals("SE")) {
+                            cell.model.fin.set(6,cell.model.getFout().get(4));
+                            cell.model.fin.set(7,cell.model.getFout().get(3));
+                            cell.model.fin.set(8,cell.model.getFout().get(4));
+                            cell.model.fin.set(1,cell.model.getFout().get(5));
+                            cell.model.fin.set(2,cell.model.getFout().get(4));
+                        }
+//                for (int i = 0; i < 9; i++) {
+//                    if (cell.model.getFin().get(i) == null) System.out.println("null DETECTED! x:" + cell.x + ",y:" + cell.y + "; fi=" + i);
+//                }
+//                    }
+//                }
+            }
+            case OPEN_DENSITY_BC -> {
+                density = 1f;
+                if (direction.equals("N")) {
+                    v.uy = -1 + (cell.model.fin.get(0) + cell.model.fin.get(3) + cell.model.fin.get(7)
+                            + 2 * cell.model.fin.get(8) + 2 * cell.model.fin.get(1) + 2 * cell.model.fin.get(2))/density;
+                    v.ux = 6*(cell.model.fin.get(3) - cell.model.fin.get(7) + cell.model.fin.get(8) - cell.model.fin.get(2))/(density*(5+3*v.uy));
+                }
+                else if (direction.equals("S")) {
+                    v.uy = 1 - (cell.model.fin.get(0) + cell.model.fin.get(3) + cell.model.fin.get(7)
+                            + 2 * cell.model.fin.get(4) + 2 * cell.model.fin.get(5) + 2 * cell.model.fin.get(6))/density;
+                    v.ux = 6*(cell.model.fin.get(3) - cell.model.fin.get(7) + cell.model.fin.get(6) - cell.model.fin.get(4))/(density*(5-3*v.uy));
+                }
+                else if (direction.equals("W")) {
+                    v.ux = 1 - (cell.model.fin.get(0) + cell.model.fin.get(1) + cell.model.fin.get(5)
+                            + 2 * cell.model.fin.get(6) + 2 * cell.model.fin.get(7) + 2 * cell.model.fin.get(8))/density;
+                    v.uy = 6*(cell.model.fin.get(1) - cell.model.fin.get(5) + cell.model.fin.get(8) - cell.model.fin.get(6))/(density*(5-3*v.ux));
+                }
+                else if (direction.equals("E")) {
+                    v.ux = -1 + (cell.model.fin.get(0) + cell.model.fin.get(1) + cell.model.fin.get(5)
+                            + 2 * cell.model.fin.get(2) + 2 * cell.model.fin.get(3) + 2 * cell.model.fin.get(4))/density;
+                    v.uy = 6*(cell.model.fin.get(1) - cell.model.fin.get(5) + cell.model.fin.get(2) - cell.model.fin.get(4))/(density*(5+3*v.ux));
                 }
             }
-            cells.get(0).model.calcFinFunctions(neighbourhoodFoutElements);
-            cells.get(0).model.calcTinFunctions(neighbourhoodToutElements);
+            case OPEN_VELOCITY_BC -> {
+                v = new Velocity(GlobalValues.UX,0f);
+                if (direction.equals("N")) {
+                    density = (cell.model.fin.get(0) + cell.model.fin.get(3) + cell.model.fin.get(7)
+                            + 2 * cell.model.fin.get(8) + 2 * cell.model.fin.get(1) + 2 * cell.model.fin.get(2))/(1 + v.uy);
+                    v.ux = 6*(cell.model.fin.get(3) - cell.model.fin.get(7) + cell.model.fin.get(8) - cell.model.fin.get(2))/(density*(5+3*v.uy));
+                }
+                else if (direction.equals("S")) {
+                    density = (cell.model.fin.get(0) + cell.model.fin.get(3) + cell.model.fin.get(7)
+                            + 2 * cell.model.fin.get(4) + 2 * cell.model.fin.get(5) + 2 * cell.model.fin.get(6))/(1 - v.uy);
+                    v.ux = 6*(cell.model.fin.get(3) - cell.model.fin.get(7) + cell.model.fin.get(6) - cell.model.fin.get(4))/(density*(5-3*v.uy));
+                }
+                else if (direction.equals("W")) {
+                    density = (cell.model.fin.get(0) + cell.model.fin.get(1) + cell.model.fin.get(5)
+                            + 2 * cell.model.fin.get(6) + 2 * cell.model.fin.get(7) + 2 * cell.model.fin.get(8))/(1 - v.ux);
+                    v.uy = 6*(cell.model.fin.get(1) - cell.model.fin.get(5) + cell.model.fin.get(8) - cell.model.fin.get(6))/(density*(5-3*v.ux));
+                }
+                else if (direction.equals("E")) {
+                    density = (cell.model.fin.get(0) + cell.model.fin.get(1) + cell.model.fin.get(5)
+                            + 2 * cell.model.fin.get(2) + 2 * cell.model.fin.get(3) + 2 * cell.model.fin.get(4))/(1 + v.ux);
+                    v.uy = 6*(cell.model.fin.get(1) - cell.model.fin.get(5) + cell.model.fin.get(2) - cell.model.fin.get(4))/(density*(5+3*v.ux));
+                }
+            }
+        }
+        if (cell.getCellState() == CellState.OPEN_VELOCITY_BC || cell.getCellState() == CellState.OPEN_DENSITY_BC) {
+            if (direction.equals("N")) {
+                cell.model.fin.set(4,cell.model.fin.get(8) + density*(v.ux+v.uy)/6);
+                cell.model.fin.set(5,cell.model.fin.get(1) - 2*density*v.uy/3);
+                cell.model.fin.set(6,cell.model.fin.get(2) - density*(v.ux-v.uy)/6);
+            }
+            else if (direction.equals("S")) {
+                cell.model.fin.set(8,cell.model.fin.get(4) + density*(v.ux+v.uy)/6);
+                cell.model.fin.set(1,cell.model.fin.get(5) + 2*density*v.uy/3);
+                cell.model.fin.set(2,cell.model.fin.get(6) - density*(v.ux-v.uy)/6);
+            }
+            else if (direction.equals("W")) {
+                cell.model.fin.set(2,cell.model.fin.get(6) + density*(v.ux-v.uy)/6);
+                cell.model.fin.set(3,cell.model.fin.get(7) + 2*density*v.ux/3);
+                cell.model.fin.set(4,cell.model.fin.get(8) + density*(v.ux+v.uy)/6);
+            }
+            else if (direction.equals("E")) {
+                cell.model.fin.set(6,cell.model.fin.get(2) - density*(v.ux-v.uy)/6);
+                cell.model.fin.set(7,cell.model.fin.get(3) - 2*density*v.ux/3);
+                cell.model.fin.set(8,cell.model.fin.get(4) - density*(v.ux+v.uy)/6);
+            }
         }
     }
 

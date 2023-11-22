@@ -27,20 +27,20 @@ public class Lattice {
         for (int y = 0; y < latticeHeight; y++) {
             for (int x = 0; x < latticeWidth; x++) {
                 if (y == 0) {
-                    board[y][x] = setInitialValues(x,y,1f,1f,new Velocity(GlobalValues.UX,0f),CellState.CONST_BC);
+                    board[y][x] = setInitialValues(x,y,1f,1f,new Velocity(0f,0f),CellState.BOUNCE_BACK_BC);
                 }
                 else if (y == latticeHeight-1) {
                     board[y][x] = setInitialValues(x,y,1f,1f,new Velocity(0f,0f),CellState.BOUNCE_BACK_BC);
                 }
                 else if (x == latticeWidth-1) {
-                    board[y][x] = setInitialValues(x,y,1f,GlobalValues.TEMPERATURE,new Velocity((latticeHeight-1-y)*GlobalValues.UX/latticeHeight,0f),CellState.CONST_BC);
+                    board[y][x] = setInitialValues(x,y,1f,GlobalValues.TEMPERATURE,new Velocity(0f,0f),CellState.OPEN_DENSITY_BC);
                 }
                 else if (x == 0) {
-                    board[y][x] = setInitialValues(x,y,1f,GlobalValues.TEMPERATURE,new Velocity((latticeHeight-1-y)*GlobalValues.UX/latticeHeight,0f),CellState.CONST_BC);
+                    board[y][x] = setInitialValues(x,y,1f,GlobalValues.TEMPERATURE,new Velocity(GlobalValues.UX,0f),CellState.OPEN_VELOCITY_BC);
                 }
-                else if (x > latticeWidth*0.45  && x < latticeWidth*0.55 && y > latticeHeight*0.7) {
-                    board[y][x] = setInitialValues(x,y,1f,0f,new Velocity(0f,0f),CellState.BOUNCE_BACK_BC);
-                }
+//                else if (x > latticeWidth*0.45  && x < latticeWidth*0.55 && y > latticeHeight*0.7) {
+//                    board[y][x] = setInitialValues(x,y,1f,0f,new Velocity(0f,0f),CellState.BOUNCE_BACK_BC);
+//                }
                 else {
                     board[y][x] = setInitialValues(x,y,1f,GlobalValues.TEMPERATURE, GlobalValues.velocityInitZero(),CellState.FLUID);
                 }
@@ -76,13 +76,13 @@ public class Lattice {
                         1.0f,
                         GlobalValues.TAU);
 
-                cells[y][x].temperature = cells[y][x].model.calcTemperature();
-                cells[y][x].model.calcTeqFunctions(cells[y][x].velocity, cells[y][x].temperature);
-                cells[y][x].model.calcToutFunctions(
-                        (ArrayList<Float>) cells[y][x].model.getTin(),
-                        (ArrayList<Float>) cells[y][x].model.getTeq(),
-                        1.0f,
-                        GlobalValues.TAU_TEMPERATURE);
+                //cells[y][x].temperature = cells[y][x].model.calcTemperature();
+                //cells[y][x].model.calcTeqFunctions(cells[y][x].velocity, cells[y][x].temperature);
+                //cells[y][x].model.calcToutFunctions(
+                //        (ArrayList<Float>) cells[y][x].model.getTin(),
+                //        (ArrayList<Float>) cells[y][x].model.getTeq(),
+                //        1.0f,
+                //        GlobalValues.TAU_TEMPERATURE);
 
 
                 avg_density += cells[y][x].density;
@@ -114,7 +114,16 @@ public class Lattice {
                     if (deltaY >= 0 && deltaY <= latticeHeight-1 && deltaX >= 0 && deltaX <= latticeWidth-1) neighbourhood.add(cells[deltaY][deltaX]);
                     else neighbourhood.add(null);
                 }
-                cells[y][x].model.calcStreamingAndBoundaryConditions(neighbourhood);
+                cells[y][x].model.calcStreaming(neighbourhood);
+                if (x == 0 && y == 0) cells[y][x].model.calcBoundaryConditions(cells[y][x],"NW");
+                else if (x == 0 && y == latticeHeight-1) cells[y][x].model.calcBoundaryConditions(cells[y][x],"SW");
+                else if (x == latticeWidth-1 && y == 0) cells[y][x].model.calcBoundaryConditions(cells[y][x],"NE");
+                else if (x == latticeWidth-1 && y == latticeHeight-1) cells[y][x].model.calcBoundaryConditions(cells[y][x],"SE");
+                else if (x == 0) cells[y][x].model.calcBoundaryConditions(cells[y][x],"W");
+                else if (y == 0) cells[y][x].model.calcBoundaryConditions(cells[y][x],"N");
+                else if (x == latticeWidth-1) cells[y][x].model.calcBoundaryConditions(cells[y][x],"E");
+                else if (y == latticeHeight-1) cells[y][x].model.calcBoundaryConditions(cells[y][x],"S");
+
             }
         }
     }

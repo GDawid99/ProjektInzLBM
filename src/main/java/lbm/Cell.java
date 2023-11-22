@@ -58,10 +58,10 @@ public class Cell {
 
     public Color getColor(float min, float max, float valueVisualization) {
         switch (cellState) {
-            case BOUNCE_BACK_BC, SYMMETRY_BC -> {
-                return Color.color(0,0,0);
-            }
-            case FLUID, CONST_BC -> {
+//            case BOUNCE_BACK_BC -> {
+//                return Color.color(0,0,0);
+//            }
+            case FLUID, CONST_BC, BOUNCE_BACK_BC, OPEN_VELOCITY_BC, OPEN_DENSITY_BC -> {
                 if (MainSceneController.visualValue.equals("VelocityX") || MainSceneController.visualValue.equals("VelocityY")) return  calcColorByValueOtherScale(valueVisualization, max);
                 else return calcColorByValue(min, max, valueVisualization);
             }
