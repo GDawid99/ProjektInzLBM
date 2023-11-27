@@ -19,18 +19,10 @@ public class Main extends Application {
     public void start(Stage stage) throws Exception {
         Parent root = FXMLLoader.load(Objects.requireNonNull(getClass().getResource("main_scene.fxml")));
 
-        Scene scene = new Scene(root,900, 600);
-        EventHandler<MouseEvent> eventHandler = e -> {
-            if (MainSceneController.visualValue.equals("VelocityX")) MainSceneController.visualValue = "VelocityY";
-            else if (MainSceneController.visualValue.equals("VelocityY")) MainSceneController.visualValue = "Density";
-            else if (MainSceneController.visualValue.equals("Density")) MainSceneController.visualValue = "Temperature";
-            else MainSceneController.visualValue = "VelocityX";
-        };
-        //Adding event Filter
-        scene.addEventFilter(MouseEvent.MOUSE_CLICKED, eventHandler);
+        Scene scene = new Scene(root, 800, 525);
 
-        stage.setMinWidth(450);
-        stage.setMinHeight(300);
+        stage.setMinWidth(scene.getWidth());
+        stage.setMinHeight(scene.getHeight());
         stage.setTitle("ProjektInżynierski");
         stage.setScene(scene);
         stage.show();

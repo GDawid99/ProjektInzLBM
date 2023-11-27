@@ -1,7 +1,7 @@
 package lbm;
 
 import lbm.model.D2Q9;
-import lbm.model.GlobalValues;
+import lbm.model.D2Q9Temperature;
 import util.Velocity;
 
 import java.util.ArrayList;
@@ -36,7 +36,7 @@ public class Lattice {
                     board[y][x] = setInitialValues(x,y,1f,GlobalValues.TEMPERATURE,new Velocity(0f,0f),CellState.OPEN_DENSITY_BC);
                 }
                 else if (x == 0) {
-                    board[y][x] = setInitialValues(x,y,1f,GlobalValues.TEMPERATURE,new Velocity(GlobalValues.UX,0f),CellState.OPEN_VELOCITY_BC);
+                    board[y][x] = setInitialValues(x,y,1f,GlobalValues.TEMPERATURE,new Velocity(y*GlobalValues.UX/latticeHeight,0f),CellState.OPEN_VELOCITY_BC);
                 }
 //                else if (x > latticeWidth*0.45  && x < latticeWidth*0.55 && y > latticeHeight*0.7) {
 //                    board[y][x] = setInitialValues(x,y,1f,0f,new Velocity(0f,0f),CellState.BOUNCE_BACK_BC);
@@ -50,11 +50,11 @@ public class Lattice {
     }
 
     private Cell setInitialValues(int x, int y, float density, float temperature, Velocity velocity, CellState cellState) {
-        Cell cell = new Cell(x,y, density, temperature, velocity, cellState, new D2Q9());
-        cell.model.calcFeqFunctions(cell.velocity, cell.density);
-        cell.model.calcFinFunctions(cell.model.getFeq());
-        cell.model.calcTeqFunctions(cell.velocity, cell.temperature);
-        cell.model.calcTinFunctions(cell.model.getTeq());
+        Cell cell = new Cell(x,y, density, temperature, velocity, cellState, new D2Q9(), new D2Q9Temperature());
+        cell.model.calcEquilibriumFunctions(cell.velocity, cell.density);
+        cell.model.calcInputFunctions(cell.model.getFeq());
+        cell.temperatureModel.calcEquilibriumFunctions(cell.velocity, cell.temperature);
+        cell.temperatureModel.calcInputFunctions(cell.temperatureModel.getFeq());
         return cell;
     }
 
@@ -67,22 +67,20 @@ public class Lattice {
         //pierwszy etap: obliczenie danych makroskopowych, feq i kolizje
         for (int y = 0; y < latticeHeight; y++) {
             for (int x = 0; x < latticeWidth; x++) {
-                cells[y][x].density = cells[y][x].model.calcDensity();
-                cells[y][x].velocity = cells[y][x].model.calcVelocity(cells[y][x].density);
-                cells[y][x].model.calcFeqFunctions(cells[y][x].velocity, cells[y][x].density);
-                cells[y][x].model.calcFoutFunctions(
+                cells[y][x].calcMacroscopicValues();
+                cells[y][x].model.calcEquilibriumFunctions(cells[y][x].velocity, cells[y][x].density);
+                cells[y][x].model.calcOutputFunctions(
                         (ArrayList<Float>) cells[y][x].model.getFin(),
                         (ArrayList<Float>) cells[y][x].model.getFeq(),
                         1.0f,
                         GlobalValues.TAU);
 
-                //cells[y][x].temperature = cells[y][x].model.calcTemperature();
-                //cells[y][x].model.calcTeqFunctions(cells[y][x].velocity, cells[y][x].temperature);
-                //cells[y][x].model.calcToutFunctions(
-                //        (ArrayList<Float>) cells[y][x].model.getTin(),
-                //        (ArrayList<Float>) cells[y][x].model.getTeq(),
-                //        1.0f,
-                //        GlobalValues.TAU_TEMPERATURE);
+                cells[y][x].temperatureModel.calcEquilibriumFunctions(cells[y][x].velocity, cells[y][x].temperature);
+                cells[y][x].temperatureModel.calcOutputFunctions(
+                        (ArrayList<Float>) cells[y][x].temperatureModel.getFin(),
+                        (ArrayList<Float>) cells[y][x].temperatureModel.getFeq(),
+                        1.0f,
+                        GlobalValues.TAU_TEMPERATURE);
 
 
                 avg_density += cells[y][x].density;
@@ -115,14 +113,39 @@ public class Lattice {
                     else neighbourhood.add(null);
                 }
                 cells[y][x].model.calcStreaming(neighbourhood);
-                if (x == 0 && y == 0) cells[y][x].model.calcBoundaryConditions(cells[y][x],"NW");
-                else if (x == 0 && y == latticeHeight-1) cells[y][x].model.calcBoundaryConditions(cells[y][x],"SW");
-                else if (x == latticeWidth-1 && y == 0) cells[y][x].model.calcBoundaryConditions(cells[y][x],"NE");
-                else if (x == latticeWidth-1 && y == latticeHeight-1) cells[y][x].model.calcBoundaryConditions(cells[y][x],"SE");
-                else if (x == 0) cells[y][x].model.calcBoundaryConditions(cells[y][x],"W");
-                else if (y == 0) cells[y][x].model.calcBoundaryConditions(cells[y][x],"N");
-                else if (x == latticeWidth-1) cells[y][x].model.calcBoundaryConditions(cells[y][x],"E");
-                else if (y == latticeHeight-1) cells[y][x].model.calcBoundaryConditions(cells[y][x],"S");
+                cells[y][x].temperatureModel.calcStreaming(neighbourhood);
+                if (x == 0 && y == 0) {
+                    cells[y][x].model.calcBoundaryConditions(cells[y][x],"NW");
+                    cells[y][x].temperatureModel.calcBoundaryConditions(cells[y][x],"NW");
+                }
+                else if (x == 0 && y == latticeHeight-1) {
+                    cells[y][x].model.calcBoundaryConditions(cells[y][x],"SW");
+                    cells[y][x].temperatureModel.calcBoundaryConditions(cells[y][x],"SW");
+                }
+                else if (x == latticeWidth-1 && y == 0) {
+                    cells[y][x].model.calcBoundaryConditions(cells[y][x],"NE");
+                    cells[y][x].temperatureModel.calcBoundaryConditions(cells[y][x],"NE");
+                }
+                else if (x == latticeWidth-1 && y == latticeHeight-1) {
+                    cells[y][x].model.calcBoundaryConditions(cells[y][x],"SE");
+                    cells[y][x].temperatureModel.calcBoundaryConditions(cells[y][x],"SE");
+                }
+                else if (x == 0) {
+                    cells[y][x].model.calcBoundaryConditions(cells[y][x],"W");
+                    cells[y][x].temperatureModel.calcBoundaryConditions(cells[y][x],"W");
+                }
+                else if (y == 0) {
+                    cells[y][x].model.calcBoundaryConditions(cells[y][x],"N");
+                    cells[y][x].temperatureModel.calcBoundaryConditions(cells[y][x],"N");
+                }
+                else if (x == latticeWidth-1) {
+                    cells[y][x].model.calcBoundaryConditions(cells[y][x],"E");
+                    cells[y][x].temperatureModel.calcBoundaryConditions(cells[y][x],"E");
+                }
+                else if (y == latticeHeight-1) {
+                    cells[y][x].model.calcBoundaryConditions(cells[y][x],"S");
+                    cells[y][x].temperatureModel.calcBoundaryConditions(cells[y][x],"S");
+                }
 
             }
         }

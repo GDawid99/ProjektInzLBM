@@ -1,4 +1,4 @@
-package lbm.model;
+package lbm;
 
 import util.Velocity;
 

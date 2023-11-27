@@ -2,6 +2,7 @@ package lbm.model;
 
 import lbm.Cell;
 import lbm.CellState;
+import lbm.GlobalValues;
 import util.Velocity;
 
 import java.util.*;
@@ -9,73 +10,23 @@ import java.util.*;
 public class D2Q9 extends Model {
     public static final List<ArrayList<Integer>> c;
     public static final List<Float> w;
+
     public D2Q9() {
-        //wartości wejściowej funkcji rozkładu dla każdego kierunku komórki (model D2Q9)
         this.fin = new ArrayList<>(9);
-        //wartości równowagowej funkcji rozkładu dla każdego kierunku komórki (model D2Q9)
         this.feq = new ArrayList<>(9);
-        //wartości wyjściowej funkcji rozkładu dla każdego kierunku komórki (model D2Q9)
         this.fout = new ArrayList<>(9);
-        //wartości wejściowej funkcji rozkładu temperatury dla każdego kierunku komórki (model D2Q9)
-        this.tin = new ArrayList<>(9);
-        //wartości równowagowej funkcji rozkładu temperatury dla każdego kierunku komórki (model D2Q9)
-        this.teq = new ArrayList<>(9);
-        //wartości wyjściowej funkcji rozkładu temperatury dla każdego kierunku komórki (model D2Q9)
-        this.tout = new ArrayList<>(9);
-        this.neighbourhoodFoutElements = new LinkedList<>();
-        this.neighbourhoodToutElements = new LinkedList<>();
+        this.neighbourhoodOutFunctionElements = new LinkedList<>();
     }
 
     public D2Q9(D2Q9 model) {
         this.fin = new ArrayList<>(model.getFin());
         this.feq = new ArrayList<>(model.getFeq());
         this.fout = new ArrayList<>(model.getFout());
-        this.tin = new ArrayList<>(model.getTin());
-        this.teq = new ArrayList<>(model.getTeq());
-        this.tout = new ArrayList<>(model.getTout());
-        this.neighbourhoodFoutElements = new LinkedList<>(model.neighbourhoodFoutElements);
-        this.neighbourhoodToutElements = new LinkedList<>(model.neighbourhoodToutElements);
-    }
-
-    private float scalar_prod(ArrayList<? extends Number> a, Velocity u) {
-        return a.get(0).floatValue()*u.ux + a.get(1).floatValue()*u.uy;
-    }
-
-    private float calc(ArrayList<Integer> c_i, Velocity u, float w_i , float variable) {
-        return w_i * variable * (1f + (3f * scalar_prod(c_i, u)) + (4.5f * scalar_prod(c_i,u) * scalar_prod(c_i,u)) - (1.5f * (u.ux*u.ux + u.uy*u.uy)));
-    }
-
-    public float calcDensity() {
-        float d = 0f;
-        for (int i =0 ; i < 9; i++) {
-            if (this.fin.get(i) == null) System.out.println(i);
-            d += this.fin.get(i);
-        }
-        return d;
-    }
-
-    public float calcTemperature() {
-        float t = 0f;
-        for (int i =0 ; i < 9; i++) {
-            t += this.tin.get(i);
-        }
-        return t;
-    }
-
-    public Velocity calcVelocity(float density) {
-        float ux = 0f, uy = 0f;
-        for (int i = 0; i < 9; i++) {
-            ux += this.fin.get(i) * c.get(i).get(0);
-            uy += this.fin.get(i) * c.get(i).get(1);
-        }
-        ux /= density;
-        uy /= density;
-
-        return new Velocity(ux, uy);
+        this.neighbourhoodOutFunctionElements = new LinkedList<>(model.neighbourhoodOutFunctionElements);
     }
 
     @Override
-    public void calcFinFunctions(List<Float> f) {
+    public void calcInputFunctions(List<Float> f) {
         fin.clear();
         for (int i = 0; i < 9; i++) {
             this.fin.add(f.get(i));
@@ -83,7 +34,7 @@ public class D2Q9 extends Model {
     }
 
     @Override
-    public void calcFeqFunctions(Velocity velocity, float density) {
+    public void calcEquilibriumFunctions(Velocity velocity, float density) {
         feq.clear();
         for (int i = 0; i < 9; i++) {
             feq.add(calc(c.get(i),velocity,w.get(i),density));
@@ -91,7 +42,7 @@ public class D2Q9 extends Model {
     }
 
     @Override
-    public void calcFoutFunctions(ArrayList<Float> fin, ArrayList<Float> feq, float time, float tau) {
+    public void calcOutputFunctions(ArrayList<Float> fin, ArrayList<Float> feq, float time, float tau) {
         fout.clear();
         for (int i = 0; i < 9; i++) {
             fout.add(fin.get(i) + time*((feq.get(i) - fin.get(i))/tau));
@@ -99,47 +50,18 @@ public class D2Q9 extends Model {
     }
 
     @Override
-    public void calcTinFunctions(List<Float> t) {
-        tin.clear();
-        for (int i = 0; i < 9; i++) {
-            this.tin.add(t.get(i));
-        }
-    }
-
-    @Override
-    public void calcTeqFunctions(Velocity velocity, float temperature) {
-        teq.clear();
-        for (int i = 0; i < 9; i++) {
-            teq.add(calc(c.get(i),velocity,w.get(i),temperature));
-        }
-    }
-
-    @Override
-    public void calcToutFunctions(ArrayList<Float> tin, ArrayList<Float> teq, float time, float tau) {
-        tout.clear();
-        for (int i = 0; i < 9; i++) {
-            tout.add(tin.get(i) + time*((teq.get(i) - tin.get(i))/tau));
-        }
-    }
-
-    @Override
     public void calcStreaming(List<Cell> cells) {
-        neighbourhoodFoutElements.clear();
-        //neighbourhoodToutElements.clear();
-        neighbourhoodFoutElements.add(cells.get(0).model.getFout().get(0));
-        //neighbourhoodToutElements.add(cells.get(0).model.getTout().get(0));
+        neighbourhoodOutFunctionElements.clear();
+        neighbourhoodOutFunctionElements.add(cells.get(0).model.getFout().get(0));
         for (int i = 1; i < 9; i++) {
             if (cells.get(i) == null) {
-                neighbourhoodFoutElements.add(null);
-                //neighbourhoodToutElements.add(null);
+                neighbourhoodOutFunctionElements.add(null);
             }
             else {
-                neighbourhoodFoutElements.add(cells.get(i).model.getFout().get(i));
-                //neighbourhoodToutElements.add(cells.get(i).model.getTout().get(i));
+                neighbourhoodOutFunctionElements.add(cells.get(i).model.getFout().get(i));
             }
         }
-        cells.get(0).model.calcFinFunctions(neighbourhoodFoutElements);
-        //cells.get(0).model.calcTinFunctions(neighbourhoodToutElements);
+        cells.get(0).model.calcInputFunctions(neighbourhoodOutFunctionElements);
     }
 
     @Override
@@ -148,8 +70,7 @@ public class D2Q9 extends Model {
         float density = 1f;
         switch (cell.getCellState()) {
             case CONST_BC -> {
-                cell.model.calcFinFunctions(cell.model.getFout());
-                //cell.model.calcTinFunctions(cell.model.getTout());
+                cell.model.calcInputFunctions(cell.model.getFout());
             }
             case BOUNCE_BACK_BC -> {
 //                for (int i = 0; i < 9; i++) {
@@ -202,11 +123,6 @@ public class D2Q9 extends Model {
                             cell.model.fin.set(1,cell.model.getFout().get(5));
                             cell.model.fin.set(2,cell.model.getFout().get(4));
                         }
-//                for (int i = 0; i < 9; i++) {
-//                    if (cell.model.getFin().get(i) == null) System.out.println("null DETECTED! x:" + cell.x + ",y:" + cell.y + "; fi=" + i);
-//                }
-//                    }
-//                }
             }
             case OPEN_DENSITY_BC -> {
                 density = 1f;
@@ -232,7 +148,7 @@ public class D2Q9 extends Model {
                 }
             }
             case OPEN_VELOCITY_BC -> {
-                v = new Velocity(GlobalValues.UX,0f);
+                v = new Velocity(cell.y* GlobalValues.UX/128,0f);
                 if (direction.equals("N")) {
                     density = (cell.model.fin.get(0) + cell.model.fin.get(3) + cell.model.fin.get(7)
                             + 2 * cell.model.fin.get(8) + 2 * cell.model.fin.get(1) + 2 * cell.model.fin.get(2))/(1 + v.uy);

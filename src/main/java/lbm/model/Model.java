@@ -10,21 +10,19 @@ public abstract class Model {
     protected List<Float> fin;
     protected List<Float> feq;
     protected List<Float> fout;
-    protected List<Float> tin;
-    protected List<Float> teq;
-    protected List<Float> tout;
-    protected List<Float> neighbourhoodFoutElements;
-    protected List<Float> neighbourhoodToutElements;
+    protected List<Float> neighbourhoodOutFunctionElements;
 
-    public abstract float calcDensity();
-    public abstract float calcTemperature();
-    public abstract Velocity calcVelocity(float density);
-    public abstract void calcFinFunctions(List<Float> f);
-    public abstract void calcFeqFunctions(Velocity velocity, float density);
-    public abstract void calcFoutFunctions(ArrayList<Float> fin, ArrayList<Float> feq, float time, float tau);
-    public abstract void calcTinFunctions(List<Float> t);
-    public abstract void calcTeqFunctions(Velocity velocity, float temperature);
-    public abstract void calcToutFunctions(ArrayList<Float> tin, ArrayList<Float> teq, float time, float tau);
+    protected float scalar_prod(ArrayList<? extends Number> a, Velocity u) {
+        return a.get(0).floatValue()*u.ux + a.get(1).floatValue()*u.uy;
+    }
+
+    protected float calc(ArrayList<Integer> c_i, Velocity u, float w_i , float variable) {
+        return w_i * variable * (1f + (3f * scalar_prod(c_i, u)) + (4.5f * scalar_prod(c_i,u) * scalar_prod(c_i,u)) - (1.5f * (u.ux*u.ux + u.uy*u.uy)));
+    }
+
+    public abstract void calcInputFunctions(List<Float> f);
+    public abstract void calcEquilibriumFunctions(Velocity velocity, float variable);
+    public abstract void calcOutputFunctions(ArrayList<Float> fin, ArrayList<Float> feq, float time, float tau);
     public abstract void calcStreaming(List<Cell> cells);
     public abstract void calcBoundaryConditions(Cell cell, String direction);
 
@@ -38,17 +36,5 @@ public abstract class Model {
 
     public List<Float> getFout() {
         return fout;
-    }
-
-    public List<Float> getTin() {
-        return tin;
-    }
-
-    public List<Float> getTeq() {
-        return teq;
-    }
-
-    public List<Float> getTout() {
-        return tout;
     }
 }
