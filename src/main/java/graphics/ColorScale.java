@@ -1,6 +1,5 @@
 package graphics;
 
-import controller.MainSceneController;
 import javafx.scene.paint.Color;
 
 public class ColorScale {

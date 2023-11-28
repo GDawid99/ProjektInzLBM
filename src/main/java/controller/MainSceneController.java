@@ -4,23 +4,17 @@ import graphics.VisualCanvas;
 import javafx.animation.AnimationTimer;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
-import javafx.event.EventType;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuItem;
 import javafx.scene.layout.HBox;
-import javafx.scene.input.MouseEvent;
 import lbm.Lattice;
 
 import java.net.URL;
-import java.util.Arrays;
-import java.util.List;
 import java.util.ResourceBundle;
 
 public class MainSceneController implements Initializable {
-
     @FXML
     protected VisualCanvas visualCanvas;
     @FXML
@@ -51,5 +45,6 @@ public class MainSceneController implements Initializable {
         menu_view.getItems().forEach(e -> e.setDisable(false));
         ((MenuItem)actionEvent.getSource()).setDisable(true);
     }
+    
 
 }
