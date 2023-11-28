@@ -5,7 +5,7 @@ import javafx.scene.paint.Color;
 
 public class ColorScale {
     public static Color getColor(float min, float max, float valueVisualization, String visualValue) {
-        if (visualValue.equals("VelocityX") || visualValue.equals("VelocityY")) return  blueWhiteRedScale(valueVisualization, max);
+        if (visualValue.equals("Velocity [Vx]") || visualValue.equals("Velocity [Vy]")) return  blueWhiteRedScale(valueVisualization, max);
         else return blueToRedScale(min, max, valueVisualization);
     }
 

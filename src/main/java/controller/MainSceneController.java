@@ -3,10 +3,13 @@ package controller;
 import graphics.VisualCanvas;
 import javafx.animation.AnimationTimer;
 import javafx.application.Platform;
+import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.event.EventType;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.scene.control.Menu;
+import javafx.scene.control.MenuItem;
 import javafx.scene.layout.HBox;
 import javafx.scene.input.MouseEvent;
 import lbm.Lattice;
@@ -22,16 +25,14 @@ public class MainSceneController implements Initializable {
     protected VisualCanvas visualCanvas;
     @FXML
     protected HBox latticeBox;
+    @FXML
+    protected Menu menu_view;
     private Lattice lattice;
-    public List<String> visualValues = Arrays.asList("VelocityX", "VelocityY", "Density", "Temperature");
-    private String currentVisualValue;
+    private String currentVisualValue = "Velocity [Vx]";
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
-        currentVisualValue = visualValues.get(0);
         Platform.runLater(() -> visualCanvas.scaleLattice(latticeBox.getWidth(),latticeBox.getHeight()));
-        visualCanvas.getStyleClass().add("canvas-border");
-        visualCanvas.addEventHandler(MouseEvent.MOUSE_CLICKED, changeLatticeVisualizationHandler);
         lattice = new Lattice((int)visualCanvas.getWidth(),(int)visualCanvas.getHeight());
         AnimationTimer animationTimer = new AnimationTimer() {
             @Override
@@ -45,11 +46,10 @@ public class MainSceneController implements Initializable {
     }
 
     //Events
-    private EventHandler<MouseEvent> changeLatticeVisualizationHandler = mouseEvent -> {
-        int i = visualValues.indexOf(currentVisualValue);
-        if (i == visualValues.size()-1) currentVisualValue = visualValues.get(0);
-        else currentVisualValue = visualValues.get(++i);
-    };
-
+    public void setCanvasView(ActionEvent actionEvent) {
+        currentVisualValue = ((MenuItem)actionEvent.getSource()).getText();
+        menu_view.getItems().forEach(e -> e.setDisable(false));
+        ((MenuItem)actionEvent.getSource()).setDisable(true);
+    }
 
 }

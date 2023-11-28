@@ -31,6 +31,14 @@
               <MenuItem mnemonicParsing="false" text="Delete" />
             </items>
           </Menu>
+            <Menu fx:id="menu_view" mnemonicParsing="false" text="View">
+              <items>
+                <MenuItem mnemonicParsing="false" onAction="#setCanvasView" text="Velocity [Vx]" />
+                  <MenuItem mnemonicParsing="false" onAction="#setCanvasView" text="Velocity [Vy]" />
+                  <MenuItem mnemonicParsing="false" onAction="#setCanvasView" text="Density" />
+                  <MenuItem mnemonicParsing="false" onAction="#setCanvasView" text="Temperature" />
+              </items>
+            </Menu>
           <Menu mnemonicParsing="false" text="Help">
             <items>
               <MenuItem mnemonicParsing="false" text="About" />

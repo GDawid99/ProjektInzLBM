@@ -16,8 +16,8 @@ public class VisualCanvas extends Canvas {
         for (int y = 0; y < this.getHeight(); y++) {
             for (int x = 0; x < this.getWidth(); x++) {
                 cell = lattice.getCells()[y][x];
-                if (currentVisualValue.equals("VelocityX")) this.getGraphicsContext2D().getPixelWriter().setColor(x,y,ColorScale.getColor(0.0f, GlobalValues.UX,cell.velocity.ux, currentVisualValue));
-                if (currentVisualValue.equals("VelocityY")) this.getGraphicsContext2D().getPixelWriter().setColor(x,y,ColorScale.getColor(0.0f, GlobalValues.UY ,cell.velocity.uy, currentVisualValue));
+                if (currentVisualValue.equals("Velocity [Vx]")) this.getGraphicsContext2D().getPixelWriter().setColor(x,y,ColorScale.getColor(0.0f, GlobalValues.UX,cell.velocity.ux, currentVisualValue));
+                if (currentVisualValue.equals("Velocity [Vy]")) this.getGraphicsContext2D().getPixelWriter().setColor(x,y,ColorScale.getColor(0.0f, GlobalValues.UY ,cell.velocity.uy, currentVisualValue));
                 if (currentVisualValue.equals("Density")) this.getGraphicsContext2D().getPixelWriter().setColor(x,y,ColorScale.getColor(0.999f,1.001f,cell.density, currentVisualValue));
                 if (currentVisualValue.equals("Temperature")) this.getGraphicsContext2D().getPixelWriter().setColor(x,y,ColorScale.getColor(0.0f,1.0f,cell.temperature, currentVisualValue));
             }
