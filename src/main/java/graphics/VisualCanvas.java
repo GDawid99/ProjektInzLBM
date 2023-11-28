@@ -6,7 +6,6 @@ import javafx.scene.canvas.Canvas;
 import lbm.Lattice;
 import lbm.GlobalValues;
 
-import java.util.List;
 
 public class VisualCanvas extends Canvas {
     //metoda kolorująca płótno

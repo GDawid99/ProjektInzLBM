@@ -5,13 +5,27 @@
 <?import javafx.scene.control.Menu?>
 <?import javafx.scene.control.MenuBar?>
 <?import javafx.scene.control.MenuItem?>
+<?import javafx.scene.control.ToggleButton?>
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
 
 <BorderPane fx:id="mainScene" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="525.0" minWidth="400.0" prefHeight="525.0" prefWidth="800.0" stylesheets="style.css" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controller.MainSceneController">
     <left>
-      <VBox minHeight="400.0" minWidth="200.0" prefHeight="400.0" prefWidth="200.0" BorderPane.alignment="CENTER" />
+      <VBox minHeight="400.0" minWidth="200.0" prefHeight="400.0" prefWidth="200.0" BorderPane.alignment="CENTER">
+         <children>
+            <HBox fx:id="flow_line_box" minHeight="25.0" minWidth="150.0" prefHeight="25.0" prefWidth="150.0">
+               <children>
+                  <Label minHeight="25.0" minWidth="140.0" prefHeight="26.0" prefWidth="140.0" text="Flow lines:">
+                     <font>
+                        <Font size="18.0" />
+                     </font>
+                  </Label>
+                  <ToggleButton fx:id="show_flowlines_button" minHeight="25.0" minWidth="60.0" mnemonicParsing="false" onMouseClicked="#onMouseClickedChangeVisibleOfLines" prefHeight="25.0" prefWidth="60.0" selected="true" text="Hide" />
+               </children>
+            </HBox>
+         </children></VBox>
    </left>
    <right>
       <VBox minHeight="400.0" minWidth="200.0" prefHeight="400.0" prefWidth="200.0" BorderPane.alignment="CENTER" />
@@ -33,10 +47,10 @@
           </Menu>
             <Menu fx:id="menu_view" mnemonicParsing="false" text="View">
               <items>
-                <MenuItem mnemonicParsing="false" onAction="#setCanvasView" text="Velocity [Vx]" />
-                  <MenuItem mnemonicParsing="false" onAction="#setCanvasView" text="Velocity [Vy]" />
-                  <MenuItem mnemonicParsing="false" onAction="#setCanvasView" text="Density" />
-                  <MenuItem mnemonicParsing="false" onAction="#setCanvasView" text="Temperature" />
+                <MenuItem mnemonicParsing="false" onAction="#setOnActionChangeCanvasView" text="Velocity [Vx]" />
+                  <MenuItem mnemonicParsing="false" onAction="#setOnActionChangeCanvasView" text="Velocity [Vy]" />
+                  <MenuItem mnemonicParsing="false" onAction="#setOnActionChangeCanvasView" text="Density" />
+                  <MenuItem mnemonicParsing="false" onAction="#setOnActionChangeCanvasView" text="Temperature" />
               </items>
             </Menu>
           <Menu mnemonicParsing="false" text="Help">
@@ -55,10 +69,6 @@
       </HBox>
    </center>
    <bottom>
-      <HBox minHeight="100.0" minWidth="800.0" prefHeight="100.0" prefWidth="800.0" BorderPane.alignment="CENTER">
-         <children>
-            <Label alignment="CENTER" text="Label" />
-         </children>
-      </HBox>
+      <HBox minHeight="100.0" minWidth="800.0" prefHeight="100.0" prefWidth="800.0" BorderPane.alignment="CENTER" />
    </bottom>
 </BorderPane>
