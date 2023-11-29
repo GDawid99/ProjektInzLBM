@@ -1,11 +1,10 @@
 package lbm;
 
 
-import controller.MainSceneController;
-import javafx.scene.paint.Color;
-import lbm.model.D2Q9;
-import lbm.model.D2Q9Temperature;
-import lbm.model.Model;
+import lbm.boundary.FluidBoundaryType;
+import lbm.boundary.TempBoundaryType;
+import lbm.model.FluidFlowD2Q9;
+import lbm.model.TemperatureD2Q9;
 import util.Velocity;
 
 /**
@@ -15,32 +14,35 @@ import util.Velocity;
 public class Cell {
     public int x;
     public int y;
-    public Model model;
-    public Model temperatureModel;
-    private CellState cellState;
+    public FluidFlowD2Q9 model;
+    public TemperatureD2Q9 temperatureModel;
+    private FluidBoundaryType fluidBoundaryType;
+    private TempBoundaryType tempBoundaryType;
     public float density;
     public Velocity velocity;
     public float temperature;
 
 
 
-    public Cell(int x, int y, float density, Velocity velocity, CellState state, Model model, Model temperatureModel) {
+    public Cell(int x, int y, float density, Velocity velocity, FluidBoundaryType fluidBoundaryType, TempBoundaryType tempBoundaryType, FluidFlowD2Q9 model, TemperatureD2Q9 temperatureModel) {
         this.x = x;
         this.y = y;
         this.model = model;
         this.temperatureModel = temperatureModel;
-        this.cellState = state;
+        this.fluidBoundaryType = fluidBoundaryType;
+        this.tempBoundaryType = tempBoundaryType;
         this.density = density;
         this.temperature = 0f;
         this.velocity = velocity;
     }
 
-    public Cell(int x, int y, float density, float temperature, Velocity velocity, CellState state, Model model, Model temperatureModel) {
+    public Cell(int x, int y, float density, float temperature, Velocity velocity, FluidBoundaryType fluidBoundaryType, TempBoundaryType tempBoundaryType, FluidFlowD2Q9 model, TemperatureD2Q9 temperatureModel) {
         this.x = x;
         this.y = y;
         this.model = model;
         this.temperatureModel = temperatureModel;
-        this.cellState = state;
+        this.fluidBoundaryType = fluidBoundaryType;
+        this.tempBoundaryType = tempBoundaryType;
         this.density = density;
         this.temperature = temperature;
         this.velocity = velocity;
@@ -49,10 +51,11 @@ public class Cell {
     public Cell(Cell cell) {
         this.x = cell.x;
         this.y = cell.y;
-        this.cellState = cell.getCellState();
+        this.fluidBoundaryType = cell.getFluidBoundaryType();
+        this.tempBoundaryType = cell.getTempBoundaryType();
         this.density = cell.density;
-        this.model = new D2Q9((D2Q9) cell.model);
-        this.temperatureModel = new D2Q9Temperature((D2Q9Temperature) cell.temperatureModel);
+        this.model = new FluidFlowD2Q9((FluidFlowD2Q9) cell.model);
+        this.temperatureModel = new TemperatureD2Q9((TemperatureD2Q9) cell.temperatureModel);
         this.velocity = new Velocity(cell.velocity);
     }
 
@@ -68,7 +71,7 @@ public class Cell {
     private float calcTemperature() {
         float t = 0f;
         for (int i =0 ; i < 9; i++) {
-            //t += temperatureModel.getFin().get(i);
+            t += temperatureModel.getTin().get(i);
         }
         return t;
     }
@@ -76,8 +79,8 @@ public class Cell {
     private Velocity calcVelocity() {
         float ux = 0f, uy = 0f;
         for (int i = 0; i < 9; i++) {
-            ux += model.getFin().get(i) * D2Q9.c.get(i).get(0);
-            uy += model.getFin().get(i) * D2Q9.c.get(i).get(1);
+            ux += model.getFin().get(i) * FluidFlowD2Q9.c.get(i).get(0);
+            uy += model.getFin().get(i) * FluidFlowD2Q9.c.get(i).get(1);
         }
         ux /= this.density;
         uy /= this.density;
@@ -86,13 +89,21 @@ public class Cell {
 
     public void calcMacroscopicValues() {
         this.density = calcDensity();
+        //this.temperature = calcTemperature();
         this.velocity = calcVelocity();
+    }
+
+    public void calcMacroscopicTemperature() {
         this.temperature = calcTemperature();
     }
 
 
-    public CellState getCellState() {
-        return this.cellState;
+    public FluidBoundaryType getFluidBoundaryType() {
+        return this.fluidBoundaryType;
+    }
+
+    public TempBoundaryType getTempBoundaryType() {
+        return this.tempBoundaryType;
     }
 
     @Override
@@ -100,9 +111,11 @@ public class Cell {
         return "Cell{" +
                 "x=" + x +
                 ", y=" + y +
-                ", cellState=" + cellState +
+                ", fluidBoundaryType=" + fluidBoundaryType +
+                ", tempBoundaryType=" + tempBoundaryType +
                 ", density=" + density +
                 ", velocity=" + velocity +
+                ", temperature=" + temperature +
                 '}';
     }
 }

@@ -1,7 +1,9 @@
 package lbm;
 
-import lbm.model.D2Q9;
-import lbm.model.D2Q9Temperature;
+import lbm.boundary.FluidBoundaryType;
+import lbm.boundary.TempBoundaryType;
+import lbm.model.FluidFlowD2Q9;
+import lbm.model.TemperatureD2Q9;
 import util.Velocity;
 
 import java.util.ArrayList;
@@ -27,34 +29,34 @@ public class Lattice {
         for (int y = 0; y < latticeHeight; y++) {
             for (int x = 0; x < latticeWidth; x++) {
                 if (y == 0) {
-                    board[y][x] = setInitialValues(x,y,1f,1f,new Velocity(0f,0f),CellState.BOUNCE_BACK_BC);
+                    board[y][x] = setInitialValues(x,y,1f,GlobalValues.TEMPERATURE,new Velocity(0f,0f), FluidBoundaryType.BOUNCE_BACK_BC, TempBoundaryType.BOUNCE_BACK_BC);
                 }
                 else if (y == latticeHeight-1) {
-                    board[y][x] = setInitialValues(x,y,1f,1f,new Velocity(0f,0f),CellState.BOUNCE_BACK_BC);
+                    board[y][x] = setInitialValues(x,y,1f,GlobalValues.TEMPERATURE,new Velocity(0f,0f), FluidBoundaryType.BOUNCE_BACK_BC, TempBoundaryType.BOUNCE_BACK_BC);
                 }
                 else if (x == latticeWidth-1) {
-                    board[y][x] = setInitialValues(x,y,1f,GlobalValues.TEMPERATURE,new Velocity(0f,0f),CellState.OPEN_DENSITY_BC);
+                    board[y][x] = setInitialValues(x,y,1f,GlobalValues.TEMPERATURE,new Velocity(0f,0f), FluidBoundaryType.OPEN_DENSITY_BC, TempBoundaryType.OPEN_TEMPERATURE_BC);
                 }
                 else if (x == 0) {
-                    board[y][x] = setInitialValues(x,y,1f,GlobalValues.TEMPERATURE,new Velocity(y*GlobalValues.UX/latticeHeight,0f),CellState.OPEN_VELOCITY_BC);
+                    board[y][x] = setInitialValues(x,y,1f,y * (GlobalValues.TEMPERATURE+0.5f)/128,new Velocity((latticeHeight-1-y)*GlobalValues.UX/latticeHeight,0f), FluidBoundaryType.OPEN_VELOCITY_BC, TempBoundaryType.OPEN_TEMPERATURE_BC);
                 }
 //                else if (x > latticeWidth*0.45  && x < latticeWidth*0.55 && y > latticeHeight*0.7) {
 //                    board[y][x] = setInitialValues(x,y,1f,0f,new Velocity(0f,0f),CellState.BOUNCE_BACK_BC);
 //                }
                 else {
-                    board[y][x] = setInitialValues(x,y,1f,GlobalValues.TEMPERATURE, GlobalValues.velocityInitZero(),CellState.FLUID);
+                    board[y][x] = setInitialValues(x,y,1f,GlobalValues.TEMPERATURE, GlobalValues.velocityInitZero(), FluidBoundaryType.NONE, TempBoundaryType.NONE);
                 }
             }
         }
         return board;
     }
 
-    private Cell setInitialValues(int x, int y, float density, float temperature, Velocity velocity, CellState cellState) {
-        Cell cell = new Cell(x,y, density, temperature, velocity, cellState, new D2Q9(), new D2Q9Temperature());
+    private Cell setInitialValues(int x, int y, float density, float temperature, Velocity velocity, FluidBoundaryType fluidBoundaryType, TempBoundaryType tempBoundaryType) {
+        Cell cell = new Cell(x,y, density, temperature, velocity, fluidBoundaryType, tempBoundaryType, new FluidFlowD2Q9(), new TemperatureD2Q9());
         cell.model.calcEquilibriumFunctions(cell.velocity, cell.density);
         cell.model.calcInputFunctions(cell.model.getFeq());
         cell.temperatureModel.calcEquilibriumFunctions(cell.velocity, cell.temperature);
-        cell.temperatureModel.calcInputFunctions(cell.temperatureModel.getFeq());
+        cell.temperatureModel.calcInputFunctions(cell.temperatureModel.getTeq());
         return cell;
     }
 
@@ -68,6 +70,7 @@ public class Lattice {
         for (int y = 0; y < latticeHeight; y++) {
             for (int x = 0; x < latticeWidth; x++) {
                 cells[y][x].calcMacroscopicValues();
+                if (x != 0) cells[y][x].calcMacroscopicTemperature();
                 cells[y][x].model.calcEquilibriumFunctions(cells[y][x].velocity, cells[y][x].density);
                 cells[y][x].model.calcOutputFunctions(
                         (ArrayList<Float>) cells[y][x].model.getFin(),
@@ -77,8 +80,8 @@ public class Lattice {
 
                 cells[y][x].temperatureModel.calcEquilibriumFunctions(cells[y][x].velocity, cells[y][x].temperature);
                 cells[y][x].temperatureModel.calcOutputFunctions(
-                        (ArrayList<Float>) cells[y][x].temperatureModel.getFin(),
-                        (ArrayList<Float>) cells[y][x].temperatureModel.getFeq(),
+                        (ArrayList<Float>) cells[y][x].temperatureModel.getTin(),
+                        (ArrayList<Float>) cells[y][x].temperatureModel.getTeq(),
                         1.0f,
                         GlobalValues.TAU_TEMPERATURE);
 
@@ -86,6 +89,9 @@ public class Lattice {
                 avg_density += cells[y][x].density;
                 avg_velocity.ux += cells[y][x].velocity.ux;
                 avg_velocity.uy += cells[y][x].velocity.uy;
+                //if (y == 30) System.out.print(cells[y][x].temperature + ", ");
+                //if (y == 31 && x == 0) System.out.println();
+                //if (y == 70) System.out.print(cells[y][x].temperature + ", ");
                 if (cells[y][x].velocity.ux < GlobalValues.MIN_VELOCITY.ux) GlobalValues.MIN_VELOCITY.ux = cells[y][x].velocity.ux;
                 if (cells[y][x].velocity.ux > GlobalValues.MAX_VELOCITY.ux) GlobalValues.MAX_VELOCITY.ux = cells[y][x].velocity.ux;
                 if (cells[y][x].velocity.uy < GlobalValues.MIN_VELOCITY.uy) GlobalValues.MIN_VELOCITY.uy = cells[y][x].velocity.uy;
@@ -96,7 +102,7 @@ public class Lattice {
                 if (cells[y][x].temperature > GlobalValues.MAX_TEMPERATURE) GlobalValues.MAX_TEMPERATURE = cells[y][x].temperature;
             }
         }
-
+        //System.out.println();
         if (iter % 50 == 0) {
             dataLog();
             System.out.println("AVERAGE DENSITY:" + (avg_density / (latticeHeight * latticeWidth)));
@@ -107,8 +113,8 @@ public class Lattice {
             for (int x = 0; x < latticeWidth; x++) {
                 List<Cell> neighbourhood = new LinkedList<>();
                 for (int i = 0; i < 9; i++) {
-                    int deltaX = x - D2Q9.c.get(i).get(0);
-                    int deltaY = y + D2Q9.c.get(i).get(1);
+                    int deltaX = x - FluidFlowD2Q9.c.get(i).get(0);
+                    int deltaY = y + FluidFlowD2Q9.c.get(i).get(1);
                     if (deltaY >= 0 && deltaY <= latticeHeight-1 && deltaX >= 0 && deltaX <= latticeWidth-1) neighbourhood.add(cells[deltaY][deltaX]);
                     else neighbourhood.add(null);
                 }
@@ -146,7 +152,6 @@ public class Lattice {
                     cells[y][x].model.calcBoundaryConditions(cells[y][x],"S");
                     cells[y][x].temperatureModel.calcBoundaryConditions(cells[y][x],"S");
                 }
-
             }
         }
     }

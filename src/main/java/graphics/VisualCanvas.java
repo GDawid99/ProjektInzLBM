@@ -15,10 +15,10 @@ public class VisualCanvas extends Canvas {
         for (int y = 0; y < this.getHeight(); y++) {
             for (int x = 0; x < this.getWidth(); x++) {
                 cell = lattice.getCells()[y][x];
-                if (currentVisualValue.equals("Velocity [Vx]")) this.getGraphicsContext2D().getPixelWriter().setColor(x,y,ColorScale.getColor(0.0f, GlobalValues.UX,cell.velocity.ux, currentVisualValue));
+                if (currentVisualValue.equals("Velocity [Vx]")) this.getGraphicsContext2D().getPixelWriter().setColor(x,y,ColorScale.getColor(0f, GlobalValues.UX ,cell.velocity.ux, currentVisualValue));
                 if (currentVisualValue.equals("Velocity [Vy]")) this.getGraphicsContext2D().getPixelWriter().setColor(x,y,ColorScale.getColor(0.0f, GlobalValues.UY ,cell.velocity.uy, currentVisualValue));
                 if (currentVisualValue.equals("Density")) this.getGraphicsContext2D().getPixelWriter().setColor(x,y,ColorScale.getColor(0.999f,1.001f,cell.density, currentVisualValue));
-                if (currentVisualValue.equals("Temperature")) this.getGraphicsContext2D().getPixelWriter().setColor(x,y,ColorScale.getColor(0.0f,1.0f,cell.temperature, currentVisualValue));
+                if (currentVisualValue.equals("Temperature")) this.getGraphicsContext2D().getPixelWriter().setColor(x,y,ColorScale.getColor(0f,GlobalValues.TEMPERATURE+0.5f,cell.temperature, currentVisualValue));
             }
         }
     }
@@ -32,7 +32,7 @@ public class VisualCanvas extends Canvas {
                 this.getGraphicsContext2D().setStroke(Color.BLACK);
                 this.getGraphicsContext2D().setFill(Color.BLACK);
                 this.getGraphicsContext2D().setLineWidth(0.2d);
-                this.getGraphicsContext2D().strokeLine(x,y,x+2000*cell.velocity.ux,y-2000*cell.velocity.uy);
+                this.getGraphicsContext2D().strokeLine(x,y,x+150*cell.velocity.ux,y-150*cell.velocity.uy);
             }
         }
     }

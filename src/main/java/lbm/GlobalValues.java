@@ -3,8 +3,8 @@ package lbm;
 import util.Velocity;
 
 public class GlobalValues {
-    public static final float UX = 0.002f;
-    public static final float UY = 0.002f;
+    public static final float UX = 0.05f;
+    public static final float UY = 0.05f;
     public static final float TEMPERATURE = 0.5f;
     public static Velocity MIN_VELOCITY = new Velocity(0f,0f,0f);
     public static Velocity MAX_VELOCITY = new Velocity(0f,0f,0f);

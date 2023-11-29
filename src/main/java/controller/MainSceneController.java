@@ -28,7 +28,6 @@ public class MainSceneController implements Initializable {
     protected Menu menu_view;
     private Lattice lattice;
     private String currentVisualValue = "Velocity [Vx]";
-    private boolean isShowLines = true;
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {

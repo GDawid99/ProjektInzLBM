@@ -1,28 +1,37 @@
 package lbm.model;
 
 import lbm.Cell;
-import lbm.CellState;
+import lbm.boundary.FluidBoundaryType;
 import lbm.GlobalValues;
 import util.Velocity;
 
 import java.util.*;
 
-public class D2Q9 extends Model {
+public class FluidFlowD2Q9 extends Model {
     public static final List<ArrayList<Integer>> c;
     public static final List<Float> w;
 
-    public D2Q9() {
+    public List<Float> fin;
+    public List<Float> feq;
+    public List<Float> fout;
+
+    public FluidFlowD2Q9() {
         this.fin = new ArrayList<>(9);
         this.feq = new ArrayList<>(9);
         this.fout = new ArrayList<>(9);
         this.neighbourhoodOutFunctionElements = new LinkedList<>();
     }
 
-    public D2Q9(D2Q9 model) {
+    public FluidFlowD2Q9(FluidFlowD2Q9 model) {
         this.fin = new ArrayList<>(model.getFin());
         this.feq = new ArrayList<>(model.getFeq());
         this.fout = new ArrayList<>(model.getFout());
         this.neighbourhoodOutFunctionElements = new LinkedList<>(model.neighbourhoodOutFunctionElements);
+    }
+
+    @Override
+    public float calc(ArrayList<Integer> c_i, Velocity u, float w_i , float variable) {
+        return w_i * variable * (1f + (3f * scalar_prod(c_i, u)) + (4.5f * scalar_prod(c_i,u) * scalar_prod(c_i,u)) - (1.5f * (u.ux*u.ux + u.uy*u.uy)));
     }
 
     @Override
@@ -42,10 +51,10 @@ public class D2Q9 extends Model {
     }
 
     @Override
-    public void calcOutputFunctions(ArrayList<Float> fin, ArrayList<Float> feq, float time, float tau) {
+    public void calcOutputFunctions(ArrayList<Float> inFunction, ArrayList<Float> eqFunction, float time, float tau) {
         fout.clear();
         for (int i = 0; i < 9; i++) {
-            fout.add(fin.get(i) + time*((feq.get(i) - fin.get(i))/tau));
+            fout.add(inFunction.get(i) + time*((eqFunction.get(i) - inFunction.get(i))/tau));
         }
     }
 
@@ -68,7 +77,7 @@ public class D2Q9 extends Model {
     public void calcBoundaryConditions(Cell cell, String direction) {
         Velocity v = new Velocity(0.0f,0.0f);
         float density = 1f;
-        switch (cell.getCellState()) {
+        switch (cell.getFluidBoundaryType()) {
             case CONST_BC -> {
                 cell.model.calcInputFunctions(cell.model.getFout());
             }
@@ -148,7 +157,7 @@ public class D2Q9 extends Model {
                 }
             }
             case OPEN_VELOCITY_BC -> {
-                v = new Velocity(cell.y* GlobalValues.UX/128,0f);
+                v = new Velocity(0f,0f);
                 if (direction.equals("N")) {
                     density = (cell.model.fin.get(0) + cell.model.fin.get(3) + cell.model.fin.get(7)
                             + 2 * cell.model.fin.get(8) + 2 * cell.model.fin.get(1) + 2 * cell.model.fin.get(2))/(1 + v.uy);
@@ -160,6 +169,7 @@ public class D2Q9 extends Model {
                     v.ux = 6*(cell.model.fin.get(3) - cell.model.fin.get(7) + cell.model.fin.get(6) - cell.model.fin.get(4))/(density*(5-3*v.uy));
                 }
                 else if (direction.equals("W")) {
+                    v = new Velocity((128-1-cell.y)*GlobalValues.UX/128,0f);
                     density = (cell.model.fin.get(0) + cell.model.fin.get(1) + cell.model.fin.get(5)
                             + 2 * cell.model.fin.get(6) + 2 * cell.model.fin.get(7) + 2 * cell.model.fin.get(8))/(1 - v.ux);
                     v.uy = 6*(cell.model.fin.get(1) - cell.model.fin.get(5) + cell.model.fin.get(8) - cell.model.fin.get(6))/(density*(5-3*v.ux));
@@ -171,7 +181,7 @@ public class D2Q9 extends Model {
                 }
             }
         }
-        if (cell.getCellState() == CellState.OPEN_VELOCITY_BC || cell.getCellState() == CellState.OPEN_DENSITY_BC) {
+        if (cell.getFluidBoundaryType() == FluidBoundaryType.OPEN_VELOCITY_BC || cell.getFluidBoundaryType() == FluidBoundaryType.OPEN_DENSITY_BC) {
             if (direction.equals("N")) {
                 cell.model.fin.set(4,cell.model.fin.get(8) + density*(v.ux+v.uy)/6);
                 cell.model.fin.set(5,cell.model.fin.get(1) - 2*density*v.uy/3);
@@ -193,6 +203,18 @@ public class D2Q9 extends Model {
                 cell.model.fin.set(8,cell.model.fin.get(4) - density*(v.ux+v.uy)/6);
             }
         }
+    }
+
+    public List<Float> getFin() {
+        return fin;
+    }
+
+    public List<Float> getFeq() {
+        return feq;
+    }
+
+    public List<Float> getFout() {
+        return fout;
     }
 
     static {

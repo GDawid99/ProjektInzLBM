@@ -1,7 +1,7 @@
-package lbm;
+package lbm.boundary;
 
-public enum CellState {
-    FLUID,
+public enum FluidBoundaryType {
+    NONE,
     CONST_BC,
     BOUNCE_BACK_BC,
     OPEN_DENSITY_BC,
