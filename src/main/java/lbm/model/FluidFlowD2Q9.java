@@ -135,7 +135,7 @@ public class FluidFlowD2Q9 extends Model {
                         }
             }
             case OPEN_DENSITY_BC -> {
-                density = 1f;
+                density = cell.density;
                 if (cell.getBoundaryDirection() == BoundaryDirection.NORTH) {
                     v.uy = -1 + (cell.model.fin.get(0) + cell.model.fin.get(3) + cell.model.fin.get(7)
                             + 2 * cell.model.fin.get(8) + 2 * cell.model.fin.get(1) + 2 * cell.model.fin.get(2))/density;
@@ -158,7 +158,7 @@ public class FluidFlowD2Q9 extends Model {
                 }
             }
             case OPEN_VELOCITY_BC -> {
-                v = new Velocity(0f,0f);
+                v = cell.velocity;
                 if (cell.getBoundaryDirection() == BoundaryDirection.NORTH) {
                     density = (cell.model.fin.get(0) + cell.model.fin.get(3) + cell.model.fin.get(7)
                             + 2 * cell.model.fin.get(8) + 2 * cell.model.fin.get(1) + 2 * cell.model.fin.get(2))/(1 + v.uy);
@@ -170,7 +170,6 @@ public class FluidFlowD2Q9 extends Model {
                     v.ux = 6*(cell.model.fin.get(3) - cell.model.fin.get(7) + cell.model.fin.get(6) - cell.model.fin.get(4))/(density*(5-3*v.uy));
                 }
                 else if (cell.getBoundaryDirection() == BoundaryDirection.WEST) {
-                    v = new Velocity((128-1-cell.y)*GlobalValues.UX/128,0f);
                     density = (cell.model.fin.get(0) + cell.model.fin.get(1) + cell.model.fin.get(5)
                             + 2 * cell.model.fin.get(6) + 2 * cell.model.fin.get(7) + 2 * cell.model.fin.get(8))/(1 - v.ux);
                     v.uy = 6*(cell.model.fin.get(1) - cell.model.fin.get(5) + cell.model.fin.get(8) - cell.model.fin.get(6))/(density*(5-3*v.ux));

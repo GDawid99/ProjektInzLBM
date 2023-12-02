@@ -138,8 +138,7 @@ public class TemperatureD2Q9 extends Model{
             }
             case OPEN_TEMPERATURE_BC -> {
                 //if (cell.getFluidBoundaryType() == FluidBoundaryType.OPEN_DENSITY_BC) temperature = GlobalValues.TEMPERATURE;
-                if (cell.getFluidBoundaryType() == FluidBoundaryType.OPEN_VELOCITY_BC) temperature = cell.y * (GlobalValues.TEMPERATURE+0.5f)/128;
-                else temperature = GlobalValues.TEMPERATURE;
+                temperature = cell.temperature;
                 if (cell.getBoundaryDirection() == BoundaryDirection.NORTH) {
                     alphaT = 1f;
                     cell.temperatureModel.tin.set(4, (1 - alphaT)*cell.temperatureModel.tin.get(8) + alphaT*(temperature - cell.temperatureModel.tin.get(8)));
