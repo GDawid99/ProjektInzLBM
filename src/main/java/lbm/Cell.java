@@ -1,6 +1,7 @@
 package lbm;
 
 
+import lbm.boundary.BoundaryDirection;
 import lbm.boundary.FluidBoundaryType;
 import lbm.boundary.TempBoundaryType;
 import lbm.model.FluidFlowD2Q9;
@@ -18,31 +19,19 @@ public class Cell {
     public TemperatureD2Q9 temperatureModel;
     private FluidBoundaryType fluidBoundaryType;
     private TempBoundaryType tempBoundaryType;
+    private BoundaryDirection boundaryDirection;
     public float density;
     public Velocity velocity;
     public float temperature;
 
-
-
-    public Cell(int x, int y, float density, Velocity velocity, FluidBoundaryType fluidBoundaryType, TempBoundaryType tempBoundaryType, FluidFlowD2Q9 model, TemperatureD2Q9 temperatureModel) {
+    public Cell(int x, int y, float density, float temperature, Velocity velocity, FluidBoundaryType fluidBoundaryType, TempBoundaryType tempBoundaryType, BoundaryDirection direction, FluidFlowD2Q9 model, TemperatureD2Q9 temperatureModel) {
         this.x = x;
         this.y = y;
         this.model = model;
         this.temperatureModel = temperatureModel;
         this.fluidBoundaryType = fluidBoundaryType;
         this.tempBoundaryType = tempBoundaryType;
-        this.density = density;
-        this.temperature = 0f;
-        this.velocity = velocity;
-    }
-
-    public Cell(int x, int y, float density, float temperature, Velocity velocity, FluidBoundaryType fluidBoundaryType, TempBoundaryType tempBoundaryType, FluidFlowD2Q9 model, TemperatureD2Q9 temperatureModel) {
-        this.x = x;
-        this.y = y;
-        this.model = model;
-        this.temperatureModel = temperatureModel;
-        this.fluidBoundaryType = fluidBoundaryType;
-        this.tempBoundaryType = tempBoundaryType;
+        this.boundaryDirection = direction;
         this.density = density;
         this.temperature = temperature;
         this.velocity = velocity;
@@ -53,6 +42,7 @@ public class Cell {
         this.y = cell.y;
         this.fluidBoundaryType = cell.getFluidBoundaryType();
         this.tempBoundaryType = cell.getTempBoundaryType();
+        this.boundaryDirection = cell.boundaryDirection;
         this.density = cell.density;
         this.model = new FluidFlowD2Q9((FluidFlowD2Q9) cell.model);
         this.temperatureModel = new TemperatureD2Q9((TemperatureD2Q9) cell.temperatureModel);
@@ -104,6 +94,10 @@ public class Cell {
 
     public TempBoundaryType getTempBoundaryType() {
         return this.tempBoundaryType;
+    }
+
+    public BoundaryDirection getBoundaryDirection() {
+        return boundaryDirection;
     }
 
     @Override

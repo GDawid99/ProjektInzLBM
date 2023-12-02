@@ -17,5 +17,5 @@ public abstract class Model {
     public abstract void calcEquilibriumFunctions(Velocity velocity, float variable);
     public abstract void calcOutputFunctions(ArrayList<Float> inFunction, ArrayList<Float> eqFunction, float time, float tau);
     public abstract void calcStreaming(List<Cell> cells);
-    public abstract void calcBoundaryConditions(Cell cell, String direction);
+    public abstract void calcBoundaryConditions(Cell cell);
 }

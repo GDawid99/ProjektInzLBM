@@ -1,5 +1,6 @@
 package lbm;
 
+import lbm.boundary.BoundaryDirection;
 import lbm.boundary.FluidBoundaryType;
 import lbm.boundary.TempBoundaryType;
 import lbm.model.FluidFlowD2Q9;
@@ -29,30 +30,36 @@ public class Lattice {
         for (int y = 0; y < latticeHeight; y++) {
             for (int x = 0; x < latticeWidth; x++) {
                 if (y == 0) {
-                    board[y][x] = setInitialValues(x,y,1f,GlobalValues.TEMPERATURE,new Velocity(0f,0f), FluidBoundaryType.BOUNCE_BACK_BC, TempBoundaryType.BOUNCE_BACK_BC);
+                    BoundaryDirection direction = BoundaryDirection.NORTH;
+                    if (x == 0) direction = BoundaryDirection.NORTHWEST;
+                    if (x == latticeWidth-1) direction = BoundaryDirection.NORTHEAST;
+                    board[y][x] = setInitialValues(x,y,1f,GlobalValues.TEMPERATURE,new Velocity(0f,0f), FluidBoundaryType.BOUNCE_BACK_BC, TempBoundaryType.BOUNCE_BACK_BC, direction);
                 }
                 else if (y == latticeHeight-1) {
-                    board[y][x] = setInitialValues(x,y,1f,GlobalValues.TEMPERATURE,new Velocity(0f,0f), FluidBoundaryType.BOUNCE_BACK_BC, TempBoundaryType.BOUNCE_BACK_BC);
+                    BoundaryDirection direction = BoundaryDirection.SOUTH;
+                    if (x == 0) direction = BoundaryDirection.SOUTHWEST;
+                    if (x == latticeWidth-1) direction = BoundaryDirection.SOUTHEAST;
+                    board[y][x] = setInitialValues(x,y,1f,GlobalValues.TEMPERATURE,new Velocity(0f,0f), FluidBoundaryType.BOUNCE_BACK_BC, TempBoundaryType.BOUNCE_BACK_BC, direction);
                 }
                 else if (x == latticeWidth-1) {
-                    board[y][x] = setInitialValues(x,y,1f,GlobalValues.TEMPERATURE,new Velocity(0f,0f), FluidBoundaryType.OPEN_DENSITY_BC, TempBoundaryType.OPEN_TEMPERATURE_BC);
+                    board[y][x] = setInitialValues(x,y,1f,GlobalValues.TEMPERATURE,new Velocity(0f,0f), FluidBoundaryType.OPEN_DENSITY_BC, TempBoundaryType.OPEN_TEMPERATURE_BC, BoundaryDirection.EAST);
                 }
                 else if (x == 0) {
-                    board[y][x] = setInitialValues(x,y,1f,y * (GlobalValues.TEMPERATURE+0.5f)/128,new Velocity((latticeHeight-1-y)*GlobalValues.UX/latticeHeight,0f), FluidBoundaryType.OPEN_VELOCITY_BC, TempBoundaryType.OPEN_TEMPERATURE_BC);
+                    board[y][x] = setInitialValues(x,y,1f,y * (GlobalValues.TEMPERATURE+0.5f)/128,new Velocity((latticeHeight-1-y)*GlobalValues.UX/latticeHeight,0f), FluidBoundaryType.OPEN_VELOCITY_BC, TempBoundaryType.OPEN_TEMPERATURE_BC, BoundaryDirection.WEST);
                 }
 //                else if (x > latticeWidth*0.45  && x < latticeWidth*0.55 && y > latticeHeight*0.7) {
 //                    board[y][x] = setInitialValues(x,y,1f,0f,new Velocity(0f,0f),CellState.BOUNCE_BACK_BC);
 //                }
                 else {
-                    board[y][x] = setInitialValues(x,y,1f,GlobalValues.TEMPERATURE, GlobalValues.velocityInitZero(), FluidBoundaryType.NONE, TempBoundaryType.NONE);
+                    board[y][x] = setInitialValues(x,y,1f,GlobalValues.TEMPERATURE, GlobalValues.velocityInitZero(), FluidBoundaryType.NONE, TempBoundaryType.NONE, BoundaryDirection.NONE);
                 }
             }
         }
         return board;
     }
 
-    private Cell setInitialValues(int x, int y, float density, float temperature, Velocity velocity, FluidBoundaryType fluidBoundaryType, TempBoundaryType tempBoundaryType) {
-        Cell cell = new Cell(x,y, density, temperature, velocity, fluidBoundaryType, tempBoundaryType, new FluidFlowD2Q9(), new TemperatureD2Q9());
+    private Cell setInitialValues(int x, int y, float density, float temperature, Velocity velocity, FluidBoundaryType fluidBoundaryType, TempBoundaryType tempBoundaryType, BoundaryDirection direction) {
+        Cell cell = new Cell(x,y, density, temperature, velocity, fluidBoundaryType, tempBoundaryType, direction, new FluidFlowD2Q9(), new TemperatureD2Q9());
         cell.model.calcEquilibriumFunctions(cell.velocity, cell.density);
         cell.model.calcInputFunctions(cell.model.getFeq());
         cell.temperatureModel.calcEquilibriumFunctions(cell.velocity, cell.temperature);
@@ -120,38 +127,8 @@ public class Lattice {
                 }
                 cells[y][x].model.calcStreaming(neighbourhood);
                 cells[y][x].temperatureModel.calcStreaming(neighbourhood);
-                if (x == 0 && y == 0) {
-                    cells[y][x].model.calcBoundaryConditions(cells[y][x],"NW");
-                    cells[y][x].temperatureModel.calcBoundaryConditions(cells[y][x],"NW");
-                }
-                else if (x == 0 && y == latticeHeight-1) {
-                    cells[y][x].model.calcBoundaryConditions(cells[y][x],"SW");
-                    cells[y][x].temperatureModel.calcBoundaryConditions(cells[y][x],"SW");
-                }
-                else if (x == latticeWidth-1 && y == 0) {
-                    cells[y][x].model.calcBoundaryConditions(cells[y][x],"NE");
-                    cells[y][x].temperatureModel.calcBoundaryConditions(cells[y][x],"NE");
-                }
-                else if (x == latticeWidth-1 && y == latticeHeight-1) {
-                    cells[y][x].model.calcBoundaryConditions(cells[y][x],"SE");
-                    cells[y][x].temperatureModel.calcBoundaryConditions(cells[y][x],"SE");
-                }
-                else if (x == 0) {
-                    cells[y][x].model.calcBoundaryConditions(cells[y][x],"W");
-                    cells[y][x].temperatureModel.calcBoundaryConditions(cells[y][x],"W");
-                }
-                else if (y == 0) {
-                    cells[y][x].model.calcBoundaryConditions(cells[y][x],"N");
-                    cells[y][x].temperatureModel.calcBoundaryConditions(cells[y][x],"N");
-                }
-                else if (x == latticeWidth-1) {
-                    cells[y][x].model.calcBoundaryConditions(cells[y][x],"E");
-                    cells[y][x].temperatureModel.calcBoundaryConditions(cells[y][x],"E");
-                }
-                else if (y == latticeHeight-1) {
-                    cells[y][x].model.calcBoundaryConditions(cells[y][x],"S");
-                    cells[y][x].temperatureModel.calcBoundaryConditions(cells[y][x],"S");
-                }
+                cells[y][x].model.calcBoundaryConditions(cells[y][x]);
+                cells[y][x].temperatureModel.calcBoundaryConditions(cells[y][x]);
             }
         }
     }

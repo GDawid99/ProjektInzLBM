@@ -1,6 +1,7 @@
 package lbm.model;
 
 import lbm.Cell;
+import lbm.boundary.BoundaryDirection;
 import lbm.boundary.FluidBoundaryType;
 import lbm.GlobalValues;
 import util.Velocity;
@@ -74,7 +75,7 @@ public class FluidFlowD2Q9 extends Model {
     }
 
     @Override
-    public void calcBoundaryConditions(Cell cell, String direction) {
+    public void calcBoundaryConditions(Cell cell) {
         Velocity v = new Velocity(0.0f,0.0f);
         float density = 1f;
         switch (cell.getFluidBoundaryType()) {
@@ -84,48 +85,48 @@ public class FluidFlowD2Q9 extends Model {
             case BOUNCE_BACK_BC -> {
 //                for (int i = 0; i < 9; i++) {
 //                    if (cell.model.getFin().get(i) == null) {
-                        if (direction.equals("N")) {
+                        if (cell.getBoundaryDirection() == BoundaryDirection.NORTH) {
                             cell.model.fin.set(4,cell.model.getFout().get(8));
                             cell.model.fin.set(5,cell.model.getFout().get(1));
                             cell.model.fin.set(6,cell.model.getFout().get(2));
                         }
-                        else if (direction.equals("S")) {
+                        else if (cell.getBoundaryDirection() == BoundaryDirection.SOUTH) {
                             cell.model.fin.set(8,cell.model.getFout().get(4));
                             cell.model.fin.set(1,cell.model.getFout().get(5));
                             cell.model.fin.set(2,cell.model.getFout().get(6));
                         }
-                        else if (direction.equals("W")) {
+                        else if (cell.getBoundaryDirection() == BoundaryDirection.WEST) {
                             cell.model.fin.set(2,cell.model.getFout().get(6));
                             cell.model.fin.set(3,cell.model.getFout().get(7));
                             cell.model.fin.set(4,cell.model.getFout().get(8));
                         }
-                        else if (direction.equals("E")) {
+                        else if (cell.getBoundaryDirection() == BoundaryDirection.EAST) {
                             cell.model.fin.set(6,cell.model.getFout().get(2));
                             cell.model.fin.set(7,cell.model.getFout().get(3));
                             cell.model.fin.set(8,cell.model.getFout().get(4));
                         }
-                        else if (direction.equals("NW")) {
+                        else if (cell.getBoundaryDirection() == BoundaryDirection.NORTHWEST) {
                             cell.model.fin.set(2,cell.model.getFout().get(8));
                             cell.model.fin.set(3,cell.model.getFout().get(7));
                             cell.model.fin.set(4,cell.model.getFout().get(8));
                             cell.model.fin.set(5,cell.model.getFout().get(1));
                             cell.model.fin.set(6,cell.model.getFout().get(8));
                         }
-                        else if (direction.equals("NE")) {
+                        else if (cell.getBoundaryDirection() == BoundaryDirection.NORTHEAST) {
                             cell.model.fin.set(4,cell.model.getFout().get(2));
                             cell.model.fin.set(5,cell.model.getFout().get(1));
                             cell.model.fin.set(6,cell.model.getFout().get(2));
                             cell.model.fin.set(7,cell.model.getFout().get(3));
                             cell.model.fin.set(8,cell.model.getFout().get(2));
                         }
-                        else if (direction.equals("SW")) {
+                        else if (cell.getBoundaryDirection() == BoundaryDirection.SOUTHWEST) {
                             cell.model.fin.set(8,cell.model.getFout().get(6));
                             cell.model.fin.set(1,cell.model.getFout().get(5));
                             cell.model.fin.set(2,cell.model.getFout().get(6));
                             cell.model.fin.set(3,cell.model.getFout().get(7));
                             cell.model.fin.set(4,cell.model.getFout().get(6));
                         }
-                        else if (direction.equals("SE")) {
+                        else if (cell.getBoundaryDirection() == BoundaryDirection.SOUTHEAST) {
                             cell.model.fin.set(6,cell.model.getFout().get(4));
                             cell.model.fin.set(7,cell.model.getFout().get(3));
                             cell.model.fin.set(8,cell.model.getFout().get(4));
@@ -135,22 +136,22 @@ public class FluidFlowD2Q9 extends Model {
             }
             case OPEN_DENSITY_BC -> {
                 density = 1f;
-                if (direction.equals("N")) {
+                if (cell.getBoundaryDirection() == BoundaryDirection.NORTH) {
                     v.uy = -1 + (cell.model.fin.get(0) + cell.model.fin.get(3) + cell.model.fin.get(7)
                             + 2 * cell.model.fin.get(8) + 2 * cell.model.fin.get(1) + 2 * cell.model.fin.get(2))/density;
                     v.ux = 6*(cell.model.fin.get(3) - cell.model.fin.get(7) + cell.model.fin.get(8) - cell.model.fin.get(2))/(density*(5+3*v.uy));
                 }
-                else if (direction.equals("S")) {
+                else if (cell.getBoundaryDirection() == BoundaryDirection.SOUTH) {
                     v.uy = 1 - (cell.model.fin.get(0) + cell.model.fin.get(3) + cell.model.fin.get(7)
                             + 2 * cell.model.fin.get(4) + 2 * cell.model.fin.get(5) + 2 * cell.model.fin.get(6))/density;
                     v.ux = 6*(cell.model.fin.get(3) - cell.model.fin.get(7) + cell.model.fin.get(6) - cell.model.fin.get(4))/(density*(5-3*v.uy));
                 }
-                else if (direction.equals("W")) {
+                else if (cell.getBoundaryDirection() == BoundaryDirection.WEST) {
                     v.ux = 1 - (cell.model.fin.get(0) + cell.model.fin.get(1) + cell.model.fin.get(5)
                             + 2 * cell.model.fin.get(6) + 2 * cell.model.fin.get(7) + 2 * cell.model.fin.get(8))/density;
                     v.uy = 6*(cell.model.fin.get(1) - cell.model.fin.get(5) + cell.model.fin.get(8) - cell.model.fin.get(6))/(density*(5-3*v.ux));
                 }
-                else if (direction.equals("E")) {
+                else if (cell.getBoundaryDirection() == BoundaryDirection.EAST) {
                     v.ux = -1 + (cell.model.fin.get(0) + cell.model.fin.get(1) + cell.model.fin.get(5)
                             + 2 * cell.model.fin.get(2) + 2 * cell.model.fin.get(3) + 2 * cell.model.fin.get(4))/density;
                     v.uy = 6*(cell.model.fin.get(1) - cell.model.fin.get(5) + cell.model.fin.get(2) - cell.model.fin.get(4))/(density*(5+3*v.ux));
@@ -158,23 +159,23 @@ public class FluidFlowD2Q9 extends Model {
             }
             case OPEN_VELOCITY_BC -> {
                 v = new Velocity(0f,0f);
-                if (direction.equals("N")) {
+                if (cell.getBoundaryDirection() == BoundaryDirection.NORTH) {
                     density = (cell.model.fin.get(0) + cell.model.fin.get(3) + cell.model.fin.get(7)
                             + 2 * cell.model.fin.get(8) + 2 * cell.model.fin.get(1) + 2 * cell.model.fin.get(2))/(1 + v.uy);
                     v.ux = 6*(cell.model.fin.get(3) - cell.model.fin.get(7) + cell.model.fin.get(8) - cell.model.fin.get(2))/(density*(5+3*v.uy));
                 }
-                else if (direction.equals("S")) {
+                else if (cell.getBoundaryDirection() == BoundaryDirection.SOUTH) {
                     density = (cell.model.fin.get(0) + cell.model.fin.get(3) + cell.model.fin.get(7)
                             + 2 * cell.model.fin.get(4) + 2 * cell.model.fin.get(5) + 2 * cell.model.fin.get(6))/(1 - v.uy);
                     v.ux = 6*(cell.model.fin.get(3) - cell.model.fin.get(7) + cell.model.fin.get(6) - cell.model.fin.get(4))/(density*(5-3*v.uy));
                 }
-                else if (direction.equals("W")) {
+                else if (cell.getBoundaryDirection() == BoundaryDirection.WEST) {
                     v = new Velocity((128-1-cell.y)*GlobalValues.UX/128,0f);
                     density = (cell.model.fin.get(0) + cell.model.fin.get(1) + cell.model.fin.get(5)
                             + 2 * cell.model.fin.get(6) + 2 * cell.model.fin.get(7) + 2 * cell.model.fin.get(8))/(1 - v.ux);
                     v.uy = 6*(cell.model.fin.get(1) - cell.model.fin.get(5) + cell.model.fin.get(8) - cell.model.fin.get(6))/(density*(5-3*v.ux));
                 }
-                else if (direction.equals("E")) {
+                else if (cell.getBoundaryDirection() == BoundaryDirection.EAST) {
                     density = (cell.model.fin.get(0) + cell.model.fin.get(1) + cell.model.fin.get(5)
                             + 2 * cell.model.fin.get(2) + 2 * cell.model.fin.get(3) + 2 * cell.model.fin.get(4))/(1 + v.ux);
                     v.uy = 6*(cell.model.fin.get(1) - cell.model.fin.get(5) + cell.model.fin.get(2) - cell.model.fin.get(4))/(density*(5+3*v.ux));
@@ -182,22 +183,22 @@ public class FluidFlowD2Q9 extends Model {
             }
         }
         if (cell.getFluidBoundaryType() == FluidBoundaryType.OPEN_VELOCITY_BC || cell.getFluidBoundaryType() == FluidBoundaryType.OPEN_DENSITY_BC) {
-            if (direction.equals("N")) {
-                cell.model.fin.set(4,cell.model.fin.get(8) + density*(v.ux+v.uy)/6);
+            if (cell.getBoundaryDirection() == BoundaryDirection.NORTH) {
+                cell.model.fin.set(4,cell.model.fin.get(8) - density*(v.ux+v.uy)/6);
                 cell.model.fin.set(5,cell.model.fin.get(1) - 2*density*v.uy/3);
                 cell.model.fin.set(6,cell.model.fin.get(2) - density*(v.ux-v.uy)/6);
             }
-            else if (direction.equals("S")) {
+            else if (cell.getBoundaryDirection() == BoundaryDirection.SOUTH) {
                 cell.model.fin.set(8,cell.model.fin.get(4) + density*(v.ux+v.uy)/6);
                 cell.model.fin.set(1,cell.model.fin.get(5) + 2*density*v.uy/3);
-                cell.model.fin.set(2,cell.model.fin.get(6) - density*(v.ux-v.uy)/6);
+                cell.model.fin.set(2,cell.model.fin.get(6) + density*(v.ux-v.uy)/6);
             }
-            else if (direction.equals("W")) {
+            else if (cell.getBoundaryDirection() == BoundaryDirection.WEST) {
                 cell.model.fin.set(2,cell.model.fin.get(6) + density*(v.ux-v.uy)/6);
                 cell.model.fin.set(3,cell.model.fin.get(7) + 2*density*v.ux/3);
                 cell.model.fin.set(4,cell.model.fin.get(8) + density*(v.ux+v.uy)/6);
             }
-            else if (direction.equals("E")) {
+            else if (cell.getBoundaryDirection() == BoundaryDirection.EAST) {
                 cell.model.fin.set(6,cell.model.fin.get(2) - density*(v.ux-v.uy)/6);
                 cell.model.fin.set(7,cell.model.fin.get(3) - 2*density*v.ux/3);
                 cell.model.fin.set(8,cell.model.fin.get(4) - density*(v.ux+v.uy)/6);
