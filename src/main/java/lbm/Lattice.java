@@ -109,7 +109,6 @@ public class Lattice {
                 if (cells[y][x].temperature > GlobalValues.MAX_TEMPERATURE) GlobalValues.MAX_TEMPERATURE = cells[y][x].temperature;
             }
         }
-        //System.out.println();
         if (iter % 50 == 0) {
             dataLog();
             System.out.println("AVERAGE DENSITY:" + (avg_density / (latticeHeight * latticeWidth)));
@@ -127,8 +126,8 @@ public class Lattice {
                 }
                 cells[y][x].model.calcStreaming(neighbourhood);
                 cells[y][x].temperatureModel.calcStreaming(neighbourhood);
-                cells[y][x].model.calcBoundaryConditions(cells[y][x]);
-                cells[y][x].temperatureModel.calcBoundaryConditions(cells[y][x]);
+                cells[y][x].model.calcBoundaryConditions(cells[y][x].getFluidBoundaryType(),cells[y][x].getTempBoundaryType(),cells[y][x].getBoundaryDirection(),cells[y][x].velocity,cells[y][x].density);
+                cells[y][x].temperatureModel.calcBoundaryConditions(cells[y][x].getFluidBoundaryType(),cells[y][x].getTempBoundaryType(),cells[y][x].getBoundaryDirection(),cells[y][x].velocity,cells[y][x].temperature);
             }
         }
     }

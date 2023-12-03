@@ -76,174 +76,168 @@ public class TemperatureD2Q9 extends Model{
     }
 
     @Override
-    public void calcBoundaryConditions(Cell cell) {
-        Velocity v = new Velocity(0.0f,0.0f);
-        float temperature = 0f;
+    public void calcBoundaryConditions(FluidBoundaryType fluidBC, TempBoundaryType tempBC, BoundaryDirection direction, Velocity v, float temperature) {
         float alphaT = 1;
-        switch (cell.getTempBoundaryType()) {
+        switch (tempBC) {
             case CONST_BC -> {
-                cell.temperatureModel.calcInputFunctions(cell.temperatureModel.getTout());
+                calcInputFunctions(tout);
             }
             case BOUNCE_BACK_BC -> {
-//                for (int i = 0; i < 9; i++) {
-//                    if (cell.temperatureModel.getFin().get(i) == null) {
-                if (cell.getBoundaryDirection() == BoundaryDirection.NORTH) {
-                    cell.temperatureModel.tin.set(4,cell.temperatureModel.getTout().get(8));
-                    cell.temperatureModel.tin.set(5,cell.temperatureModel.getTout().get(1));
-                    cell.temperatureModel.tin.set(6,cell.temperatureModel.getTout().get(2));
+                if (direction == BoundaryDirection.NORTH) {
+                    tin.set(4, tin.get(8));
+                    tin.set(5, tin.get(1));
+                    tin.set(6, tin.get(2));
                 }
-                else if (cell.getBoundaryDirection() == BoundaryDirection.SOUTH) {
-                    cell.temperatureModel.tin.set(8,cell.temperatureModel.getTout().get(4));
-                    cell.temperatureModel.tin.set(1,cell.temperatureModel.getTout().get(5));
-                    cell.temperatureModel.tin.set(2,cell.temperatureModel.getTout().get(6));
+                else if (direction == BoundaryDirection.SOUTH) {
+                    tin.set(8, tin.get(4));
+                    tin.set(1, tin.get(5));
+                    tin.set(2, tin.get(6));
                 }
-                else if (cell.getBoundaryDirection() == BoundaryDirection.WEST) {
-                    cell.temperatureModel.tin.set(2,cell.temperatureModel.getTout().get(6));
-                    cell.temperatureModel.tin.set(3,cell.temperatureModel.getTout().get(7));
-                    cell.temperatureModel.tin.set(4,cell.temperatureModel.getTout().get(8));
+                else if (direction == BoundaryDirection.WEST) {
+                    tin.set(2, tin.get(6));
+                    tin.set(3, tin.get(7));
+                    tin.set(4, tin.get(8));
                 }
-                else if (cell.getBoundaryDirection() == BoundaryDirection.EAST) {
-                    cell.temperatureModel.tin.set(6,cell.temperatureModel.getTout().get(2));
-                    cell.temperatureModel.tin.set(7,cell.temperatureModel.getTout().get(3));
-                    cell.temperatureModel.tin.set(8,cell.temperatureModel.getTout().get(4));
+                else if (direction == BoundaryDirection.EAST) {
+                    tin.set(6, tin.get(2));
+                    tin.set(7, tin.get(3));
+                    tin.set(8, tin.get(4));
                 }
-                else if (cell.getBoundaryDirection() == BoundaryDirection.NORTHWEST) {
-                    cell.temperatureModel.tin.set(2,cell.temperatureModel.getTout().get(8));
-                    cell.temperatureModel.tin.set(3,cell.temperatureModel.getTout().get(7));
-                    cell.temperatureModel.tin.set(4,cell.temperatureModel.getTout().get(8));
-                    cell.temperatureModel.tin.set(5,cell.temperatureModel.getTout().get(1));
-                    cell.temperatureModel.tin.set(6,cell.temperatureModel.getTout().get(8));
+                else if (direction == BoundaryDirection.NORTHWEST) {
+                    tin.set(2, tin.get(8));
+                    tin.set(3, tin.get(7));
+                    tin.set(4, tin.get(8));
+                    tin.set(5, tin.get(1));
+                    tin.set(6, tin.get(8));
                 }
-                else if (cell.getBoundaryDirection() == BoundaryDirection.NORTHEAST) {
-                    cell.temperatureModel.tin.set(4,cell.temperatureModel.getTout().get(2));
-                    cell.temperatureModel.tin.set(5,cell.temperatureModel.getTout().get(1));
-                    cell.temperatureModel.tin.set(6,cell.temperatureModel.getTout().get(2));
-                    cell.temperatureModel.tin.set(7,cell.temperatureModel.getTout().get(3));
-                    cell.temperatureModel.tin.set(8,cell.temperatureModel.getTout().get(2));
+                else if (direction == BoundaryDirection.NORTHEAST) {
+                    tin.set(4, tin.get(2));
+                    tin.set(5, tin.get(1));
+                    tin.set(6, tin.get(2));
+                    tin.set(7, tin.get(3));
+                    tin.set(8, tin.get(2));
                 }
-                else if (cell.getBoundaryDirection() == BoundaryDirection.SOUTHWEST) {
-                    cell.temperatureModel.tin.set(8,cell.temperatureModel.getTout().get(6));
-                    cell.temperatureModel.tin.set(1,cell.temperatureModel.getTout().get(5));
-                    cell.temperatureModel.tin.set(2,cell.temperatureModel.getTout().get(6));
-                    cell.temperatureModel.tin.set(3,cell.temperatureModel.getTout().get(7));
-                    cell.temperatureModel.tin.set(4,cell.temperatureModel.getTout().get(6));
+                else if (direction == BoundaryDirection.SOUTHWEST) {
+                    tin.set(8, tin.get(6));
+                    tin.set(1, tin.get(5));
+                    tin.set(2, tin.get(6));
+                    tin.set(3, tin.get(7));
+                    tin.set(4, tin.get(6));
                 }
-                else if (cell.getBoundaryDirection() == BoundaryDirection.SOUTHEAST) {
-                    cell.temperatureModel.tin.set(6,cell.temperatureModel.getTout().get(4));
-                    cell.temperatureModel.tin.set(7,cell.temperatureModel.getTout().get(3));
-                    cell.temperatureModel.tin.set(8,cell.temperatureModel.getTout().get(4));
-                    cell.temperatureModel.tin.set(1,cell.temperatureModel.getTout().get(5));
-                    cell.temperatureModel.tin.set(2,cell.temperatureModel.getTout().get(4));
+                else if (direction == BoundaryDirection.SOUTHEAST) {
+                    tin.set(6, tin.get(4));
+                    tin.set(7, tin.get(3));
+                    tin.set(8, tin.get(4));
+                    tin.set(1, tin.get(5));
+                    tin.set(2, tin.get(4));
                 }
             }
             case SYMMETRY_BC -> {
-                if (cell.getBoundaryDirection() == BoundaryDirection.NORTH) {
-                    cell.temperatureModel.tin.set(4,cell.temperatureModel.getTout().get(2));
-                    cell.temperatureModel.tin.set(5,cell.temperatureModel.getTout().get(1));
-                    cell.temperatureModel.tin.set(6,cell.temperatureModel.getTout().get(8));
+                if (direction == BoundaryDirection.NORTH) {
+                    tin.set(4, tin.get(2));
+                    tin.set(5, tin.get(1));
+                    tin.set(6, tin.get(8));
                 }
-                else if (cell.getBoundaryDirection() == BoundaryDirection.SOUTH) {
-                    cell.temperatureModel.tin.set(8,cell.temperatureModel.getTout().get(6));
-                    cell.temperatureModel.tin.set(1,cell.temperatureModel.getTout().get(5));
-                    cell.temperatureModel.tin.set(2,cell.temperatureModel.getTout().get(4));
+                else if (direction == BoundaryDirection.SOUTH) {
+                    tin.set(8, tin.get(6));
+                    tin.set(1, tin.get(5));
+                    tin.set(2, tin.get(4));
                 }
-                else if (cell.getBoundaryDirection() == BoundaryDirection.WEST) {
-                    cell.temperatureModel.tin.set(2,cell.temperatureModel.getTout().get(8));
-                    cell.temperatureModel.tin.set(3,cell.temperatureModel.getTout().get(7));
-                    cell.temperatureModel.tin.set(4,cell.temperatureModel.getTout().get(6));
+                else if (direction == BoundaryDirection.WEST) {
+                    tin.set(2, tin.get(8));
+                    tin.set(3, tin.get(7));
+                    tin.set(4, tin.get(6));
                 }
-                else if (cell.getBoundaryDirection() == BoundaryDirection.EAST) {
-                    cell.temperatureModel.tin.set(6,cell.temperatureModel.getTout().get(4));
-                    cell.temperatureModel.tin.set(7,cell.temperatureModel.getTout().get(3));
-                    cell.temperatureModel.tin.set(8,cell.temperatureModel.getTout().get(2));
+                else if (direction == BoundaryDirection.EAST) {
+                    tin.set(6, tin.get(4));
+                    tin.set(7, tin.get(3));
+                    tin.set(8, tin.get(2));
                 }
-                else if (cell.getBoundaryDirection() == BoundaryDirection.NORTHWEST) {
-                    cell.temperatureModel.tin.set(2,cell.temperatureModel.getTout().get(8));
-                    cell.temperatureModel.tin.set(3,cell.temperatureModel.getTout().get(7));
-                    cell.temperatureModel.tin.set(4,cell.temperatureModel.getTout().get(8));
-                    cell.temperatureModel.tin.set(5,cell.temperatureModel.getTout().get(1));
-                    cell.temperatureModel.tin.set(6,cell.temperatureModel.getTout().get(8));
+                else if (direction == BoundaryDirection.NORTHWEST) {
+                    tin.set(2, tin.get(8));
+                    tin.set(3, tin.get(7));
+                    tin.set(4, tin.get(8));
+                    tin.set(5, tin.get(1));
+                    tin.set(6, tin.get(8));
                 }
-                else if (cell.getBoundaryDirection() == BoundaryDirection.NORTHEAST) {
-                    cell.temperatureModel.tin.set(4,cell.temperatureModel.getTout().get(2));
-                    cell.temperatureModel.tin.set(5,cell.temperatureModel.getTout().get(1));
-                    cell.temperatureModel.tin.set(6,cell.temperatureModel.getTout().get(2));
-                    cell.temperatureModel.tin.set(7,cell.temperatureModel.getTout().get(3));
-                    cell.temperatureModel.tin.set(8,cell.temperatureModel.getTout().get(2));
+                else if (direction == BoundaryDirection.NORTHEAST) {
+                    tin.set(4, tin.get(2));
+                    tin.set(5, tin.get(1));
+                    tin.set(6, tin.get(2));
+                    tin.set(7, tin.get(3));
+                    tin.set(8, tin.get(2));
                 }
-                else if (cell.getBoundaryDirection() == BoundaryDirection.SOUTHWEST) {
-                    cell.temperatureModel.tin.set(8,cell.temperatureModel.getTout().get(6));
-                    cell.temperatureModel.tin.set(1,cell.temperatureModel.getTout().get(5));
-                    cell.temperatureModel.tin.set(2,cell.temperatureModel.getTout().get(6));
-                    cell.temperatureModel.tin.set(3,cell.temperatureModel.getTout().get(7));
-                    cell.temperatureModel.tin.set(4,cell.temperatureModel.getTout().get(6));
+                else if (direction == BoundaryDirection.SOUTHWEST) {
+                    tin.set(8, tin.get(6));
+                    tin.set(1, tin.get(5));
+                    tin.set(2, tin.get(6));
+                    tin.set(3, tin.get(7));
+                    tin.set(4, tin.get(6));
                 }
-                else if (cell.getBoundaryDirection() == BoundaryDirection.SOUTHEAST) {
-                    cell.temperatureModel.tin.set(6,cell.temperatureModel.getTout().get(4));
-                    cell.temperatureModel.tin.set(7,cell.temperatureModel.getTout().get(3));
-                    cell.temperatureModel.tin.set(8,cell.temperatureModel.getTout().get(4));
-                    cell.temperatureModel.tin.set(1,cell.temperatureModel.getTout().get(5));
-                    cell.temperatureModel.tin.set(2,cell.temperatureModel.getTout().get(4));
+                else if (direction == BoundaryDirection.SOUTHEAST) {
+                    tin.set(6, tin.get(4));
+                    tin.set(7, tin.get(3));
+                    tin.set(8, tin.get(4));
+                    tin.set(1, tin.get(5));
+                    tin.set(2, tin.get(4));
                 }
             }
             case OPEN_TEMPERATURE_BC -> {
-                //if (cell.getFluidBoundaryType() == FluidBoundaryType.OPEN_DENSITY_BC) temperature = GlobalValues.TEMPERATURE;
-                temperature = cell.temperature;
-                if (cell.getBoundaryDirection() == BoundaryDirection.NORTH) {
+                if (direction == BoundaryDirection.NORTH) {
                     alphaT = 1f;
-                    cell.temperatureModel.tin.set(4, (1 - alphaT)*cell.temperatureModel.tin.get(8) + alphaT*(temperature - cell.temperatureModel.tin.get(8)));
-                    cell.temperatureModel.tin.set(5, (1 - alphaT)*cell.temperatureModel.tin.get(1) + alphaT*(4f*temperature - cell.temperatureModel.tin.get(1)));
-                    cell.temperatureModel.tin.set(6, (1 - alphaT)*cell.temperatureModel.tin.get(2) + alphaT*(temperature - cell.temperatureModel.tin.get(2)));
+                    tin.set(4, (1 - alphaT) * tin.get(8) + alphaT * (temperature -  tin.get(8)));
+                    tin.set(5, (1 - alphaT) * tin.get(1) + alphaT * (4f * temperature -  tin.get(1)));
+                    tin.set(6, (1 - alphaT) * tin.get(2) + alphaT * (temperature -  tin.get(2)));
                 }
-                else if (cell.getBoundaryDirection() == BoundaryDirection.SOUTH) {
+                else if (direction == BoundaryDirection.SOUTH) {
                     alphaT = 0f;
-                    cell.temperatureModel.tin.set(8, (1 - alphaT)*cell.temperatureModel.tin.get(4) + alphaT*(temperature - cell.temperatureModel.tin.get(4)));
-                    cell.temperatureModel.tin.set(1, (1 - alphaT)*cell.temperatureModel.tin.get(5) + alphaT*(4f*temperature - cell.temperatureModel.tin.get(5)));
-                    cell.temperatureModel.tin.set(2, (1 - alphaT)*cell.temperatureModel.tin.get(6) + alphaT*(temperature - cell.temperatureModel.tin.get(6)));
+                    tin.set(8, (1 - alphaT) * tin.get(4) + alphaT * (temperature -  tin.get(4)));
+                    tin.set(1, (1 - alphaT) * tin.get(5) + alphaT * (4f * temperature -  tin.get(5)));
+                    tin.set(2, (1 - alphaT) * tin.get(6) + alphaT * (temperature -  tin.get(6)));
                 }
-                else if (cell.getBoundaryDirection() == BoundaryDirection.WEST) {
+                else if (direction == BoundaryDirection.WEST) {
                     alphaT = 1f;
-                    cell.temperatureModel.tin.set(2, (1 - alphaT)*cell.temperatureModel.tin.get(6) + alphaT*(temperature - cell.temperatureModel.tin.get(6)));
-                    cell.temperatureModel.tin.set(3, (1 - alphaT)*cell.temperatureModel.tin.get(7) + alphaT*(4f*temperature - cell.temperatureModel.tin.get(7)));
-                    cell.temperatureModel.tin.set(4, (1 - alphaT)*cell.temperatureModel.tin.get(8) + alphaT*(temperature - cell.temperatureModel.tin.get(8)));
+                    tin.set(2, (1 - alphaT) * tin.get(6) + alphaT * (temperature -  tin.get(6)));
+                    tin.set(3, (1 - alphaT) * tin.get(7) + alphaT * (4f * temperature -  tin.get(7)));
+                    tin.set(4, (1 - alphaT) * tin.get(8) + alphaT * (temperature -  tin.get(8)));
                 }
-                else if (cell.getBoundaryDirection() == BoundaryDirection.EAST) {
+                else if (direction == BoundaryDirection.EAST) {
                     alphaT = 1f;
-                    cell.temperatureModel.tin.set(6, (1 - alphaT)*cell.temperatureModel.tin.get(2) + alphaT*(temperature - cell.temperatureModel.tin.get(2)));
-                    cell.temperatureModel.tin.set(7, (1 - alphaT)*cell.temperatureModel.tin.get(3) + alphaT*(4f*temperature - cell.temperatureModel.tin.get(3)));
-                    cell.temperatureModel.tin.set(8, (1 - alphaT)*cell.temperatureModel.tin.get(4) + alphaT*(temperature - cell.temperatureModel.tin.get(4)));
+                    tin.set(6, (1 - alphaT) * tin.get(2) + alphaT * (temperature -  tin.get(2)));
+                    tin.set(7, (1 - alphaT) * tin.get(3) + alphaT * (4f * temperature -  tin.get(3)));
+                    tin.set(8, (1 - alphaT) * tin.get(4) + alphaT * (temperature -  tin.get(4)));
                 }
             }
 
         }
-        if (cell.getFluidBoundaryType() == FluidBoundaryType.OPEN_DENSITY_BC) {
-            if (cell.getBoundaryDirection() == BoundaryDirection.NORTH) {
-                temperature = (cell.temperatureModel.tin.get(0) + cell.temperatureModel.tin.get(3) + cell.temperatureModel.tin.get(7)
-                        + 2*cell.temperatureModel.tin.get(8) + 2*cell.temperatureModel.tin.get(1) + 2*cell.temperatureModel.tin.get(2))/(1 + cell.velocity.uy);
-                cell.temperatureModel.tin.set(4,cell.temperatureModel.tin.get(8) - temperature*cell.velocity.uy/6);
-                cell.temperatureModel.tin.set(5,cell.temperatureModel.tin.get(1) - 2*temperature*cell.velocity.uy/3);
-                cell.temperatureModel.tin.set(6,cell.temperatureModel.tin.get(2) - temperature*cell.velocity.uy/6);
+        if (fluidBC == FluidBoundaryType.OPEN_DENSITY_BC) {
+            if (direction == BoundaryDirection.NORTH) {
+                temperature = ( tin.get(0) +  tin.get(3) +  tin.get(7)
+                        + 2 * tin.get(8) + 2 * tin.get(1) + 2 * tin.get(2))/(1 + v.uy);
+                 tin.set(4, tin.get(8) - temperature * v.uy/6);
+                 tin.set(5, tin.get(1) - 2 * temperature * v.uy/3);
+                 tin.set(6, tin.get(2) - temperature * v.uy/6);
             }
-            else if (cell.getBoundaryDirection() == BoundaryDirection.SOUTH) {
-                temperature = (cell.temperatureModel.tin.get(0) + cell.temperatureModel.tin.get(3) + cell.temperatureModel.tin.get(7)
-                        + 2*cell.temperatureModel.tin.get(4) + 2*cell.temperatureModel.tin.get(5) + 2*cell.temperatureModel.tin.get(6))/(1 - cell.velocity.uy);
-                cell.temperatureModel.tin.set(8,cell.temperatureModel.tin.get(4) + temperature*cell.velocity.uy/6);
-                cell.temperatureModel.tin.set(1,cell.temperatureModel.tin.get(5) + 2*temperature*cell.velocity.uy/3);
-                cell.temperatureModel.tin.set(2,cell.temperatureModel.tin.get(6) + temperature*cell.velocity.uy/6);
+            else if (direction == BoundaryDirection.SOUTH) {
+                temperature = ( tin.get(0) +  tin.get(3) +  tin.get(7)
+                        + 2 * tin.get(4) + 2 * tin.get(5) + 2 * tin.get(6))/(1 - v.uy);
+                 tin.set(8, tin.get(4) + temperature * v.uy/6);
+                 tin.set(1, tin.get(5) + 2 * temperature * v.uy/3);
+                 tin.set(2, tin.get(6) + temperature * v.uy/6);
             }
-            else if (cell.getBoundaryDirection() == BoundaryDirection.WEST) {
-                temperature = (cell.temperatureModel.tin.get(0) + cell.temperatureModel.tin.get(1) + cell.temperatureModel.tin.get(5)
-                        + 2*cell.temperatureModel.tin.get(6) + 2*cell.temperatureModel.tin.get(7) + 2*cell.temperatureModel.tin.get(8))/(1 - cell.velocity.ux);
-                cell.temperatureModel.tin.set(2,cell.temperatureModel.tin.get(6) + temperature*cell.velocity.ux/6);
-                cell.temperatureModel.tin.set(3,cell.temperatureModel.tin.get(7) + 2*temperature*cell.velocity.ux/3);
-                cell.temperatureModel.tin.set(4,cell.temperatureModel.tin.get(8) + temperature*cell.velocity.ux/6);
+            else if (direction == BoundaryDirection.WEST) {
+                temperature = ( tin.get(0) +  tin.get(1) +  tin.get(5)
+                        + 2 * tin.get(6) + 2 * tin.get(7) + 2 * tin.get(8))/(1 - v.ux);
+                 tin.set(2, tin.get(6) + temperature * v.ux/6);
+                 tin.set(3, tin.get(7) + 2 * temperature * v.ux/3);
+                 tin.set(4, tin.get(8) + temperature * v.ux/6);
             }
-            else if (cell.getBoundaryDirection() == BoundaryDirection.EAST) {
-                temperature = (cell.temperatureModel.tin.get(0) + cell.temperatureModel.tin.get(1) + cell.temperatureModel.tin.get(5)
-                        + 2*cell.temperatureModel.tin.get(2) + 2*cell.temperatureModel.tin.get(3) + 2*cell.temperatureModel.tin.get(4))/(1 + cell.velocity.ux);
-                cell.temperatureModel.tin.set(6,cell.temperatureModel.tin.get(2) - temperature*cell.velocity.ux/6);
-                cell.temperatureModel.tin.set(7,cell.temperatureModel.tin.get(3) - 2*temperature*cell.velocity.ux/3);
-                cell.temperatureModel.tin.set(8,cell.temperatureModel.tin.get(4) - temperature*cell.velocity.ux/6);
+            else if (direction == BoundaryDirection.EAST) {
+                temperature = ( tin.get(0) +  tin.get(1) +  tin.get(5)
+                        + 2 * tin.get(2) + 2 * tin.get(3) + 2 * tin.get(4))/(1 + v.ux);
+                 tin.set(6, tin.get(2) - temperature * v.ux/6);
+                 tin.set(7, tin.get(3) - 2 * temperature * v.ux/3);
+                 tin.set(8, tin.get(4) - temperature * v.ux/6);
             }
         }
     }
