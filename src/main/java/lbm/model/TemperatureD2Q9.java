@@ -136,6 +136,56 @@ public class TemperatureD2Q9 extends Model{
                     cell.temperatureModel.tin.set(2,cell.temperatureModel.getTout().get(4));
                 }
             }
+            case SYMMETRY_BC -> {
+                if (cell.getBoundaryDirection() == BoundaryDirection.NORTH) {
+                    cell.temperatureModel.tin.set(4,cell.temperatureModel.getTout().get(2));
+                    cell.temperatureModel.tin.set(5,cell.temperatureModel.getTout().get(1));
+                    cell.temperatureModel.tin.set(6,cell.temperatureModel.getTout().get(8));
+                }
+                else if (cell.getBoundaryDirection() == BoundaryDirection.SOUTH) {
+                    cell.temperatureModel.tin.set(8,cell.temperatureModel.getTout().get(6));
+                    cell.temperatureModel.tin.set(1,cell.temperatureModel.getTout().get(5));
+                    cell.temperatureModel.tin.set(2,cell.temperatureModel.getTout().get(4));
+                }
+                else if (cell.getBoundaryDirection() == BoundaryDirection.WEST) {
+                    cell.temperatureModel.tin.set(2,cell.temperatureModel.getTout().get(8));
+                    cell.temperatureModel.tin.set(3,cell.temperatureModel.getTout().get(7));
+                    cell.temperatureModel.tin.set(4,cell.temperatureModel.getTout().get(6));
+                }
+                else if (cell.getBoundaryDirection() == BoundaryDirection.EAST) {
+                    cell.temperatureModel.tin.set(6,cell.temperatureModel.getTout().get(4));
+                    cell.temperatureModel.tin.set(7,cell.temperatureModel.getTout().get(3));
+                    cell.temperatureModel.tin.set(8,cell.temperatureModel.getTout().get(2));
+                }
+                else if (cell.getBoundaryDirection() == BoundaryDirection.NORTHWEST) {
+                    cell.temperatureModel.tin.set(2,cell.temperatureModel.getTout().get(8));
+                    cell.temperatureModel.tin.set(3,cell.temperatureModel.getTout().get(7));
+                    cell.temperatureModel.tin.set(4,cell.temperatureModel.getTout().get(8));
+                    cell.temperatureModel.tin.set(5,cell.temperatureModel.getTout().get(1));
+                    cell.temperatureModel.tin.set(6,cell.temperatureModel.getTout().get(8));
+                }
+                else if (cell.getBoundaryDirection() == BoundaryDirection.NORTHEAST) {
+                    cell.temperatureModel.tin.set(4,cell.temperatureModel.getTout().get(2));
+                    cell.temperatureModel.tin.set(5,cell.temperatureModel.getTout().get(1));
+                    cell.temperatureModel.tin.set(6,cell.temperatureModel.getTout().get(2));
+                    cell.temperatureModel.tin.set(7,cell.temperatureModel.getTout().get(3));
+                    cell.temperatureModel.tin.set(8,cell.temperatureModel.getTout().get(2));
+                }
+                else if (cell.getBoundaryDirection() == BoundaryDirection.SOUTHWEST) {
+                    cell.temperatureModel.tin.set(8,cell.temperatureModel.getTout().get(6));
+                    cell.temperatureModel.tin.set(1,cell.temperatureModel.getTout().get(5));
+                    cell.temperatureModel.tin.set(2,cell.temperatureModel.getTout().get(6));
+                    cell.temperatureModel.tin.set(3,cell.temperatureModel.getTout().get(7));
+                    cell.temperatureModel.tin.set(4,cell.temperatureModel.getTout().get(6));
+                }
+                else if (cell.getBoundaryDirection() == BoundaryDirection.SOUTHEAST) {
+                    cell.temperatureModel.tin.set(6,cell.temperatureModel.getTout().get(4));
+                    cell.temperatureModel.tin.set(7,cell.temperatureModel.getTout().get(3));
+                    cell.temperatureModel.tin.set(8,cell.temperatureModel.getTout().get(4));
+                    cell.temperatureModel.tin.set(1,cell.temperatureModel.getTout().get(5));
+                    cell.temperatureModel.tin.set(2,cell.temperatureModel.getTout().get(4));
+                }
+            }
             case OPEN_TEMPERATURE_BC -> {
                 //if (cell.getFluidBoundaryType() == FluidBoundaryType.OPEN_DENSITY_BC) temperature = GlobalValues.TEMPERATURE;
                 temperature = cell.temperature;

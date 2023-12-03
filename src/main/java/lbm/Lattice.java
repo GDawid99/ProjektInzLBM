@@ -33,7 +33,7 @@ public class Lattice {
                     BoundaryDirection direction = BoundaryDirection.NORTH;
                     if (x == 0) direction = BoundaryDirection.NORTHWEST;
                     if (x == latticeWidth-1) direction = BoundaryDirection.NORTHEAST;
-                    board[y][x] = setInitialValues(x,y,1f,GlobalValues.TEMPERATURE,new Velocity(0f,0f), FluidBoundaryType.BOUNCE_BACK_BC, TempBoundaryType.BOUNCE_BACK_BC, direction);
+                    board[y][x] = setInitialValues(x,y,1f,GlobalValues.TEMPERATURE,new Velocity(0f,0f), FluidBoundaryType.SYMMETRY_BC, TempBoundaryType.SYMMETRY_BC, direction);
                 }
                 else if (y == latticeHeight-1) {
                     BoundaryDirection direction = BoundaryDirection.SOUTH;
