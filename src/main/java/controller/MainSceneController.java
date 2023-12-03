@@ -1,17 +1,18 @@
 package controller;
 
+import graphics.GradientBarCanvas;
 import graphics.VisualCanvas;
 import javafx.animation.AnimationTimer;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.scene.control.Menu;
-import javafx.scene.control.MenuItem;
-import javafx.scene.control.ToggleButton;
+import javafx.scene.control.*;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.HBox;
+import lbm.GlobalValues;
 import lbm.Lattice;
+import util.Velocity;
 
 import java.net.URL;
 import java.util.ResourceBundle;
@@ -21,6 +22,22 @@ public class MainSceneController implements Initializable {
     @FXML
     public ToggleButton show_flowlines_button;
     @FXML
+    public GradientBarCanvas gradient_bar;
+    @FXML
+    public TextField gradientbar_min_textfield;
+    @FXML
+    public TextField gradientbar_max_textfield;
+    @FXML
+    public Label val1_label;
+    @FXML
+    public Label val2_label;
+    @FXML
+    public Label val3_label;
+    @FXML
+    public Label val4_label;
+    @FXML
+    public Label val5_label;
+    @FXML
     protected VisualCanvas visualCanvas;
     @FXML
     protected HBox latticeBox;
@@ -29,20 +46,48 @@ public class MainSceneController implements Initializable {
     private Lattice lattice;
     private String currentVisualValue = "Velocity [Vx]";
 
+    private Velocity Vmin = new Velocity(-0.01f,-0.01f);
+    private Velocity Vmax = new Velocity(GlobalValues.UX,GlobalValues.UY);
+    private float minDensity = 0.94f;
+    private float maxDensity = 1.06f;
+    private float minTemperature = 0f;
+    private float maxTemperature = GlobalValues.TEMPERATURE+0.5f;
+    private float gradientMin = Vmin.ux;
+    private float gradientMax = Vmax.ux;
+
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         Platform.runLater(() -> visualCanvas.scaleLattice(latticeBox.getWidth(),latticeBox.getHeight()));
         menu_view.getItems().get(0).setDisable(true);
         lattice = new Lattice((int)visualCanvas.getWidth(),(int)visualCanvas.getHeight());
+        setGradientBarValues(Vmin.ux,Vmax.ux);
         AnimationTimer animationTimer = new AnimationTimer() {
             @Override
             public void handle(long l) {
                 lattice.executeOperations();
-                visualCanvas.draw(lattice,currentVisualValue);
+                visualCanvas.draw(lattice,currentVisualValue, gradientMin, gradientMax);
                 if (show_flowlines_button.isSelected()) visualCanvas.drawLines(lattice);
+                gradient_bar.draw(currentVisualValue, gradientMin, gradientMax);
             }
         };
         animationTimer.start();
+    }
+
+    public void setGradientBarValues(float min, float max) {
+        gradientbar_min_textfield.setText(String.valueOf(min));
+        gradientbar_max_textfield.setText(String.valueOf(max));
+        setLabelValues(min,max);
+    }
+
+    public void setLabelValues(float min, float max) {
+        float v2 = (min + max)/2;
+        float v1 = (min + v2)/2;
+        float v3 = (v2 + max)/2;
+        val1_label.setText(String.valueOf(min));
+        val2_label.setText(String.valueOf(v1));
+        val3_label.setText(String.valueOf(v2));
+        val4_label.setText(String.valueOf(v3));
+        val5_label.setText(String.valueOf(max));
     }
 
     //Events
@@ -50,6 +95,34 @@ public class MainSceneController implements Initializable {
         currentVisualValue = ((MenuItem)actionEvent.getSource()).getText();
         menu_view.getItems().forEach(e -> e.setDisable(false));
         ((MenuItem)actionEvent.getSource()).setDisable(true);
+        switch (currentVisualValue) {
+            case "Velocity [Vx]" -> {
+                gradientbar_min_textfield.setText(String.valueOf(Vmin.ux));
+                gradientbar_max_textfield.setText(String.valueOf(Vmax.ux));
+                gradientMin = Vmin.ux;
+                gradientMax = Vmax.ux;
+
+            }
+            case "Velocity [Vy]" -> {
+                gradientbar_min_textfield.setText(String.valueOf(Vmin.uy));
+                gradientbar_max_textfield.setText(String.valueOf(Vmax.uy));
+                gradientMin = Vmin.uy;
+                gradientMax = Vmax.uy;
+            }
+            case "Density" -> {
+                gradientbar_min_textfield.setText(String.valueOf(minDensity));
+                gradientbar_max_textfield.setText(String.valueOf(maxDensity));
+                gradientMin = minDensity;
+                gradientMax = maxDensity;
+            }
+            case "Temperature" -> {
+                gradientbar_min_textfield.setText(String.valueOf(minTemperature));
+                gradientbar_max_textfield.setText(String.valueOf(maxTemperature));
+                gradientMin = minTemperature;
+                gradientMax = maxTemperature;
+            }
+        }
+        setLabelValues(gradientMin,gradientMax);
     }
 
 
@@ -64,4 +137,71 @@ public class MainSceneController implements Initializable {
         }
 
     }
+
+    public void onMouseClickedSetNewValuesForGradientBar(MouseEvent mouseEvent) {
+        float copyMin, copyMax;
+        switch (currentVisualValue) {
+            case "Velocity [Vx]" -> {
+                copyMin = Vmin.ux;
+                copyMax = Vmax.ux;
+                try {
+                    Vmin.ux = Float.parseFloat(gradientbar_min_textfield.getText());
+                    Vmax.ux = Float.parseFloat(gradientbar_max_textfield.getText());
+                    gradientMin = Vmin.ux;
+                    gradientMax = Vmax.ux;
+                } catch (NumberFormatException e) {
+                    Vmin.ux = copyMin;
+                    Vmax.ux = copyMax;
+                    setGradientBarValues(copyMin,copyMax);
+                }
+            }
+            case "Velocity [Vy]" -> {
+                copyMin = Vmin.uy;
+                copyMax = Vmax.uy;
+                try {
+                    Vmin.uy = Float.parseFloat(gradientbar_min_textfield.getText());
+                    Vmax.uy = Float.parseFloat(gradientbar_max_textfield.getText());
+                    gradientMin = Vmin.uy;
+                    gradientMax = Vmax.uy;
+                } catch (NumberFormatException e) {
+                    Vmin.uy = copyMin;
+                    Vmax.uy = copyMax;
+                    setGradientBarValues(copyMin,copyMax);
+                }
+            }
+            case "Density" -> {
+                copyMin = minDensity;
+                copyMax = maxDensity;
+                try {
+                    minDensity = Float.parseFloat(gradientbar_min_textfield.getText());
+                    maxDensity = Float.parseFloat(gradientbar_max_textfield.getText());
+                    gradientMin = minDensity;
+                    gradientMax = maxDensity;
+                } catch (NumberFormatException e) {
+                    minDensity = copyMin;
+                    maxDensity = copyMax;
+                    setGradientBarValues(copyMin,copyMax);
+                }
+            }
+            case "Temperature" -> {
+                copyMin = minTemperature;
+                copyMax = maxTemperature;
+                try {
+                    minTemperature = Float.parseFloat(gradientbar_min_textfield.getText());
+                    maxTemperature = Float.parseFloat(gradientbar_max_textfield.getText());
+                    gradientMin = minTemperature;
+                    gradientMax = maxTemperature;
+                } catch (NumberFormatException e) {
+                    minTemperature = copyMin;
+                    maxTemperature = copyMax;
+                    setGradientBarValues(copyMin,copyMax);
+                }
+            }
+        }
+        setLabelValues(gradientMin,gradientMax);
+    }
+
+
+
+
 }

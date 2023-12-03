@@ -5,20 +5,23 @@ import lbm.Cell;
 import javafx.scene.canvas.Canvas;
 import lbm.Lattice;
 import lbm.GlobalValues;
+import util.Velocity;
 
 
 public class VisualCanvas extends Canvas {
     //metoda kolorująca płótno
-    public void draw(Lattice lattice, String currentVisualValue) {
+    public void draw(Lattice lattice, String currentVisualValue, float min, float max) {
         Cell cell;
+        float value = 0f;
         this.getGraphicsContext2D().clearRect(0,0,this.getWidth(),this.getHeight());
         for (int y = 0; y < this.getHeight(); y++) {
             for (int x = 0; x < this.getWidth(); x++) {
                 cell = lattice.getCells()[y][x];
-                if (currentVisualValue.equals("Velocity [Vx]")) this.getGraphicsContext2D().getPixelWriter().setColor(x,y,ColorScale.getColor(0f, GlobalValues.UX ,cell.velocity.ux, currentVisualValue));
-                if (currentVisualValue.equals("Velocity [Vy]")) this.getGraphicsContext2D().getPixelWriter().setColor(x,y,ColorScale.getColor(0.0f, GlobalValues.UY ,cell.velocity.uy, currentVisualValue));
-                if (currentVisualValue.equals("Density")) this.getGraphicsContext2D().getPixelWriter().setColor(x,y,ColorScale.getColor(0.999f,1.001f,cell.density, currentVisualValue));
-                if (currentVisualValue.equals("Temperature")) this.getGraphicsContext2D().getPixelWriter().setColor(x,y,ColorScale.getColor(0f,GlobalValues.TEMPERATURE+0.5f,cell.temperature, currentVisualValue));
+                if (currentVisualValue.equals("Velocity [Vx]")) value = cell.velocity.ux;
+                if (currentVisualValue.equals("Velocity [Vy]")) value = cell.velocity.uy;
+                if (currentVisualValue.equals("Density")) value = cell.density;
+                if (currentVisualValue.equals("Temperature")) value = cell.temperature;
+                this.getGraphicsContext2D().getPixelWriter().setColor(x,y,ColorScale.getColor(min, max , value, currentVisualValue));
             }
         }
     }
