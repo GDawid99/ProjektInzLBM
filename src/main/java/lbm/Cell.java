@@ -66,21 +66,21 @@ public class Cell {
         return t;
     }
 
-    private Velocity calcVelocity() {
+    private Velocity calcVelocity(float gravity) {
         float ux = 0f, uy = 0f;
         for (int i = 0; i < 9; i++) {
             ux += model.getFin().get(i) * FluidFlowD2Q9.c.get(i).get(0);
             uy += model.getFin().get(i) * FluidFlowD2Q9.c.get(i).get(1);
         }
         ux /= this.density;
-        uy /= this.density;
+        uy = (uy-gravity)/this.density;
         return new Velocity(ux, uy);
     }
 
-    public void calcMacroscopicValues() {
+    public void calcMacroscopicValues(float gravity) {
         this.density = calcDensity();
         //this.temperature = calcTemperature();
-        this.velocity = calcVelocity();
+        this.velocity = calcVelocity(gravity);
     }
 
     public void calcMacroscopicTemperature() {

@@ -67,6 +67,7 @@ public class MainSceneController implements Initializable {
                 lattice.executeOperations();
                 visualCanvas.draw(lattice,currentVisualValue, gradientMin, gradientMax);
                 if (show_flowlines_button.isSelected()) visualCanvas.drawLines(lattice);
+                //visualCanvas.drawParticleTrajectory(lattice.getCells()[0][25],lattice.gravity);
                 gradient_bar.draw(currentVisualValue, gradientMin, gradientMax);
             }
         };

@@ -18,10 +18,13 @@ public class Lattice {
     public int iter = 0;
     public float avg_density;
     public Velocity avg_velocity;
+    public final float gravity = 0.000025f;
+    public ParticleTrajectory particleTrajectory;
 
     public Lattice(int width, int height) {
         this.latticeWidth = width;
         this.latticeHeight = height;
+        particleTrajectory = new ParticleTrajectory(new Particle(0f,height/5f,0.5f, new Velocity(0.0f,0.0f)));
         this.cells = initializeLatticeCells();
     }
 
@@ -76,7 +79,7 @@ public class Lattice {
         //pierwszy etap: obliczenie danych makroskopowych, feq i kolizje
         for (int y = 0; y < latticeHeight; y++) {
             for (int x = 0; x < latticeWidth; x++) {
-                cells[y][x].calcMacroscopicValues();
+                cells[y][x].calcMacroscopicValues(gravity);
                 if (x != 0) cells[y][x].calcMacroscopicTemperature();
                 cells[y][x].model.calcEquilibriumFunctions(cells[y][x].velocity, cells[y][x].density);
                 cells[y][x].model.calcOutputFunctions(
