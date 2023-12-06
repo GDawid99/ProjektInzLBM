@@ -9,6 +9,8 @@ public enum BoundaryDirection {
     NORTHEAST,
     NORTHWEST,
     SOUTHWEST,
-    SOUTHEAST
+    SOUTHEAST,
+    NORTHEAST_TYPE2,
+    NORTHWEST_TYPE2
 }
 

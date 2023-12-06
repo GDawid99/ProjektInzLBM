@@ -16,6 +16,7 @@ public class VisualCanvas extends Canvas {
         for (int y = 0; y < this.getHeight(); y++) {
             for (int x = 0; x < this.getWidth(); x++) {
                 cell = lattice.getCells()[y][x];
+                if (cell == null) continue;
                 if (currentVisualValue.equals("Velocity [Vx]")) value = cell.velocity.ux;
                 if (currentVisualValue.equals("Velocity [Vy]")) value = cell.velocity.uy;
                 if (currentVisualValue.equals("Density")) value = cell.density;
@@ -31,6 +32,7 @@ public class VisualCanvas extends Canvas {
         for (int y = 5; y < this.getHeight(); y+=10) {
             for (int x = 5; x < this.getWidth(); x+=10) {
                 cell = lattice.getCells()[y][x];
+                if (cell == null) continue;
                 this.getGraphicsContext2D().setStroke(Color.BLACK);
                 this.getGraphicsContext2D().setFill(Color.BLACK);
                 this.getGraphicsContext2D().setLineWidth(0.2d);

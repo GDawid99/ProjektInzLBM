@@ -20,6 +20,9 @@ public class Lattice {
     public Velocity avg_velocity;
     public final float gravity = 0.000025f;
     public ParticleTrajectory particleTrajectory;
+    public int positionXLeftWall = 55;
+    public int positionXRightWall = 65;
+    public int positionYWall = 80;
 
     public Lattice(int width, int height) {
         this.latticeWidth = width;
@@ -38,25 +41,53 @@ public class Lattice {
                     if (x == latticeWidth-1) direction = BoundaryDirection.NORTHEAST;
                     board[y][x] = setInitialValues(x,y,1f,GlobalValues.TEMPERATURE,new Velocity(0f,0f), FluidBoundaryType.SYMMETRY_BC, TempBoundaryType.SYMMETRY_BC, direction);
                 }
+                else if (x > positionXLeftWall && x < positionXRightWall && y > positionYWall) {
+                    board[y][x] = null;
+                }
                 else if (y == latticeHeight-1) {
                     BoundaryDirection direction = BoundaryDirection.SOUTH;
                     if (x == 0) direction = BoundaryDirection.SOUTHWEST;
                     if (x == latticeWidth-1) direction = BoundaryDirection.SOUTHEAST;
                     board[y][x] = setInitialValues(x,y,1f,GlobalValues.TEMPERATURE,new Velocity(0f,0f), FluidBoundaryType.BOUNCE_BACK_BC, TempBoundaryType.BOUNCE_BACK_BC, direction);
                 }
-                else if (x == latticeWidth-1) {
-                    board[y][x] = setInitialValues(x,y,1f,GlobalValues.TEMPERATURE,new Velocity(0f,0f), FluidBoundaryType.OPEN_DENSITY_BC, TempBoundaryType.OPEN_TEMPERATURE_BC, BoundaryDirection.EAST);
-                }
                 else if (x == 0) {
                     board[y][x] = setInitialValues(x,y,1f,y * (GlobalValues.TEMPERATURE+0.5f)/128,new Velocity((latticeHeight-1-y)*GlobalValues.UX/latticeHeight,0f), FluidBoundaryType.OPEN_VELOCITY_BC, TempBoundaryType.OPEN_TEMPERATURE_BC, BoundaryDirection.WEST);
                 }
-//                else if (x > latticeWidth*0.45  && x < latticeWidth*0.55 && y > latticeHeight*0.7) {
-//                    board[y][x] = setInitialValues(x,y,1f,0f,new Velocity(0f,0f),CellState.BOUNCE_BACK_BC);
-//                }
+                else if (x == latticeWidth-1) {
+                    board[y][x] = setInitialValues(x,y,1f,GlobalValues.TEMPERATURE,new Velocity(0f,0f), FluidBoundaryType.OPEN_DENSITY_BC, TempBoundaryType.OPEN_TEMPERATURE_BC, BoundaryDirection.EAST);
+                }
+                else if (x == positionXLeftWall && y > positionYWall) {
+                    board[y][x] = setInitialValues(x,y,1f,GlobalValues.TEMPERATURE,new Velocity(0f,0f), FluidBoundaryType.BOUNCE_BACK_BC, TempBoundaryType.BOUNCE_BACK_BC, BoundaryDirection.EAST);
+                }
+                else if (x == positionXRightWall && y > positionYWall) {
+                    board[y][x] = setInitialValues(x,y,1f,GlobalValues.TEMPERATURE,new Velocity(0f,0f), FluidBoundaryType.BOUNCE_BACK_BC, TempBoundaryType.BOUNCE_BACK_BC, BoundaryDirection.WEST);
+                }
+                else if (x > positionXLeftWall && x < positionXRightWall && y == positionYWall) {
+                    board[y][x] = setInitialValues(x,y,1f,GlobalValues.TEMPERATURE,new Velocity(0f,0f), FluidBoundaryType.BOUNCE_BACK_BC, TempBoundaryType.BOUNCE_BACK_BC, BoundaryDirection.SOUTH);
+                }
                 else {
                     board[y][x] = setInitialValues(x,y,1f,GlobalValues.TEMPERATURE, GlobalValues.velocityInitZero(), FluidBoundaryType.NONE, TempBoundaryType.NONE, BoundaryDirection.NONE);
                 }
+
+                if (x == positionXLeftWall && y == latticeHeight-1) {
+                    board[y][x] = setInitialValues(x,y,1f,GlobalValues.TEMPERATURE,new Velocity(0f,0f), FluidBoundaryType.BOUNCE_BACK_BC, TempBoundaryType.BOUNCE_BACK_BC, BoundaryDirection.SOUTHEAST);
+                }
+                if (x == positionXLeftWall && y == positionYWall) {
+                    board[y][x] = setInitialValues(x,y,1f,GlobalValues.TEMPERATURE,new Velocity(0f,0f), FluidBoundaryType.BOUNCE_BACK_BC, TempBoundaryType.BOUNCE_BACK_BC, BoundaryDirection.NORTHWEST_TYPE2);
+                }
+                if (x == positionXRightWall && y == latticeHeight-1) {
+                    board[y][x] = setInitialValues(x,y,1f,GlobalValues.TEMPERATURE,new Velocity(0f,0f), FluidBoundaryType.BOUNCE_BACK_BC, TempBoundaryType.BOUNCE_BACK_BC, BoundaryDirection.SOUTHWEST);
+                }
+                if (x == positionXRightWall && y == positionYWall) {
+                    board[y][x] = setInitialValues(x,y,1f,GlobalValues.TEMPERATURE,new Velocity(0f,0f), FluidBoundaryType.BOUNCE_BACK_BC, TempBoundaryType.BOUNCE_BACK_BC, BoundaryDirection.NORTHEAST_TYPE2);
+                }
+
+
+
+                if (board[y][x] == null) System.out.print("[    ]");
+                else System.out.print("[" + board[y][x].getBoundaryDirection() + "]");
             }
+            System.out.println();
         }
         return board;
     }
@@ -79,6 +110,7 @@ public class Lattice {
         //pierwszy etap: obliczenie danych makroskopowych, feq i kolizje
         for (int y = 0; y < latticeHeight; y++) {
             for (int x = 0; x < latticeWidth; x++) {
+                if (cells[y][x] == null) continue;
                 cells[y][x].calcMacroscopicValues(gravity);
                 if (x != 0) cells[y][x].calcMacroscopicTemperature();
                 cells[y][x].model.calcEquilibriumFunctions(cells[y][x].velocity, cells[y][x].density);
@@ -120,6 +152,7 @@ public class Lattice {
         //drugi etap: obliczenie operacji streaming i warunki brzegowe
         for (int y = 0; y < latticeHeight; y++) {
             for (int x = 0; x < latticeWidth; x++) {
+                if (cells[y][x] == null) continue;
                 List<Cell> neighbourhood = new LinkedList<>();
                 for (int i = 0; i < 9; i++) {
                     int deltaX = x - FluidFlowD2Q9.c.get(i).get(0);
