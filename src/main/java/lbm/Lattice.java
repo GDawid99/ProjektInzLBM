@@ -18,6 +18,7 @@ public class Lattice {
     public int iter = 0;
     public float avg_density;
     public Velocity avg_velocity;
+    public float avg_temperature;
     public final float gravity = 0.000025f;
     public ParticleTrajectory particleTrajectory;
     public int positionXLeftWall = 55;
@@ -35,59 +36,56 @@ public class Lattice {
         Cell[][] board = new Cell[latticeHeight][latticeWidth];
         for (int y = 0; y < latticeHeight; y++) {
             for (int x = 0; x < latticeWidth; x++) {
+                Velocity velocity = new Velocity(0f,0f);
+                float density = 1f;
+                float temperature = 0f;
                 if (y == 0) {
                     BoundaryDirection direction = BoundaryDirection.NORTH;
                     if (x == 0) direction = BoundaryDirection.NORTHWEST;
                     if (x == latticeWidth-1) direction = BoundaryDirection.NORTHEAST;
-                    board[y][x] = setInitialValues(x,y,1f,GlobalValues.TEMPERATURE,new Velocity(0f,0f), FluidBoundaryType.SYMMETRY_BC, TempBoundaryType.SYMMETRY_BC, direction);
+                    board[y][x] = setInitialValues(x,y,density,temperature,velocity, FluidBoundaryType.SYMMETRY_BC, TempBoundaryType.SYMMETRY_BC, direction);
                 }
                 else if (x > positionXLeftWall && x < positionXRightWall && y > positionYWall) {
-                    board[y][x] = null;
+                    board[y][x] = setInitialValues(x,y,density,temperature,velocity, FluidBoundaryType.WALL, TempBoundaryType.WALL, BoundaryDirection.NONE);;
                 }
                 else if (y == latticeHeight-1) {
                     BoundaryDirection direction = BoundaryDirection.SOUTH;
                     if (x == 0) direction = BoundaryDirection.SOUTHWEST;
                     if (x == latticeWidth-1) direction = BoundaryDirection.SOUTHEAST;
-                    board[y][x] = setInitialValues(x,y,1f,GlobalValues.TEMPERATURE,new Velocity(0f,0f), FluidBoundaryType.BOUNCE_BACK_BC, TempBoundaryType.BOUNCE_BACK_BC, direction);
+                    board[y][x] = setInitialValues(x,y,density,temperature,velocity, FluidBoundaryType.BOUNCE_BACK_BC, TempBoundaryType.BOUNCE_BACK_BC, direction);
                 }
                 else if (x == 0) {
-                    board[y][x] = setInitialValues(x,y,1f,y * (GlobalValues.TEMPERATURE+0.5f)/128,new Velocity((latticeHeight-1-y)*GlobalValues.UX/latticeHeight,0f), FluidBoundaryType.OPEN_VELOCITY_BC, TempBoundaryType.OPEN_TEMPERATURE_BC, BoundaryDirection.WEST);
+                    board[y][x] = setInitialValues(x,y,density,(latticeHeight - 1 -y) * (temperature+20f)/128,new Velocity((latticeHeight-1-y)*GlobalValues.UX/latticeHeight,0f), FluidBoundaryType.OPEN_VELOCITY_BC, TempBoundaryType.OPEN_TEMPERATURE_BC, BoundaryDirection.WEST);
                 }
                 else if (x == latticeWidth-1) {
-                    board[y][x] = setInitialValues(x,y,1f,GlobalValues.TEMPERATURE,new Velocity(0f,0f), FluidBoundaryType.OPEN_DENSITY_BC, TempBoundaryType.OPEN_TEMPERATURE_BC, BoundaryDirection.EAST);
+                    board[y][x] = setInitialValues(x,y,density,temperature,velocity, FluidBoundaryType.OPEN_DENSITY_BC, TempBoundaryType.OPEN_TEMPERATURE_BC, BoundaryDirection.EAST);
                 }
                 else if (x == positionXLeftWall && y > positionYWall) {
-                    board[y][x] = setInitialValues(x,y,1f,GlobalValues.TEMPERATURE,new Velocity(0f,0f), FluidBoundaryType.BOUNCE_BACK_BC, TempBoundaryType.BOUNCE_BACK_BC, BoundaryDirection.EAST);
+                    board[y][x] = setInitialValues(x,y,density,temperature,velocity, FluidBoundaryType.BOUNCE_BACK_BC, TempBoundaryType.BOUNCE_BACK_BC, BoundaryDirection.EAST);
                 }
                 else if (x == positionXRightWall && y > positionYWall) {
-                    board[y][x] = setInitialValues(x,y,1f,GlobalValues.TEMPERATURE,new Velocity(0f,0f), FluidBoundaryType.BOUNCE_BACK_BC, TempBoundaryType.BOUNCE_BACK_BC, BoundaryDirection.WEST);
+                    board[y][x] = setInitialValues(x,y,density,temperature,velocity, FluidBoundaryType.BOUNCE_BACK_BC, TempBoundaryType.BOUNCE_BACK_BC, BoundaryDirection.WEST);
                 }
                 else if (x > positionXLeftWall && x < positionXRightWall && y == positionYWall) {
-                    board[y][x] = setInitialValues(x,y,1f,GlobalValues.TEMPERATURE,new Velocity(0f,0f), FluidBoundaryType.BOUNCE_BACK_BC, TempBoundaryType.BOUNCE_BACK_BC, BoundaryDirection.SOUTH);
+                    board[y][x] = setInitialValues(x,y,density,temperature,velocity, FluidBoundaryType.BOUNCE_BACK_BC, TempBoundaryType.BOUNCE_BACK_BC, BoundaryDirection.SOUTH);
                 }
                 else {
-                    board[y][x] = setInitialValues(x,y,1f,GlobalValues.TEMPERATURE, GlobalValues.velocityInitZero(), FluidBoundaryType.NONE, TempBoundaryType.NONE, BoundaryDirection.NONE);
+                    board[y][x] = setInitialValues(x,y,density,temperature,velocity, FluidBoundaryType.NONE, TempBoundaryType.NONE, BoundaryDirection.NONE);
                 }
 
                 if (x == positionXLeftWall && y == latticeHeight-1) {
-                    board[y][x] = setInitialValues(x,y,1f,GlobalValues.TEMPERATURE,new Velocity(0f,0f), FluidBoundaryType.BOUNCE_BACK_BC, TempBoundaryType.BOUNCE_BACK_BC, BoundaryDirection.SOUTHEAST);
+                    board[y][x] = setInitialValues(x,y,density,temperature,velocity, FluidBoundaryType.BOUNCE_BACK_BC, TempBoundaryType.BOUNCE_BACK_BC, BoundaryDirection.SOUTHEAST);
                 }
                 if (x == positionXLeftWall && y == positionYWall) {
-                    board[y][x] = setInitialValues(x,y,1f,GlobalValues.TEMPERATURE,new Velocity(0f,0f), FluidBoundaryType.BOUNCE_BACK_BC, TempBoundaryType.BOUNCE_BACK_BC, BoundaryDirection.NORTHWEST_TYPE2);
+                    board[y][x] = setInitialValues(x,y,density,temperature,velocity, FluidBoundaryType.BOUNCE_BACK_BC, TempBoundaryType.BOUNCE_BACK_BC, BoundaryDirection.NORTHWEST_TYPE2);
                 }
                 if (x == positionXRightWall && y == latticeHeight-1) {
-                    board[y][x] = setInitialValues(x,y,1f,GlobalValues.TEMPERATURE,new Velocity(0f,0f), FluidBoundaryType.BOUNCE_BACK_BC, TempBoundaryType.BOUNCE_BACK_BC, BoundaryDirection.SOUTHWEST);
+                    board[y][x] = setInitialValues(x,y,density,temperature,velocity, FluidBoundaryType.BOUNCE_BACK_BC, TempBoundaryType.BOUNCE_BACK_BC, BoundaryDirection.SOUTHWEST);
                 }
                 if (x == positionXRightWall && y == positionYWall) {
-                    board[y][x] = setInitialValues(x,y,1f,GlobalValues.TEMPERATURE,new Velocity(0f,0f), FluidBoundaryType.BOUNCE_BACK_BC, TempBoundaryType.BOUNCE_BACK_BC, BoundaryDirection.NORTHEAST_TYPE2);
+                    board[y][x] = setInitialValues(x,y,density,temperature,velocity, FluidBoundaryType.BOUNCE_BACK_BC, TempBoundaryType.BOUNCE_BACK_BC, BoundaryDirection.NORTHEAST_TYPE2);
                 }
-
-
-
-                if (board[y][x] == null) System.out.print("[    ]");
-                else System.out.print("[" + board[y][x].getBoundaryDirection() + "]");
             }
-            System.out.println();
         }
         return board;
     }
@@ -105,54 +103,41 @@ public class Lattice {
         iter++;
         GlobalValues.initGlobalValues();
         avg_density = 0f;
+        avg_temperature = 0f;
         avg_velocity = new Velocity(0f,0f);
 
         //pierwszy etap: obliczenie danych makroskopowych, feq i kolizje
         for (int y = 0; y < latticeHeight; y++) {
             for (int x = 0; x < latticeWidth; x++) {
-                if (cells[y][x] == null) continue;
-                cells[y][x].calcMacroscopicValues(gravity);
-                if (x != 0) cells[y][x].calcMacroscopicTemperature();
-                cells[y][x].model.calcEquilibriumFunctions(cells[y][x].velocity, cells[y][x].density);
-                cells[y][x].model.calcOutputFunctions(
-                        (ArrayList<Float>) cells[y][x].model.getFin(),
-                        (ArrayList<Float>) cells[y][x].model.getFeq(),
+                Cell cell = cells[y][x];
+                if (cell.getFluidBoundaryType() == FluidBoundaryType.WALL) continue;
+                cell.calcMacroscopicValues(gravity);
+                if (x != 0) cell.calcMacroscopicTemperature();
+                cell.model.calcEquilibriumFunctions(cell.velocity, cell.density);
+                cell.model.calcOutputFunctions(
+                        (ArrayList<Float>) cell.model.getFin(),
+                        (ArrayList<Float>) cell.model.getFeq(),
                         1.0f,
                         GlobalValues.TAU);
 
-                cells[y][x].temperatureModel.calcEquilibriumFunctions(cells[y][x].velocity, cells[y][x].temperature);
-                cells[y][x].temperatureModel.calcOutputFunctions(
-                        (ArrayList<Float>) cells[y][x].temperatureModel.getTin(),
-                        (ArrayList<Float>) cells[y][x].temperatureModel.getTeq(),
+                cell.temperatureModel.calcEquilibriumFunctions(cell.velocity, cell.temperature);
+                cell.temperatureModel.calcOutputFunctions(
+                        (ArrayList<Float>) cell.temperatureModel.getTin(),
+                        (ArrayList<Float>) cell.temperatureModel.getTeq(),
                         1.0f,
                         GlobalValues.TAU_TEMPERATURE);
 
-
-                avg_density += cells[y][x].density;
-                avg_velocity.ux += cells[y][x].velocity.ux;
-                avg_velocity.uy += cells[y][x].velocity.uy;
-                //if (y == 30) System.out.print(cells[y][x].temperature + ", ");
-                //if (y == 31 && x == 0) System.out.println();
-                //if (y == 70) System.out.print(cells[y][x].temperature + ", ");
-                if (cells[y][x].velocity.ux < GlobalValues.MIN_VELOCITY.ux) GlobalValues.MIN_VELOCITY.ux = cells[y][x].velocity.ux;
-                if (cells[y][x].velocity.ux > GlobalValues.MAX_VELOCITY.ux) GlobalValues.MAX_VELOCITY.ux = cells[y][x].velocity.ux;
-                if (cells[y][x].velocity.uy < GlobalValues.MIN_VELOCITY.uy) GlobalValues.MIN_VELOCITY.uy = cells[y][x].velocity.uy;
-                if (cells[y][x].velocity.uy > GlobalValues.MAX_VELOCITY.uy) GlobalValues.MAX_VELOCITY.uy = cells[y][x].velocity.uy;
-                if (cells[y][x].density < GlobalValues.MIN_DENSITY) GlobalValues.MIN_DENSITY = cells[y][x].density;
-                if (cells[y][x].density > GlobalValues.MAX_DENSITY) GlobalValues.MAX_DENSITY = cells[y][x].density;
-                if (cells[y][x].temperature < GlobalValues.MIN_TEMPERATURE) GlobalValues.MIN_TEMPERATURE = cells[y][x].temperature;
-                if (cells[y][x].temperature > GlobalValues.MAX_TEMPERATURE) GlobalValues.MAX_TEMPERATURE = cells[y][x].temperature;
+                avg_density += cell.density;
+                avg_temperature += cell.temperature;
+                avg_velocity.ux += cell.velocity.ux;
+                avg_velocity.uy += cell.velocity.uy;
             }
-        }
-        if (iter % 50 == 0) {
-            dataLog();
-            System.out.println("AVERAGE DENSITY:" + (avg_density / (latticeHeight * latticeWidth)));
-            System.out.println("AVERAGE VELOCITY: [" + (avg_velocity.ux / (latticeHeight * latticeWidth)) + ", " + (avg_velocity.uy / (latticeHeight * latticeWidth)) + "]");
         }
         //drugi etap: obliczenie operacji streaming i warunki brzegowe
         for (int y = 0; y < latticeHeight; y++) {
             for (int x = 0; x < latticeWidth; x++) {
-                if (cells[y][x] == null) continue;
+                Cell cell = cells[y][x];
+                if (cell.getFluidBoundaryType() == FluidBoundaryType.WALL) continue;
                 List<Cell> neighbourhood = new LinkedList<>();
                 for (int i = 0; i < 9; i++) {
                     int deltaX = x - FluidFlowD2Q9.c.get(i).get(0);
@@ -160,10 +145,10 @@ public class Lattice {
                     if (deltaY >= 0 && deltaY <= latticeHeight-1 && deltaX >= 0 && deltaX <= latticeWidth-1) neighbourhood.add(cells[deltaY][deltaX]);
                     else neighbourhood.add(null);
                 }
-                cells[y][x].model.calcStreaming(neighbourhood);
-                cells[y][x].temperatureModel.calcStreaming(neighbourhood);
-                cells[y][x].model.calcBoundaryConditions(cells[y][x].getFluidBoundaryType(),cells[y][x].getTempBoundaryType(),cells[y][x].getBoundaryDirection(),cells[y][x].velocity,cells[y][x].density);
-                cells[y][x].temperatureModel.calcBoundaryConditions(cells[y][x].getFluidBoundaryType(),cells[y][x].getTempBoundaryType(),cells[y][x].getBoundaryDirection(),cells[y][x].velocity,cells[y][x].temperature);
+                cell.model.calcStreaming(neighbourhood);
+                cell.temperatureModel.calcStreaming(neighbourhood);
+                cell.model.calcBoundaryConditions(cell.getFluidBoundaryType(),cell.getTempBoundaryType(),cell.getBoundaryDirection(),cell.velocity,cell.density);
+                cell.temperatureModel.calcBoundaryConditions(cell.getFluidBoundaryType(),cell.getTempBoundaryType(),cell.getBoundaryDirection(),cell.velocity,cell.temperature);
             }
         }
     }
@@ -172,6 +157,13 @@ public class Lattice {
         return cells;
     }
 
+    public int getLatticeWidth() {
+        return latticeWidth;
+    }
+
+    public int getLatticeHeight() {
+        return latticeHeight;
+    }
 
     public Cell[][] copy(Cell[][] arr) {
         Cell[][] copy = new Cell[arr.length][arr[0].length];
@@ -182,22 +174,4 @@ public class Lattice {
         }
         return copy;
     }
-
-    private void dataLog() {
-        System.out.println("Iteration: " + iter);
-        System.out.println("Velocity:");
-        System.out.println("MIN: " + GlobalValues.MIN_VELOCITY);
-        System.out.println("MAX: " + GlobalValues.MAX_VELOCITY);
-        System.out.println("Density:");
-        System.out.println("MIN: " + GlobalValues.MIN_DENSITY);
-        System.out.println("MAX: " + GlobalValues.MAX_DENSITY);
-        System.out.println("Temperature:");
-        System.out.println("MIN: " + GlobalValues.MIN_TEMPERATURE);
-        System.out.println("MAX: " + GlobalValues.MAX_TEMPERATURE);
-        System.out.println("Tau: " + GlobalValues.TAU);
-        System.out.println("Temp. Tau: " + GlobalValues.TAU_TEMPERATURE);
-        System.out.println("---------------------");
-    }
-
-
 }

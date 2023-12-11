@@ -65,7 +65,7 @@ public class TemperatureD2Q9 extends Model{
         neighbourhoodOutFunctionElements.clear();
         neighbourhoodOutFunctionElements.add(cells.get(0).temperatureModel.getTout().get(0));
         for (int i = 1; i < 9; i++) {
-            if (cells.get(i) == null) {
+            if (cells.get(i) == null || cells.get(i).getTempBoundaryType() == TempBoundaryType.WALL) {
                 neighbourhoodOutFunctionElements.add(null);
             }
             else {

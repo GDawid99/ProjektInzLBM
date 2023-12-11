@@ -51,7 +51,7 @@ public class MainSceneController implements Initializable {
     private float minDensity = 0.94f;
     private float maxDensity = 1.06f;
     private float minTemperature = 0f;
-    private float maxTemperature = GlobalValues.TEMPERATURE+0.5f;
+    private float maxTemperature = minTemperature+20f;
     private float gradientMin = Vmin.ux;
     private float gradientMax = Vmax.ux;
 
