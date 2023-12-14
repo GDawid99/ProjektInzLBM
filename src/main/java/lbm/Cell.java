@@ -49,6 +49,10 @@ public class Cell {
         this.velocity = new Velocity(cell.velocity);
     }
 
+    public void equilibriumFunction() {
+        this.model.calcEquilibriumFunctions(this.velocity, this.density);
+    }
+
 
     private float calcDensity() {
         float d = 0;
@@ -78,13 +82,15 @@ public class Cell {
             uy += model.getFin().get(i) * FluidFlowD2Q9.c.get(i).get(1);
         }
         ux /= this.density;
-        uy = (uy-gravity)/this.density;
+        uy = (uy/this.density)-gravity*(1-2f*temperature);
         return new Velocity(ux, uy);
     }
 
-    public void calcMacroscopicValues(float gravity) {
+    public void calcMacroscopicDensity() {
         this.density = calcDensity();
-        //this.temperature = calcTemperature();
+    }
+
+    public void calcMacroscopicVelocity(float gravity) {
         this.velocity = calcVelocity(gravity);
     }
 
@@ -92,6 +98,9 @@ public class Cell {
         this.temperature = calcTemperature();
     }
 
+    public void calcMacroscopicTemperature(float temperature) {
+        this.temperature = temperature;
+    }
 
     public FluidBoundaryType getFluidBoundaryType() {
         return this.fluidBoundaryType;

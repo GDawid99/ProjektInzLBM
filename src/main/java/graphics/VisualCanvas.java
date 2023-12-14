@@ -4,6 +4,7 @@ import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
 import lbm.*;
 import javafx.scene.canvas.Canvas;
+import lbm.boundary.FluidBoundaryType;
 import util.Velocity;
 
 
@@ -16,7 +17,10 @@ public class VisualCanvas extends Canvas {
         for (int y = 0; y < this.getHeight(); y++) {
             for (int x = 0; x < this.getWidth(); x++) {
                 cell = lattice.getCells()[y][x];
-                if (cell == null) continue;
+                if (cell.getFluidBoundaryType() == FluidBoundaryType.WALL) {
+                    this.getGraphicsContext2D().getPixelWriter().setColor(x,y,Color.BLACK);
+                    continue;
+                }
                 if (currentVisualValue.equals("Velocity [Vx]")) value = cell.velocity.ux;
                 if (currentVisualValue.equals("Velocity [Vy]")) value = cell.velocity.uy;
                 if (currentVisualValue.equals("Density")) value = cell.density;
@@ -29,14 +33,14 @@ public class VisualCanvas extends Canvas {
 
     public void drawLines(Lattice lattice) {
         Cell cell;
-        for (int y = 5; y < this.getHeight(); y+=10) {
-            for (int x = 5; x < this.getWidth(); x+=10) {
+        for (int y = 2; y < this.getHeight(); y+=5) {
+            for (int x = 2; x < this.getWidth(); x+=5) {
                 cell = lattice.getCells()[y][x];
                 if (cell == null) continue;
                 this.getGraphicsContext2D().setStroke(Color.BLACK);
                 this.getGraphicsContext2D().setFill(Color.BLACK);
-                this.getGraphicsContext2D().setLineWidth(0.2d);
-                this.getGraphicsContext2D().strokeLine(x,y,x+150*cell.velocity.ux,y-150*cell.velocity.uy);
+                this.getGraphicsContext2D().setLineWidth(0.1d);
+                this.getGraphicsContext2D().strokeLine(x,y,x+100*cell.velocity.ux,y-100*cell.velocity.uy);
             }
         }
     }

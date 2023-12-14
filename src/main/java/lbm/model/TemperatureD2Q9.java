@@ -77,6 +77,7 @@ public class TemperatureD2Q9 extends Model{
 
     @Override
     public void calcBoundaryConditions(FluidBoundaryType fluidBC, TempBoundaryType tempBC, BoundaryDirection direction, Velocity v, float temperature) {
+        //temperature = 1f;
         float alphaT = 1;
         switch (tempBC) {
             case CONST_BC -> calcInputFunctions(tout);

@@ -46,12 +46,12 @@ public class MainSceneController implements Initializable {
     private Lattice lattice;
     private String currentVisualValue = "Velocity [Vx]";
 
-    private Velocity Vmin = new Velocity(-0.01f,-0.01f);
-    private Velocity Vmax = new Velocity(GlobalValues.UX,GlobalValues.UY);
-    private float minDensity = 0.94f;
-    private float maxDensity = 1.06f;
+    private Velocity Vmin = new Velocity(-0.02f,-0.02f);
+    private Velocity Vmax = new Velocity(0.02f, 0.02f); //new Velocity(GlobalValues.UX,GlobalValues.UY);
+    private float minDensity = 0.995f;
+    private float maxDensity = 1.005f;
     private float minTemperature = 0f;
-    private float maxTemperature = minTemperature+20f;
+    private float maxTemperature = minTemperature+1f;
     private float gradientMin = Vmin.ux;
     private float gradientMax = Vmax.ux;
 

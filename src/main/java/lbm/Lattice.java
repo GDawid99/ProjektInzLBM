@@ -21,8 +21,8 @@ public class Lattice {
     public float avg_temperature;
     public final float gravity = 0.000025f;
     public ParticleTrajectory particleTrajectory;
-    public int positionXLeftWall = 55;
-    public int positionXRightWall = 65;
+    public int positionXLeftWall = 60;
+    public int positionXRightWall = 68;
     public int positionYWall = 80;
 
     public Lattice(int width, int height) {
@@ -50,24 +50,29 @@ public class Lattice {
                 }
                 else if (y == latticeHeight-1) {
                     BoundaryDirection direction = BoundaryDirection.SOUTH;
+                    TempBoundaryType tempType = TempBoundaryType.BOUNCE_BACK_BC;
                     if (x == 0) direction = BoundaryDirection.SOUTHWEST;
                     if (x == latticeWidth-1) direction = BoundaryDirection.SOUTHEAST;
-                    board[y][x] = setInitialValues(x,y,density,temperature,velocity, FluidBoundaryType.BOUNCE_BACK_BC, TempBoundaryType.BOUNCE_BACK_BC, direction);
-                }
-                else if (x == 0) {
-                    board[y][x] = setInitialValues(x,y,density,(latticeHeight - 1 -y) * (temperature+20f)/128,new Velocity((latticeHeight-1-y)*GlobalValues.UX/latticeHeight,0f), FluidBoundaryType.OPEN_VELOCITY_BC, TempBoundaryType.OPEN_TEMPERATURE_BC, BoundaryDirection.WEST);
+//                    if (x < positionXLeftWall && x != 0) {
+//                        temperature = 1f;
+//                        tempType = TempBoundaryType.OPEN_TEMPERATURE_BC;
+//                    }
+                    board[y][x] = setInitialValues(x,y,density,temperature,velocity, FluidBoundaryType.BOUNCE_BACK_BC, tempType, direction);
                 }
                 else if (x == latticeWidth-1) {
-                    board[y][x] = setInitialValues(x,y,density,temperature,velocity, FluidBoundaryType.OPEN_DENSITY_BC, TempBoundaryType.OPEN_TEMPERATURE_BC, BoundaryDirection.EAST);
+                    board[y][x] = setInitialValues(x,y,density,temperature/*(latticeHeight - 1 -y) * (temperature+20f)/128*/,velocity/*new Velocity((latticeHeight-1-y)*(-0.05f)/latticeHeight,0f)*/, FluidBoundaryType.SYMMETRY_BC, TempBoundaryType.SYMMETRY_BC, BoundaryDirection.EAST);
+                }
+                else if (x == 0) {
+                    board[y][x] = setInitialValues(x,y,density,temperature,velocity, FluidBoundaryType.SYMMETRY_BC, TempBoundaryType.SYMMETRY_BC, BoundaryDirection.WEST);
                 }
                 else if (x == positionXLeftWall && y > positionYWall) {
-                    board[y][x] = setInitialValues(x,y,density,temperature,velocity, FluidBoundaryType.BOUNCE_BACK_BC, TempBoundaryType.BOUNCE_BACK_BC, BoundaryDirection.EAST);
+                    board[y][x] = setInitialValues(x,y,density,1f,velocity, FluidBoundaryType.BOUNCE_BACK_BC, TempBoundaryType.OPEN_TEMPERATURE_BC, BoundaryDirection.EAST);
                 }
                 else if (x == positionXRightWall && y > positionYWall) {
                     board[y][x] = setInitialValues(x,y,density,temperature,velocity, FluidBoundaryType.BOUNCE_BACK_BC, TempBoundaryType.BOUNCE_BACK_BC, BoundaryDirection.WEST);
                 }
                 else if (x > positionXLeftWall && x < positionXRightWall && y == positionYWall) {
-                    board[y][x] = setInitialValues(x,y,density,temperature,velocity, FluidBoundaryType.BOUNCE_BACK_BC, TempBoundaryType.BOUNCE_BACK_BC, BoundaryDirection.SOUTH);
+                    board[y][x] = setInitialValues(x,y,density,1f,velocity, FluidBoundaryType.BOUNCE_BACK_BC, TempBoundaryType.OPEN_TEMPERATURE_BC, BoundaryDirection.SOUTH);
                 }
                 else {
                     board[y][x] = setInitialValues(x,y,density,temperature,velocity, FluidBoundaryType.NONE, TempBoundaryType.NONE, BoundaryDirection.NONE);
@@ -90,6 +95,45 @@ public class Lattice {
         return board;
     }
 
+//    private Cell[][] initializeLatticeCells() {
+//        Cell[][] board = new Cell[latticeHeight][latticeWidth];
+//        for (int y = 0; y < latticeHeight; y++) {
+//            for (int x = 0; x < latticeWidth; x++) {
+//                Velocity velocity = new Velocity(0f,0f);
+//                float density = 1f;
+//                float temperature = 0f;
+//                if (y == 0) {
+//                    BoundaryDirection direction = BoundaryDirection.NORTH;
+//                    TempBoundaryType type = TempBoundaryType.OPEN_TEMPERATURE_BC;
+//                    if (x == 0 || x == latticeWidth-1) type = TempBoundaryType.BOUNCE_BACK_BC;
+//                    if (x == 0) direction = BoundaryDirection.NORTHWEST;
+//                    if (x == latticeWidth-1) direction = BoundaryDirection.NORTHEAST;
+//                    temperature = 0.5f;
+//                    board[y][x] = setInitialValues(x,y,density,temperature,velocity, FluidBoundaryType.SYMMETRY_BC, type, direction);
+//                }
+//                else if (y == latticeHeight-1) {
+//                    BoundaryDirection direction = BoundaryDirection.SOUTH;
+//                    TempBoundaryType type = TempBoundaryType.OPEN_TEMPERATURE_BC;
+//                    if (x == 0 || x == latticeWidth-1) type = TempBoundaryType.BOUNCE_BACK_BC;
+//                    if (x == 0) direction = BoundaryDirection.SOUTHWEST;
+//                    if (x == latticeWidth-1) direction = BoundaryDirection.SOUTHEAST;
+//                    /*if (x > 60) */temperature = 1f;
+//                    board[y][x] = setInitialValues(x,y,density,temperature,velocity, FluidBoundaryType.BOUNCE_BACK_BC, type, direction);
+//                }
+//                else if (x == 0) {
+//                    board[y][x] = setInitialValues(x,y,density,temperature/*(latticeHeight - 1 -y) * (temperature+20f)/128*/,/*velocity*/new Velocity((latticeHeight-1-y)*GlobalValues.UX/latticeHeight,0f), FluidBoundaryType.OPEN_VELOCITY_BC, TempBoundaryType.OPEN_TEMPERATURE_BC, BoundaryDirection.WEST);
+//                }
+//                else if (x == latticeWidth-1) {
+//                    board[y][x] = setInitialValues(x,y,density,temperature,velocity, FluidBoundaryType.OPEN_VELOCITY_BC, TempBoundaryType.OPEN_TEMPERATURE_BC, BoundaryDirection.EAST);
+//                }
+//                else {
+//                    board[y][x] = setInitialValues(x,y,density,temperature,velocity, FluidBoundaryType.NONE, TempBoundaryType.NONE, BoundaryDirection.NONE);
+//                }
+//            }
+//        }
+//        return board;
+//    }
+
     private Cell setInitialValues(int x, int y, float density, float temperature, Velocity velocity, FluidBoundaryType fluidBoundaryType, TempBoundaryType tempBoundaryType, BoundaryDirection direction) {
         Cell cell = new Cell(x,y, density, temperature, velocity, fluidBoundaryType, tempBoundaryType, direction, new FluidFlowD2Q9(), new TemperatureD2Q9());
         cell.model.calcEquilibriumFunctions(cell.velocity, cell.density);
@@ -111,9 +155,11 @@ public class Lattice {
             for (int x = 0; x < latticeWidth; x++) {
                 Cell cell = cells[y][x];
                 if (cell.getFluidBoundaryType() == FluidBoundaryType.WALL) continue;
-                cell.calcMacroscopicValues(gravity);
-                if (x != 0) cell.calcMacroscopicTemperature();
-                cell.model.calcEquilibriumFunctions(cell.velocity, cell.density);
+                cell.calcMacroscopicDensity();
+                if (cell.getTempBoundaryType() == TempBoundaryType.OPEN_TEMPERATURE_BC) cell.calcMacroscopicTemperature(cell.temperature);
+                else cell.calcMacroscopicTemperature();
+                cell.calcMacroscopicVelocity(gravity);
+                cell.equilibriumFunction();
                 cell.model.calcOutputFunctions(
                         (ArrayList<Float>) cell.model.getFin(),
                         (ArrayList<Float>) cell.model.getFeq(),
