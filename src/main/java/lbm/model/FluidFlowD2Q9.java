@@ -76,11 +76,13 @@ public class FluidFlowD2Q9 extends Model {
     }
 
     @Override
-    public void calcBoundaryConditions(FluidBoundaryType fluidBC, TempBoundaryType tempBC, BoundaryDirection direction, Velocity v, float density) {
-        switch (fluidBC) {
+    public void calcBoundaryConditions(Cell cell) {
+        float density = 1f;
+        Velocity v = new Velocity(0f,0f);
+        switch (cell.getFluidBoundaryType()) {
             case CONST_BC -> calcInputFunctions(fout);
             case BOUNCE_BACK_BC -> {
-                switch (direction) {
+                switch (cell.getBoundaryDirection()) {
                     case NORTH -> {
                         fin.set(4, fout.get(8));
                         fin.set(5, fout.get(1));
@@ -138,7 +140,7 @@ public class FluidFlowD2Q9 extends Model {
                 }
             }
             case SYMMETRY_BC -> {
-                switch (direction) {
+                switch (cell.getBoundaryDirection()) {
                     case NORTH -> {
                         fin.set(4, fout.get(2));
                         fin.set(5, fout.get(1));
@@ -190,7 +192,7 @@ public class FluidFlowD2Q9 extends Model {
                 }
             }
             case OPEN_DENSITY_BC -> {
-                switch (direction) {
+                switch (cell.getBoundaryDirection()) {
                     case NORTH -> {
                         v.uy = -1 + (fin.get(0) + fin.get(3) + fin.get(7)
                                 + 2 * fin.get(8) + 2 * fin.get(1) + 2 * fin.get(2))/density;
@@ -214,7 +216,8 @@ public class FluidFlowD2Q9 extends Model {
                 }
             }
             case OPEN_VELOCITY_BC -> {
-                switch (direction) {
+                v = new Velocity(0f,0f);
+                switch (cell.getBoundaryDirection()) {
                     case NORTH -> {
                         density = (fin.get(0) + fin.get(3) + fin.get(7)
                                 + 2 * fin.get(8) + 2 * fin.get(1) + 2 * fin.get(2))/(1 + v.uy);
@@ -238,8 +241,8 @@ public class FluidFlowD2Q9 extends Model {
                 }
             }
         }
-        if (fluidBC == FluidBoundaryType.OPEN_VELOCITY_BC || fluidBC == FluidBoundaryType.OPEN_DENSITY_BC) {
-            switch (direction) {
+        if (cell.getFluidBoundaryType() == FluidBoundaryType.OPEN_VELOCITY_BC || cell.getFluidBoundaryType() == FluidBoundaryType.OPEN_DENSITY_BC) {
+            switch (cell.getBoundaryDirection()) {
                 case NORTH -> {
                     fin.set(4,fin.get(8) - density*(v.ux+v.uy)/6);
                     fin.set(5,fin.get(1) - 2*density*v.uy/3);

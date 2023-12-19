@@ -76,71 +76,81 @@ public class TemperatureD2Q9 extends Model{
     }
 
     @Override
-    public void calcBoundaryConditions(FluidBoundaryType fluidBC, TempBoundaryType tempBC, BoundaryDirection direction, Velocity v, float temperature) {
-        //temperature = 1f;
+    public void calcBoundaryConditions(Cell cell) {
+        float constTemperature = 0f;
         float alphaT = 1;
-        switch (tempBC) {
+        switch (cell.getTempBoundaryType()) {
             case CONST_BC -> calcInputFunctions(tout);
             case BOUNCE_BACK_BC -> {
-                switch (direction) {
+                switch (cell.getBoundaryDirection()) {
                     case NORTH -> {
-                        tin.set(4, tout.get(8));
-                        tin.set(5, tout.get(1));
-                        tin.set(6, tout.get(2));
+                        alphaT = 0f;
+                        tin.set(4, (1 - alphaT) * tin.get(8) + alphaT * (cell.temperature -  tin.get(8)));
+                        tin.set(5, (1 - alphaT) * tin.get(1) + alphaT * (4f * cell.temperature -  tin.get(1)));
+                        tin.set(6, (1 - alphaT) * tin.get(2) + alphaT * (cell.temperature -  tin.get(2)));
                     }
                     case SOUTH -> {
-                        tin.set(8, tout.get(4));
-                        tin.set(1, tout.get(5));
-                        tin.set(2, tout.get(6));
+                        alphaT = 0f;
+                        tin.set(8, (1 - alphaT) * tin.get(4) + alphaT * (cell.temperature -  tin.get(4)));
+                        tin.set(1, (1 - alphaT) * tin.get(5) + alphaT * (4f * cell.temperature -  tin.get(5)));
+                        tin.set(2, (1 - alphaT) * tin.get(6) + alphaT * (cell.temperature -  tin.get(6)));
                     }
                     case WEST -> {
-                        tin.set(2, tout.get(6));
-                        tin.set(3, tout.get(7));
-                        tin.set(4, tout.get(8));
+                        alphaT = 0f;
+                        tin.set(2, (1 - alphaT) * tin.get(6) + alphaT * (cell.temperature -  tin.get(6)));
+                        tin.set(3, (1 - alphaT) * tin.get(7) + alphaT * (4f * cell.temperature -  tin.get(7)));
+                        tin.set(4, (1 - alphaT) * tin.get(8) + alphaT * (cell.temperature -  tin.get(8)));
                     }
                     case EAST -> {
-                        tin.set(6, tout.get(2));
-                        tin.set(7, tout.get(3));
-                        tin.set(8, tout.get(4));
+                        alphaT = 0f;
+                        tin.set(6, (1 - alphaT) * tin.get(2) + alphaT * (cell.temperature -  tin.get(2)));
+                        tin.set(7, (1 - alphaT) * tin.get(3) + alphaT * (4f * cell.temperature -  tin.get(3)));
+                        tin.set(8, (1 - alphaT) * tin.get(4) + alphaT * (cell.temperature -  tin.get(4)));
                     }
                     case NORTHWEST -> {
-                        tin.set(2, tout.get(8));
-                        tin.set(3, tout.get(7));
-                        tin.set(4, tout.get(8));
-                        tin.set(5, tout.get(1));
-                        tin.set(6, tout.get(8));
+                        alphaT = 0f;
+                        tin.set(2, (1 - alphaT) * tin.get(8) + alphaT * (cell.temperature -  tin.get(8)));
+                        tin.set(3, (1 - alphaT) * tin.get(7) + alphaT * (4f * cell.temperature -  tin.get(7)));
+                        tin.set(4, (1 - alphaT) * tin.get(8) + alphaT * (cell.temperature -  tin.get(8)));
+                        tin.set(5, (1 - alphaT) * tin.get(1) + alphaT * (4f * cell.temperature -  tin.get(1)));
+                        tin.set(6, (1 - alphaT) * tin.get(8) + alphaT * (cell.temperature -  tin.get(8)));
                     }
                     case NORTHEAST -> {
-                        tin.set(4, tout.get(2));
-                        tin.set(5, tout.get(1));
-                        tin.set(6, tout.get(2));
-                        tin.set(7, tout.get(3));
-                        tin.set(8, tout.get(2));
+                        alphaT = 0f;
+                        tin.set(4, (1 - alphaT) * tin.get(2) + alphaT * (cell.temperature -  tin.get(2)));
+                        tin.set(5, (1 - alphaT) * tin.get(1) + alphaT * (4f * cell.temperature -  tin.get(1)));
+                        tin.set(6, (1 - alphaT) * tin.get(2) + alphaT * (cell.temperature -  tin.get(2)));
+                        tin.set(7, (1 - alphaT) * tin.get(3) + alphaT * (4f * cell.temperature -  tin.get(3)));
+                        tin.set(8, (1 - alphaT) * tin.get(2) + alphaT * (cell.temperature -  tin.get(2)));
                     }
                     case SOUTHWEST -> {
-                        tin.set(8, tout.get(6));
-                        tin.set(1, tout.get(5));
-                        tin.set(2, tout.get(6));
-                        tin.set(3, tout.get(7));
-                        tin.set(4, tout.get(6));
+                        alphaT = 0f;
+                        tin.set(8, (1 - alphaT) * tin.get(6) + alphaT * (cell.temperature -  tin.get(6)));
+                        tin.set(1, (1 - alphaT) * tin.get(5) + alphaT * (4f * cell.temperature -  tin.get(5)));
+                        tin.set(2, (1 - alphaT) * tin.get(6) + alphaT * (cell.temperature -  tin.get(6)));
+                        tin.set(3, (1 - alphaT) * tin.get(7) + alphaT * (4f * cell.temperature -  tin.get(7)));
+                        tin.set(4, (1 - alphaT) * tin.get(6) + alphaT * (cell.temperature -  tin.get(6)));
                     }
                     case SOUTHEAST -> {
-                        tin.set(6, tout.get(4));
-                        tin.set(7, tout.get(3));
-                        tin.set(8, tout.get(4));
-                        tin.set(1, tout.get(5));
-                        tin.set(2, tout.get(4));
+                        alphaT = 0f;
+                        tin.set(6, (1 - alphaT) * tin.get(4) + alphaT * (cell.temperature -  tin.get(4)));
+                        tin.set(7, (1 - alphaT) * tin.get(3) + alphaT * (4f * cell.temperature -  tin.get(3)));
+                        tin.set(8, (1 - alphaT) * tin.get(4) + alphaT * (cell.temperature -  tin.get(4)));
+                        tin.set(1, (1 - alphaT) * tin.get(5) + alphaT * (4f * cell.temperature -  tin.get(5)));
+                        tin.set(2, (1 - alphaT) * tin.get(4) + alphaT * (cell.temperature -  tin.get(4)));
                     }
                     case NORTHWEST_TYPE2 -> {
-                        tin.set(8, tout.get(4));
+                        alphaT = 0f;
+                        tin.set(8, (1 - alphaT) * tin.get(4) + alphaT * (cell.temperature -  tin.get(4)));
                     }
                     case NORTHEAST_TYPE2 -> {
-                        tin.set(2, tout.get(6));
+                        alphaT = 0f;
+                        tin.set(2, (1 - alphaT) * tin.get(6) + alphaT * (cell.temperature -  tin.get(6)));
                     }
                 }
             }
             case SYMMETRY_BC -> {
-                switch (direction) {
+                switch (cell.getBoundaryDirection()) {
                     case NORTH -> {
                         tin.set(4, tout.get(2));
                         tin.set(5, tout.get(1));
@@ -192,62 +202,34 @@ public class TemperatureD2Q9 extends Model{
                 }
             }
             case OPEN_TEMPERATURE_BC -> {
-                switch (direction) {
+                switch (cell.getBoundaryDirection()) {
                     case NORTH -> {
-                        alphaT = 1f;
-                        tin.set(4, (1 - alphaT) * tin.get(8) + alphaT * (temperature -  tin.get(8)));
-                        tin.set(5, (1 - alphaT) * tin.get(1) + alphaT * (4f * temperature -  tin.get(1)));
-                        tin.set(6, (1 - alphaT) * tin.get(2) + alphaT * (temperature -  tin.get(2)));
+                        cell.temperature = ( tin.get(0) +  tin.get(3) +  tin.get(7)
+                                + 2 * tin.get(8) + 2 * tin.get(1) + 2 * tin.get(2))/(1 + cell.velocity.uy);
+                        tin.set(4, tin.get(8) - cell.temperature * cell.velocity.uy/6);
+                        tin.set(5, tin.get(1) - 2 * cell.temperature * cell.velocity.uy/3);
+                        tin.set(6, tin.get(2) - cell.temperature * cell.velocity.uy/6);
                     }
                     case SOUTH -> {
-                        alphaT = 0f;
-                        tin.set(8, (1 - alphaT) * tin.get(4) + alphaT * (temperature -  tin.get(4)));
-                        tin.set(1, (1 - alphaT) * tin.get(5) + alphaT * (4f * temperature -  tin.get(5)));
-                        tin.set(2, (1 - alphaT) * tin.get(6) + alphaT * (temperature -  tin.get(6)));
+                        cell.temperature = ( tin.get(0) +  tin.get(3) +  tin.get(7)
+                                + 2 * tin.get(4) + 2 * tin.get(5) + 2 * tin.get(6))/(1 - cell.velocity.uy);
+                        tin.set(8, tin.get(4) + cell.temperature * cell.velocity.uy/6);
+                        tin.set(1, tin.get(5) + 2 * cell.temperature * cell.velocity.uy/3);
+                        tin.set(2, tin.get(6) + cell.temperature * cell.velocity.uy/6);
                     }
                     case WEST -> {
-                        alphaT = 1f;
-                        tin.set(2, (1 - alphaT) * tin.get(6) + alphaT * (temperature -  tin.get(6)));
-                        tin.set(3, (1 - alphaT) * tin.get(7) + alphaT * (4f * temperature -  tin.get(7)));
-                        tin.set(4, (1 - alphaT) * tin.get(8) + alphaT * (temperature -  tin.get(8)));
-                    }
+                        cell.temperature = ( tin.get(0) +  tin.get(1) +  tin.get(5)
+                                + 2 * tin.get(6) + 2 * tin.get(7) + 2 * tin.get(8))/(1 - cell.velocity.ux);
+                        tin.set(2, tin.get(6) + cell.temperature * cell.velocity.ux/6);
+                        tin.set(3, tin.get(7) + 2 * cell.temperature * cell.velocity.ux/3);
+                        tin.set(4, tin.get(8) + cell.temperature * cell.velocity.ux/6);}
                     case EAST -> {
-                        alphaT = 1f;
-                        tin.set(6, (1 - alphaT) * tin.get(2) + alphaT * (temperature -  tin.get(2)));
-                        tin.set(7, (1 - alphaT) * tin.get(3) + alphaT * (4f * temperature -  tin.get(3)));
-                        tin.set(8, (1 - alphaT) * tin.get(4) + alphaT * (temperature -  tin.get(4)));
+                        cell.temperature = ( tin.get(0) +  tin.get(1) +  tin.get(5)
+                                + 2 * tin.get(2) + 2 * tin.get(3) + 2 * tin.get(4))/(1 + cell.velocity.ux);
+                        tin.set(6, tin.get(2) - cell.temperature * cell.velocity.ux/6);
+                        tin.set(7, tin.get(3) - 2 * cell.temperature * cell.velocity.ux/3);
+                        tin.set(8, tin.get(4) - cell.temperature * cell.velocity.ux/6);
                     }
-                }
-            }
-        }
-        if (fluidBC == FluidBoundaryType.OPEN_DENSITY_BC) {
-            switch (direction) {
-                case NORTH -> {
-                    temperature = ( tin.get(0) +  tin.get(3) +  tin.get(7)
-                            + 2 * tin.get(8) + 2 * tin.get(1) + 2 * tin.get(2))/(1 + v.uy);
-                    tin.set(4, tin.get(8) - temperature * v.uy/6);
-                    tin.set(5, tin.get(1) - 2 * temperature * v.uy/3);
-                    tin.set(6, tin.get(2) - temperature * v.uy/6);
-                }
-                case SOUTH -> {
-                    temperature = ( tin.get(0) +  tin.get(3) +  tin.get(7)
-                            + 2 * tin.get(4) + 2 * tin.get(5) + 2 * tin.get(6))/(1 - v.uy);
-                    tin.set(8, tin.get(4) + temperature * v.uy/6);
-                    tin.set(1, tin.get(5) + 2 * temperature * v.uy/3);
-                    tin.set(2, tin.get(6) + temperature * v.uy/6);
-                }
-                case WEST -> {
-                    temperature = ( tin.get(0) +  tin.get(1) +  tin.get(5)
-                            + 2 * tin.get(6) + 2 * tin.get(7) + 2 * tin.get(8))/(1 - v.ux);
-                    tin.set(2, tin.get(6) + temperature * v.ux/6);
-                    tin.set(3, tin.get(7) + 2 * temperature * v.ux/3);
-                    tin.set(4, tin.get(8) + temperature * v.ux/6);}
-                case EAST -> {
-                    temperature = ( tin.get(0) +  tin.get(1) +  tin.get(5)
-                            + 2 * tin.get(2) + 2 * tin.get(3) + 2 * tin.get(4))/(1 + v.ux);
-                    tin.set(6, tin.get(2) - temperature * v.ux/6);
-                    tin.set(7, tin.get(3) - 2 * temperature * v.ux/3);
-                    tin.set(8, tin.get(4) - temperature * v.ux/6);
                 }
             }
         }

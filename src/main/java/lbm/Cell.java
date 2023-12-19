@@ -57,11 +57,7 @@ public class Cell {
     private float calcDensity() {
         float d = 0;
         for (int i =0 ; i < 9; i++) {
-            try {
-                d += model.getFin().get(i);
-            } catch (NullPointerException e) {
-                System.out.println("X: " + x + ", Y: " + y);
-            }
+            d += model.getFin().get(i);
         }
         return d;
     }
@@ -69,7 +65,6 @@ public class Cell {
     private float calcTemperature() {
         float t = 0f;
         for (int i =0 ; i < 9; i++) {
-            if (temperatureModel.tin.get(i) == null) System.out.println(x + ", " + y);
             t += temperatureModel.getTin().get(i);
         }
         return t;
