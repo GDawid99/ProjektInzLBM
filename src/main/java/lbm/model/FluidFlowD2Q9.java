@@ -1,34 +1,18 @@
 package lbm.model;
 
 import lbm.Cell;
-import lbm.boundary.BoundaryDirection;
 import lbm.boundary.FluidBoundaryType;
-import lbm.GlobalValues;
-import lbm.boundary.TempBoundaryType;
 import util.Velocity;
 
 import java.util.*;
 
-public class FluidFlowD2Q9 extends Model {
-    public static final List<ArrayList<Integer>> c;
-    public static final List<Float> w;
-
-    public List<Float> fin;
-    public List<Float> feq;
-    public List<Float> fout;
-
+public class FluidFlowD2Q9 extends ModelD2Q9 {
     public FluidFlowD2Q9() {
-        this.fin = new ArrayList<>(9);
-        this.feq = new ArrayList<>(9);
-        this.fout = new ArrayList<>(9);
-        this.neighbourhoodOutFunctionElements = new LinkedList<>();
+        super();
     }
 
     public FluidFlowD2Q9(FluidFlowD2Q9 model) {
-        this.fin = new ArrayList<>(model.getFin());
-        this.feq = new ArrayList<>(model.getFeq());
-        this.fout = new ArrayList<>(model.getFout());
-        this.neighbourhoodOutFunctionElements = new LinkedList<>(model.neighbourhoodOutFunctionElements);
+        super(model);
     }
 
     @Override
@@ -37,39 +21,15 @@ public class FluidFlowD2Q9 extends Model {
     }
 
     @Override
-    public void calcInputFunctions(List<Float> f) {
-        fin.clear();
-        for (int i = 0; i < 9; i++) {
-            this.fin.add(f.get(i));
-        }
-    }
-
-    @Override
-    public void calcEquilibriumFunctions(Velocity velocity, float density) {
-        feq.clear();
-        for (int i = 0; i < 9; i++) {
-            feq.add(calc(c.get(i),velocity,w.get(i),density));
-        }
-    }
-
-    @Override
-    public void calcOutputFunctions(ArrayList<Float> inFunction, ArrayList<Float> eqFunction, float time, float tau) {
-        fout.clear();
-        for (int i = 0; i < 9; i++) {
-            fout.add(inFunction.get(i) + time*((eqFunction.get(i) - inFunction.get(i))/tau));
-        }
-    }
-
-    @Override
     public void calcStreaming(List<Cell> cells) {
         neighbourhoodOutFunctionElements.clear();
-        neighbourhoodOutFunctionElements.add(cells.get(0).model.getFout().get(0));
+        neighbourhoodOutFunctionElements.add(cells.get(0).model.fout.get(0));
         for (int i = 1; i < 9; i++) {
             if (cells.get(i) == null || cells.get(i).getFluidBoundaryType() == FluidBoundaryType.WALL) {
                 neighbourhoodOutFunctionElements.add(null);
             }
             else {
-                neighbourhoodOutFunctionElements.add(cells.get(i).model.getFout().get(i));
+                neighbourhoodOutFunctionElements.add(cells.get(i).model.fout.get(i));
             }
         }
         cells.get(0).model.calcInputFunctions(neighbourhoodOutFunctionElements);
@@ -266,34 +226,4 @@ public class FluidFlowD2Q9 extends Model {
             }
         }
     }
-
-    public List<Float> getFin() {
-        return fin;
-    }
-
-    public List<Float> getFeq() {
-        return feq;
-    }
-
-    public List<Float> getFout() {
-        return fout;
-    }
-
-    static {
-        //wektory kierunkowe w modelu D2Q9
-        c = new ArrayList<>(List.of(
-                new ArrayList<>(Arrays.asList(0,0)),
-                new ArrayList<>(Arrays.asList(0,1)),
-                new ArrayList<>(Arrays.asList(1,1)),
-                new ArrayList<>(Arrays.asList(1,0)),
-                new ArrayList<>(Arrays.asList(1,-1)),
-                new ArrayList<>(Arrays.asList(0,-1)),
-                new ArrayList<>(Arrays.asList(-1,-1)),
-                new ArrayList<>(Arrays.asList(-1,0)),
-                new ArrayList<>(Arrays.asList(-1,1))
-        ));
-        //współczynniki wag (model D2Q9)
-        w = new ArrayList<>(Arrays.asList(4f/9f,1f/9f,1f/36f,1f/9f,1f/36f,1f/9f,1f/36f,1f/9f,1f/36f));
-    }
-
 }

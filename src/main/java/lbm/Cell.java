@@ -5,6 +5,7 @@ import lbm.boundary.BoundaryDirection;
 import lbm.boundary.FluidBoundaryType;
 import lbm.boundary.TempBoundaryType;
 import lbm.model.FluidFlowD2Q9;
+import lbm.model.ModelD2Q9;
 import lbm.model.TemperatureD2Q9;
 import util.Velocity;
 
@@ -57,7 +58,7 @@ public class Cell {
     private float calcDensity() {
         float d = 0;
         for (int i =0 ; i < 9; i++) {
-            d += model.getFin().get(i);
+            d += model.fin.get(i);
         }
         return d;
     }
@@ -65,7 +66,7 @@ public class Cell {
     private float calcTemperature() {
         float t = 0f;
         for (int i =0 ; i < 9; i++) {
-            t += temperatureModel.getTin().get(i);
+            t += temperatureModel.fin.get(i);
         }
         return t;
     }
@@ -73,8 +74,8 @@ public class Cell {
     private Velocity calcVelocity(float gravity) {
         float ux = 0f, uy = 0f;
         for (int i = 0; i < 9; i++) {
-            ux += model.getFin().get(i) * FluidFlowD2Q9.c.get(i).get(0);
-            uy += model.getFin().get(i) * FluidFlowD2Q9.c.get(i).get(1);
+            ux += model.fin.get(i) * ModelD2Q9.c.get(i).get(0);
+            uy += model.fin.get(i) * ModelD2Q9.c.get(i).get(1);
         }
         ux /= this.density;
         uy = (uy/this.density)-gravity*(1-2f*temperature);

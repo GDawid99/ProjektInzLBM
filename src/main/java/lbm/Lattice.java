@@ -4,6 +4,7 @@ import lbm.boundary.BoundaryDirection;
 import lbm.boundary.FluidBoundaryType;
 import lbm.boundary.TempBoundaryType;
 import lbm.model.FluidFlowD2Q9;
+import lbm.model.ModelD2Q9;
 import lbm.model.TemperatureD2Q9;
 import util.Velocity;
 
@@ -101,60 +102,18 @@ public class Lattice {
         return board;
     }
 
-//    private Cell[][] initializeLatticeCells() {
-//        Cell[][] board = new Cell[latticeHeight][latticeWidth];
-//        for (int y = 0; y < latticeHeight; y++) {
-//            for (int x = 0; x < latticeWidth; x++) {
-//                Velocity velocity = new Velocity(0f,0f);
-//                float density = 1f;
-//                float temperature = 0f;
-//                if (y == 0) {
-//                    BoundaryDirection direction = BoundaryDirection.NORTH;
-//                    TempBoundaryType type = TempBoundaryType.OPEN_TEMPERATURE_BC;
-//                    if (x == 0 || x == latticeWidth-1) type = TempBoundaryType.BOUNCE_BACK_BC;
-//                    if (x == 0) direction = BoundaryDirection.NORTHWEST;
-//                    if (x == latticeWidth-1) direction = BoundaryDirection.NORTHEAST;
-//                    temperature = 0.5f;
-//                    board[y][x] = setInitialValues(x,y,density,temperature,velocity, FluidBoundaryType.SYMMETRY_BC, type, direction);
-//                }
-//                else if (y == latticeHeight-1) {
-//                    BoundaryDirection direction = BoundaryDirection.SOUTH;
-//                    TempBoundaryType type = TempBoundaryType.OPEN_TEMPERATURE_BC;
-//                    if (x == 0 || x == latticeWidth-1) type = TempBoundaryType.BOUNCE_BACK_BC;
-//                    if (x == 0) direction = BoundaryDirection.SOUTHWEST;
-//                    if (x == latticeWidth-1) direction = BoundaryDirection.SOUTHEAST;
-//                    /*if (x > 60) */temperature = 1f;
-//                    board[y][x] = setInitialValues(x,y,density,temperature,velocity, FluidBoundaryType.BOUNCE_BACK_BC, type, direction);
-//                }
-//                else if (x == 0) {
-//                    board[y][x] = setInitialValues(x,y,density,temperature/*(latticeHeight - 1 -y) * (temperature+20f)/128*/,/*velocity*/new Velocity((latticeHeight-1-y)*GlobalValues.UX/latticeHeight,0f), FluidBoundaryType.OPEN_VELOCITY_BC, TempBoundaryType.OPEN_TEMPERATURE_BC, BoundaryDirection.WEST);
-//                }
-//                else if (x == latticeWidth-1) {
-//                    board[y][x] = setInitialValues(x,y,density,temperature,velocity, FluidBoundaryType.OPEN_VELOCITY_BC, TempBoundaryType.OPEN_TEMPERATURE_BC, BoundaryDirection.EAST);
-//                }
-//                else {
-//                    board[y][x] = setInitialValues(x,y,density,temperature,velocity, FluidBoundaryType.NONE, TempBoundaryType.NONE, BoundaryDirection.NONE);
-//                }
-//            }
-//        }
-//        return board;
-//    }
-
     private Cell setInitialValues(int x, int y, float density, float temperature, Velocity velocity, FluidBoundaryType fluidBoundaryType, TempBoundaryType tempBoundaryType, BoundaryDirection direction) {
         Cell cell = new Cell(x,y, density, temperature, velocity, fluidBoundaryType, tempBoundaryType, direction, new FluidFlowD2Q9(), new TemperatureD2Q9());
         cell.model.calcEquilibriumFunctions(cell.velocity, cell.density);
-        cell.model.calcInputFunctions(cell.model.getFeq());
+        cell.model.calcInputFunctions(cell.model.feq);
         cell.temperatureModel.calcEquilibriumFunctions(cell.velocity, cell.temperature);
-        cell.temperatureModel.calcInputFunctions(cell.temperatureModel.getTeq());
+        cell.temperatureModel.calcInputFunctions(cell.temperatureModel.feq);
         return cell;
     }
 
     public void executeOperations() {
         iter++;
         GlobalValues.initGlobalValues();
-        avg_density = 0f;
-        avg_temperature = 0f;
-        avg_velocity = new Velocity(0f,0f);
 
         //pierwszy etap: obliczenie danych makroskopowych, feq i kolizje
         for (int y = 0; y < latticeHeight; y++) {
@@ -170,22 +129,17 @@ public class Lattice {
                 cell.calcMacroscopicVelocity(gravity);
                 cell.equilibriumFunction();
                 cell.model.calcOutputFunctions(
-                        (ArrayList<Float>) cell.model.getFin(),
-                        (ArrayList<Float>) cell.model.getFeq(),
+                        (ArrayList<Float>) cell.model.fin,
+                        (ArrayList<Float>) cell.model.feq,
                         1.0f,
                         GlobalValues.TAU);
 
                 cell.temperatureModel.calcEquilibriumFunctions(cell.velocity, cell.temperature);
                 cell.temperatureModel.calcOutputFunctions(
-                        (ArrayList<Float>) cell.temperatureModel.getTin(),
-                        (ArrayList<Float>) cell.temperatureModel.getTeq(),
+                        (ArrayList<Float>) cell.temperatureModel.fin,
+                        (ArrayList<Float>) cell.temperatureModel.feq,
                         1.0f,
                         GlobalValues.TAU_TEMPERATURE);
-
-                avg_density += cell.density;
-                avg_temperature += cell.temperature;
-                avg_velocity.ux += cell.velocity.ux;
-                avg_velocity.uy += cell.velocity.uy;
             }
         }
         //drugi etap: obliczenie operacji streaming i warunki brzegowe
@@ -195,8 +149,8 @@ public class Lattice {
                 if (cell.getFluidBoundaryType() == FluidBoundaryType.WALL) continue;
                 List<Cell> neighbourhood = new LinkedList<>();
                 for (int i = 0; i < 9; i++) {
-                    int deltaX = x - FluidFlowD2Q9.c.get(i).get(0);
-                    int deltaY = y + FluidFlowD2Q9.c.get(i).get(1);
+                    int deltaX = x - ModelD2Q9.c.get(i).get(0);
+                    int deltaY = y + ModelD2Q9.c.get(i).get(1);
                     if (deltaY >= 0 && deltaY <= latticeHeight-1 && deltaX >= 0 && deltaX <= latticeWidth-1) neighbourhood.add(cells[deltaY][deltaX]);
                     else neighbourhood.add(null);
                 }
