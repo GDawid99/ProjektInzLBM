@@ -16,12 +16,6 @@ public class Lattice {
     private Cell[][] cells;
     private int latticeWidth;
     private int latticeHeight;
-    public int iter = 0;
-    public float avg_density;
-    public Velocity avg_velocity;
-    public float avg_temperature;
-    public final float gravity = 0.000025f;
-    public ParticleTrajectory particleTrajectory;
     public int positionXLeftWall = 60;
     public int positionXRightWall = 68;
     public int positionYWall = 80;
@@ -29,7 +23,6 @@ public class Lattice {
     public Lattice(int width, int height) {
         this.latticeWidth = width;
         this.latticeHeight = height;
-        particleTrajectory = new ParticleTrajectory(new Particle(0f,height/5f,0.5f, new Velocity(0.0f,0.0f)));
         this.cells = initializeLatticeCells();
     }
 
@@ -111,8 +104,7 @@ public class Lattice {
         return cell;
     }
 
-    public void executeOperations() {
-        iter++;
+    public void executeOperations(float timeStep, float fluidFlowTau, float temperatureTau, float gravity) {
         GlobalValues.initGlobalValues();
 
         //pierwszy etap: obliczenie danych makroskopowych, feq i kolizje
@@ -131,15 +123,15 @@ public class Lattice {
                 cell.model.calcOutputFunctions(
                         (ArrayList<Float>) cell.model.fin,
                         (ArrayList<Float>) cell.model.feq,
-                        1.0f,
-                        GlobalValues.TAU);
+                        timeStep,
+                        fluidFlowTau);
 
                 cell.temperatureModel.calcEquilibriumFunctions(cell.velocity, cell.temperature);
                 cell.temperatureModel.calcOutputFunctions(
                         (ArrayList<Float>) cell.temperatureModel.fin,
                         (ArrayList<Float>) cell.temperatureModel.feq,
-                        1.0f,
-                        GlobalValues.TAU_TEMPERATURE);
+                        timeStep,
+                        temperatureTau);
             }
         }
         //drugi etap: obliczenie operacji streaming i warunki brzegowe
@@ -164,14 +156,6 @@ public class Lattice {
 
     public Cell[][] getCells() {
         return cells;
-    }
-
-    public int getLatticeWidth() {
-        return latticeWidth;
-    }
-
-    public int getLatticeHeight() {
-        return latticeHeight;
     }
 
     public Cell[][] copy(Cell[][] arr) {

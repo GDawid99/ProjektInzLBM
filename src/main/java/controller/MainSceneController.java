@@ -12,6 +12,7 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.HBox;
 import lbm.GlobalValues;
 import lbm.Lattice;
+import lbm.Simulation;
 import util.Velocity;
 
 import java.net.URL;
@@ -43,7 +44,7 @@ public class MainSceneController implements Initializable {
     protected HBox latticeBox;
     @FXML
     protected Menu menu_view;
-    private Lattice lattice;
+    private Simulation simulation;
     private String currentVisualValue = "Velocity [Vx]";
 
     private Velocity Vmin = new Velocity(-0.02f,-0.02f);
@@ -59,15 +60,14 @@ public class MainSceneController implements Initializable {
     public void initialize(URL url, ResourceBundle resourceBundle) {
         Platform.runLater(() -> visualCanvas.scaleLattice(latticeBox.getWidth(),latticeBox.getHeight()));
         menu_view.getItems().get(0).setDisable(true);
-        lattice = new Lattice((int)visualCanvas.getWidth(),(int)visualCanvas.getHeight());
+        simulation = new Simulation((int)visualCanvas.getWidth(),(int)visualCanvas.getHeight());
         setGradientBarValues(Vmin.ux,Vmax.ux);
         AnimationTimer animationTimer = new AnimationTimer() {
             @Override
             public void handle(long l) {
-                lattice.executeOperations();
-                visualCanvas.draw(lattice,currentVisualValue, gradientMin, gradientMax);
-                if (show_flowlines_button.isSelected()) visualCanvas.drawLines(lattice);
-                //visualCanvas.drawParticleTrajectory(lattice.getCells()[0][25],lattice.gravity);
+                simulation.loopLBM();
+                visualCanvas.draw(simulation.getLattice(),currentVisualValue, gradientMin, gradientMax);
+                if (show_flowlines_button.isSelected()) visualCanvas.drawLines(simulation.getLattice());
                 gradient_bar.draw(currentVisualValue, gradientMin, gradientMax);
             }
         };
