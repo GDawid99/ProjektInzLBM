@@ -1,11 +1,9 @@
 package graphics;
 
-import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
 import lbm.*;
 import javafx.scene.canvas.Canvas;
 import lbm.boundary.FluidBoundaryType;
-import util.Velocity;
 
 
 public class VisualCanvas extends Canvas {
@@ -17,7 +15,7 @@ public class VisualCanvas extends Canvas {
         for (int y = 0; y < this.getHeight(); y++) {
             for (int x = 0; x < this.getWidth(); x++) {
                 cell = lattice.getCells()[y][x];
-                if (cell.getFluidBoundaryType() == FluidBoundaryType.WALL) {
+                if (cell.getCellBoundaryType().isSolid()) {
                     this.getGraphicsContext2D().getPixelWriter().setColor(x,y,Color.BLACK);
                     continue;
                 }

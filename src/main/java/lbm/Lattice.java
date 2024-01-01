@@ -37,23 +37,23 @@ public class Lattice {
                     BoundaryDirection direction = BoundaryDirection.NORTH;
                     FluidBoundaryType fluidBoundaryType = FluidBoundaryType.SYMMETRY_BC;
                     if (x == 0)  {
-                        direction = BoundaryDirection.NORTHWEST;
+                        direction = BoundaryDirection.NORTHWEST_CONCAVE;
                         fluidBoundaryType = FluidBoundaryType.BOUNCE_BACK_BC;
                     }
                     if (x == latticeWidth-1) {
-                        direction = BoundaryDirection.NORTHEAST;
+                        direction = BoundaryDirection.NORTHEAST_CONCAVE;
                         fluidBoundaryType = FluidBoundaryType.BOUNCE_BACK_BC;
                     }
                     board[y][x] = setInitialValues(x,y,density,temperature,velocity, fluidBoundaryType, TempBoundaryType.BOUNCE_BACK_BC, direction);
                 }
                 else if (x > positionXLeftWall && x < positionXRightWall && y > positionYWall) {
-                    board[y][x] = setInitialValues(x,y,density,temperature,velocity, FluidBoundaryType.WALL, TempBoundaryType.WALL, BoundaryDirection.NONE);
+                    board[y][x] = setInitialValues(x,y,density,temperature,velocity, FluidBoundaryType.SOLID, TempBoundaryType.SOLID, BoundaryDirection.NONE);
                 }
                 else if (y == latticeHeight-1) {
                     BoundaryDirection direction = BoundaryDirection.SOUTH;
                     TempBoundaryType tempType = TempBoundaryType.BOUNCE_BACK_BC;
-                    if (x == 0) direction = BoundaryDirection.SOUTHWEST;
-                    if (x == latticeWidth-1) direction = BoundaryDirection.SOUTHEAST;
+                    if (x == 0) direction = BoundaryDirection.SOUTHWEST_CONCAVE;
+                    if (x == latticeWidth-1) direction = BoundaryDirection.SOUTHEAST_CONCAVE;
                     if (x < positionXLeftWall) {
                         temperature = 1f;
                     }
@@ -75,20 +75,20 @@ public class Lattice {
                     board[y][x] = setInitialValues(x,y,density,1f,velocity, FluidBoundaryType.BOUNCE_BACK_BC, TempBoundaryType.BOUNCE_BACK_BC, BoundaryDirection.SOUTH);
                 }
                 else {
-                    board[y][x] = setInitialValues(x,y,density,temperature,velocity, FluidBoundaryType.NONE, TempBoundaryType.NONE, BoundaryDirection.NONE);
+                    board[y][x] = setInitialValues(x,y,density,temperature,velocity, FluidBoundaryType.FLUID, TempBoundaryType.FLUID, BoundaryDirection.NONE);
                 }
 
                 if (x == positionXLeftWall && y == latticeHeight-1) {
-                    board[y][x] = setInitialValues(x,y,density,1f,velocity, FluidBoundaryType.BOUNCE_BACK_BC, TempBoundaryType.BOUNCE_BACK_BC, BoundaryDirection.SOUTHEAST);
+                    board[y][x] = setInitialValues(x,y,density,1f,velocity, FluidBoundaryType.BOUNCE_BACK_BC, TempBoundaryType.BOUNCE_BACK_BC, BoundaryDirection.SOUTHEAST_CONCAVE);
                 }
                 if (x == positionXLeftWall && y == positionYWall) {
-                    board[y][x] = setInitialValues(x,y,density,temperature,velocity, FluidBoundaryType.BOUNCE_BACK_BC, TempBoundaryType.BOUNCE_BACK_BC, BoundaryDirection.NORTHWEST_TYPE2);
+                    board[y][x] = setInitialValues(x,y,density,temperature,velocity, FluidBoundaryType.BOUNCE_BACK_BC, TempBoundaryType.BOUNCE_BACK_BC, BoundaryDirection.NORTHWEST_CONVEX);
                 }
                 if (x == positionXRightWall && y == latticeHeight-1) {
-                    board[y][x] = setInitialValues(x,y,density,temperature,velocity, FluidBoundaryType.BOUNCE_BACK_BC, TempBoundaryType.BOUNCE_BACK_BC, BoundaryDirection.SOUTHWEST);
+                    board[y][x] = setInitialValues(x,y,density,temperature,velocity, FluidBoundaryType.BOUNCE_BACK_BC, TempBoundaryType.BOUNCE_BACK_BC, BoundaryDirection.SOUTHWEST_CONCAVE);
                 }
                 if (x == positionXRightWall && y == positionYWall) {
-                    board[y][x] = setInitialValues(x,y,density,temperature,velocity, FluidBoundaryType.BOUNCE_BACK_BC, TempBoundaryType.BOUNCE_BACK_BC, BoundaryDirection.NORTHEAST_TYPE2);
+                    board[y][x] = setInitialValues(x,y,density,temperature,velocity, FluidBoundaryType.BOUNCE_BACK_BC, TempBoundaryType.BOUNCE_BACK_BC, BoundaryDirection.NORTHEAST_CONVEX);
                 }
             }
         }
@@ -111,7 +111,7 @@ public class Lattice {
         for (int y = 0; y < latticeHeight; y++) {
             for (int x = 0; x < latticeWidth; x++) {
                 Cell cell = cells[y][x];
-                if (cell.getFluidBoundaryType() == FluidBoundaryType.WALL) continue;
+                if (cell.getCellBoundaryType().isSolid()) continue;
                 cell.calcMacroscopicDensity();
                 //źródło ciepła
                 if ((x == positionXLeftWall && y > positionYWall) ||
@@ -138,7 +138,7 @@ public class Lattice {
         for (int y = 0; y < latticeHeight; y++) {
             for (int x = 0; x < latticeWidth; x++) {
                 Cell cell = cells[y][x];
-                if (cell.getFluidBoundaryType() == FluidBoundaryType.WALL) continue;
+                if (cell.getCellBoundaryType().isSolid()) continue;
                 List<Cell> neighbourhood = new LinkedList<>();
                 for (int i = 0; i < 9; i++) {
                     int deltaX = x - ModelD2Q9.c.get(i).get(0);

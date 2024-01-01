@@ -25,7 +25,7 @@ public class FluidFlowD2Q9 extends ModelD2Q9 {
         neighbourhoodOutFunctionElements.clear();
         neighbourhoodOutFunctionElements.add(cells.get(0).model.fout.get(0));
         for (int i = 1; i < 9; i++) {
-            if (cells.get(i) == null || cells.get(i).getFluidBoundaryType() == FluidBoundaryType.WALL) {
+            if (cells.get(i) == null || cells.get(i).getCellBoundaryType().isSolid()) {
                 neighbourhoodOutFunctionElements.add(null);
             }
             else {
@@ -39,10 +39,10 @@ public class FluidFlowD2Q9 extends ModelD2Q9 {
     public void calcBoundaryConditions(Cell cell) {
         float density = 1f;
         Velocity v = new Velocity(0f,0f);
-        switch (cell.getFluidBoundaryType()) {
+        switch (cell.getCellBoundaryType().getFluidBoundaryType()) {
             case CONST_BC -> calcInputFunctions(fout);
             case BOUNCE_BACK_BC -> {
-                switch (cell.getBoundaryDirection()) {
+                switch (cell.getCellBoundaryType().getBoundaryDirection()) {
                     case NORTH -> {
                         fin.set(4, fout.get(8));
                         fin.set(5, fout.get(1));
@@ -63,44 +63,44 @@ public class FluidFlowD2Q9 extends ModelD2Q9 {
                         fin.set(7, fout.get(3));
                         fin.set(8, fout.get(4));
                     }
-                    case NORTHWEST -> {
+                    case NORTHWEST_CONCAVE -> {
                         fin.set(2, fout.get(8));
                         fin.set(3, fout.get(7));
                         fin.set(4, fout.get(8));
                         fin.set(5, fout.get(1));
                         fin.set(6, fout.get(8));
                     }
-                    case NORTHEAST -> {
+                    case NORTHEAST_CONCAVE -> {
                         fin.set(4, fout.get(2));
                         fin.set(5, fout.get(1));
                         fin.set(6, fout.get(2));
                         fin.set(7, fout.get(3));
                         fin.set(8, fout.get(2));
                     }
-                    case SOUTHWEST -> {
+                    case SOUTHWEST_CONCAVE -> {
                         fin.set(8, fout.get(6));
                         fin.set(1, fout.get(5));
                         fin.set(2, fout.get(6));
                         fin.set(3, fout.get(7));
                         fin.set(4, fout.get(6));
                     }
-                    case SOUTHEAST -> {
+                    case SOUTHEAST_CONCAVE -> {
                         fin.set(6, fout.get(4));
                         fin.set(7, fout.get(3));
                         fin.set(8, fout.get(4));
                         fin.set(1, fout.get(5));
                         fin.set(2, fout.get(4));
                     }
-                    case NORTHWEST_TYPE2 -> {
+                    case NORTHWEST_CONVEX -> {
                         fin.set(8, fout.get(4));
                     }
-                    case NORTHEAST_TYPE2 -> {
+                    case NORTHEAST_CONVEX -> {
                         fin.set(2, fout.get(6));
                     }
                 }
             }
             case SYMMETRY_BC -> {
-                switch (cell.getBoundaryDirection()) {
+                switch (cell.getCellBoundaryType().getBoundaryDirection()) {
                     case NORTH -> {
                         fin.set(4, fout.get(2));
                         fin.set(5, fout.get(1));
@@ -121,28 +121,28 @@ public class FluidFlowD2Q9 extends ModelD2Q9 {
                         fin.set(7, fout.get(3));
                         fin.set(8, fout.get(2));
                     }
-                    case NORTHWEST -> {
+                    case NORTHWEST_CONCAVE -> {
                         fin.set(2, fout.get(8));
                         fin.set(3, fout.get(7));
                         fin.set(4, fout.get(8));
                         fin.set(5, fout.get(1));
                         fin.set(6, fout.get(8));
                     }
-                    case NORTHEAST -> {
+                    case NORTHEAST_CONCAVE -> {
                         fin.set(4, fout.get(2));
                         fin.set(5, fout.get(1));
                         fin.set(6, fout.get(2));
                         fin.set(7, fout.get(3));
                         fin.set(8, fout.get(2));
                     }
-                    case SOUTHWEST -> {
+                    case SOUTHWEST_CONCAVE -> {
                         fin.set(8, fout.get(6));
                         fin.set(1, fout.get(5));
                         fin.set(2, fout.get(6));
                         fin.set(3, fout.get(7));
                         fin.set(4, fout.get(6));
                     }
-                    case SOUTHEAST -> {
+                    case SOUTHEAST_CONCAVE -> {
                         fin.set(6, fout.get(4));
                         fin.set(7, fout.get(3));
                         fin.set(8, fout.get(4));
@@ -152,7 +152,7 @@ public class FluidFlowD2Q9 extends ModelD2Q9 {
                 }
             }
             case OPEN_DENSITY_BC -> {
-                switch (cell.getBoundaryDirection()) {
+                switch (cell.getCellBoundaryType().getBoundaryDirection()) {
                     case NORTH -> {
                         v.uy = -1 + (fin.get(0) + fin.get(3) + fin.get(7)
                                 + 2 * fin.get(8) + 2 * fin.get(1) + 2 * fin.get(2))/density;
@@ -177,7 +177,7 @@ public class FluidFlowD2Q9 extends ModelD2Q9 {
             }
             case OPEN_VELOCITY_BC -> {
                 v = new Velocity(0f,0f);
-                switch (cell.getBoundaryDirection()) {
+                switch (cell.getCellBoundaryType().getBoundaryDirection()) {
                     case NORTH -> {
                         density = (fin.get(0) + fin.get(3) + fin.get(7)
                                 + 2 * fin.get(8) + 2 * fin.get(1) + 2 * fin.get(2))/(1 + v.uy);
@@ -201,8 +201,8 @@ public class FluidFlowD2Q9 extends ModelD2Q9 {
                 }
             }
         }
-        if (cell.getFluidBoundaryType() == FluidBoundaryType.OPEN_VELOCITY_BC || cell.getFluidBoundaryType() == FluidBoundaryType.OPEN_DENSITY_BC) {
-            switch (cell.getBoundaryDirection()) {
+        if (cell.cellBoundaryType.getFluidBoundaryType() == FluidBoundaryType.OPEN_VELOCITY_BC || cell.cellBoundaryType.getFluidBoundaryType() == FluidBoundaryType.OPEN_DENSITY_BC) {
+            switch (cell.getCellBoundaryType().getBoundaryDirection()) {
                 case NORTH -> {
                     fin.set(4,fin.get(8) - density*(v.ux+v.uy)/6);
                     fin.set(5,fin.get(1) - 2*density*v.uy/3);

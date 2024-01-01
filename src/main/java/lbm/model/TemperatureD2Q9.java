@@ -2,11 +2,9 @@ package lbm.model;
 
 import lbm.Cell;
 import lbm.boundary.FluidBoundaryType;
-import lbm.boundary.TempBoundaryType;
 import util.Velocity;
 
 import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.List;
 
 public class TemperatureD2Q9 extends ModelD2Q9{
@@ -28,7 +26,7 @@ public class TemperatureD2Q9 extends ModelD2Q9{
         neighbourhoodOutFunctionElements.clear();
         neighbourhoodOutFunctionElements.add(cells.get(0).temperatureModel.fout.get(0));
         for (int i = 1; i < 9; i++) {
-            if (cells.get(i) == null || cells.get(i).getFluidBoundaryType() == FluidBoundaryType.WALL) {
+            if (cells.get(i) == null || cells.get(i).getCellBoundaryType().isSolid()) {
                 neighbourhoodOutFunctionElements.add(null);
             }
             else {
@@ -42,10 +40,10 @@ public class TemperatureD2Q9 extends ModelD2Q9{
     public void calcBoundaryConditions(Cell cell) {
         float constTemperature = 0f;
         float alphaT = 1;
-        switch (cell.getTempBoundaryType()) {
+        switch (cell.getCellBoundaryType().getTempBoundaryType()) {
             case CONST_BC -> calcInputFunctions(fout);
             case BOUNCE_BACK_BC -> {
-                switch (cell.getBoundaryDirection()) {
+                switch (cell.getCellBoundaryType().getBoundaryDirection()) {
                     case NORTH -> {
                         alphaT = 0f;
                         fin.set(4, (1 - alphaT) * fin.get(8) + alphaT * (cell.temperature -  fin.get(8)));
@@ -70,7 +68,7 @@ public class TemperatureD2Q9 extends ModelD2Q9{
                         fin.set(7, (1 - alphaT) * fin.get(3) + alphaT * (4f * cell.temperature -  fin.get(3)));
                         fin.set(8, (1 - alphaT) * fin.get(4) + alphaT * (cell.temperature -  fin.get(4)));
                     }
-                    case NORTHWEST -> {
+                    case NORTHWEST_CONCAVE -> {
                         alphaT = 0f;
                         fin.set(2, (1 - alphaT) * fin.get(8) + alphaT * (cell.temperature -  fin.get(8)));
                         fin.set(3, (1 - alphaT) * fin.get(7) + alphaT * (4f * cell.temperature -  fin.get(7)));
@@ -78,7 +76,7 @@ public class TemperatureD2Q9 extends ModelD2Q9{
                         fin.set(5, (1 - alphaT) * fin.get(1) + alphaT * (4f * cell.temperature -  fin.get(1)));
                         fin.set(6, (1 - alphaT) * fin.get(8) + alphaT * (cell.temperature -  fin.get(8)));
                     }
-                    case NORTHEAST -> {
+                    case NORTHEAST_CONCAVE -> {
                         alphaT = 0f;
                         fin.set(4, (1 - alphaT) * fin.get(2) + alphaT * (cell.temperature -  fin.get(2)));
                         fin.set(5, (1 - alphaT) * fin.get(1) + alphaT * (4f * cell.temperature -  fin.get(1)));
@@ -86,7 +84,7 @@ public class TemperatureD2Q9 extends ModelD2Q9{
                         fin.set(7, (1 - alphaT) * fin.get(3) + alphaT * (4f * cell.temperature -  fin.get(3)));
                         fin.set(8, (1 - alphaT) * fin.get(2) + alphaT * (cell.temperature -  fin.get(2)));
                     }
-                    case SOUTHWEST -> {
+                    case SOUTHWEST_CONCAVE -> {
                         alphaT = 0f;
                         fin.set(8, (1 - alphaT) * fin.get(6) + alphaT * (cell.temperature -  fin.get(6)));
                         fin.set(1, (1 - alphaT) * fin.get(5) + alphaT * (4f * cell.temperature -  fin.get(5)));
@@ -94,7 +92,7 @@ public class TemperatureD2Q9 extends ModelD2Q9{
                         fin.set(3, (1 - alphaT) * fin.get(7) + alphaT * (4f * cell.temperature -  fin.get(7)));
                         fin.set(4, (1 - alphaT) * fin.get(6) + alphaT * (cell.temperature -  fin.get(6)));
                     }
-                    case SOUTHEAST -> {
+                    case SOUTHEAST_CONCAVE -> {
                         alphaT = 0f;
                         fin.set(6, (1 - alphaT) * fin.get(4) + alphaT * (cell.temperature -  fin.get(4)));
                         fin.set(7, (1 - alphaT) * fin.get(3) + alphaT * (4f * cell.temperature -  fin.get(3)));
@@ -102,18 +100,18 @@ public class TemperatureD2Q9 extends ModelD2Q9{
                         fin.set(1, (1 - alphaT) * fin.get(5) + alphaT * (4f * cell.temperature -  fin.get(5)));
                         fin.set(2, (1 - alphaT) * fin.get(4) + alphaT * (cell.temperature -  fin.get(4)));
                     }
-                    case NORTHWEST_TYPE2 -> {
+                    case NORTHWEST_CONVEX -> {
                         alphaT = 0f;
                         fin.set(8, (1 - alphaT) * fin.get(4) + alphaT * (cell.temperature -  fin.get(4)));
                     }
-                    case NORTHEAST_TYPE2 -> {
+                    case NORTHEAST_CONVEX -> {
                         alphaT = 0f;
                         fin.set(2, (1 - alphaT) * fin.get(6) + alphaT * (cell.temperature -  fin.get(6)));
                     }
                 }
             }
             case SYMMETRY_BC -> {
-                switch (cell.getBoundaryDirection()) {
+                switch (cell.getCellBoundaryType().getBoundaryDirection()) {
                     case NORTH -> {
                         fin.set(4, fout.get(2));
                         fin.set(5, fout.get(1));
@@ -134,28 +132,28 @@ public class TemperatureD2Q9 extends ModelD2Q9{
                         fin.set(7, fout.get(3));
                         fin.set(8, fout.get(2));
                     }
-                    case NORTHWEST -> {
+                    case NORTHWEST_CONCAVE -> {
                         fin.set(2, fout.get(8));
                         fin.set(3, fout.get(7));
                         fin.set(4, fout.get(8));
                         fin.set(5, fout.get(1));
                         fin.set(6, fout.get(8));
                     }
-                    case NORTHEAST -> {
+                    case NORTHEAST_CONCAVE -> {
                         fin.set(4, fout.get(2));
                         fin.set(5, fout.get(1));
                         fin.set(6, fout.get(2));
                         fin.set(7, fout.get(3));
                         fin.set(8, fout.get(2));
                     }
-                    case SOUTHWEST -> {
+                    case SOUTHWEST_CONCAVE -> {
                         fin.set(8, fout.get(6));
                         fin.set(1, fout.get(5));
                         fin.set(2, fout.get(6));
                         fin.set(3, fout.get(7));
                         fin.set(4, fout.get(6));
                     }
-                    case SOUTHEAST -> {
+                    case SOUTHEAST_CONCAVE -> {
                         fin.set(6, fout.get(4));
                         fin.set(7, fout.get(3));
                         fin.set(8, fout.get(4));
@@ -165,7 +163,7 @@ public class TemperatureD2Q9 extends ModelD2Q9{
                 }
             }
             case OPEN_TEMPERATURE_BC -> {
-                switch (cell.getBoundaryDirection()) {
+                switch (cell.getCellBoundaryType().getBoundaryDirection()) {
                     case NORTH -> {
                         cell.temperature = ( fin.get(0) +  fin.get(3) +  fin.get(7)
                                 + 2 * fin.get(8) + 2 * fin.get(1) + 2 * fin.get(2))/(1 + cell.velocity.uy);

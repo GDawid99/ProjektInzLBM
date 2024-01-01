@@ -1,8 +1,8 @@
 package lbm.boundary;
 
 public enum FluidBoundaryType {
-    NONE,
-    WALL,
+    FLUID,
+    SOLID,
     CONST_BC,
     BOUNCE_BACK_BC,
     SYMMETRY_BC,
