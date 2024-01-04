@@ -1,5 +1,6 @@
 package lbm;
 
+import util.LatticeInitializer;
 import util.Velocity;
 
 public class Simulation {
@@ -8,13 +9,22 @@ public class Simulation {
     public int iteration;
     public final float gravity = 0.000025f;
 
-    public Simulation(int width, int height) {
-        this.lattice = new Lattice(width, height);
+    public Simulation() {
         this.iteration = 0;
     }
 
+    public void initLBM(int width, int height) {
+        this.lattice = LatticeInitializer.initialize(width,height)
+                .withTau(1f)
+                .withTempTau(1f)
+                .withTimeStep(1f)
+                .withInitializeLattice("data.txt")
+                .build();
+        this.lattice.printValues();
+    }
+
     public int loopLBM() {
-        lattice.executeOperations(1f, 1f, 1f, gravity);
+        lattice.executeOperations(gravity);
         return iteration++;
     }
 

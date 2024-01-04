@@ -46,10 +46,10 @@ public abstract class ModelD2Q9 implements LBMDistributionFunctionOperation{
     }
 
     @Override
-    public void calcEquilibriumFunctions(Velocity velocity, float density) {
+    public void calcEquilibriumFunctions(Velocity velocity, float variable) {
         feq.clear();
         for (int i = 0; i < 9; i++) {
-            feq.add(calc(c.get(i),velocity,w.get(i),density));
+            feq.add(calc(c.get(i),velocity,w.get(i),variable));
         }
     }
 

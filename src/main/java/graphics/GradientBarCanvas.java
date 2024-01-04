@@ -2,7 +2,6 @@ package graphics;
 
 import javafx.scene.canvas.Canvas;
 import javafx.scene.paint.Color;
-import lbm.GlobalValues;
 
 public class GradientBarCanvas extends Canvas {
     public void draw(String currentVisualValue, float min, float max) {

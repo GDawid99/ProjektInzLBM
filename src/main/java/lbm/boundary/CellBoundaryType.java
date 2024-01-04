@@ -48,4 +48,13 @@ public class CellBoundaryType {
     public boolean isFluid() {
         return (fluidBoundaryType == FluidBoundaryType.FLUID && tempBoundaryType == TempBoundaryType.FLUID);
     }
+
+    @Override
+    public String toString() {
+        return "CellBoundaryType{" +
+                "fluidBoundaryType=" + fluidBoundaryType +
+                ", tempBoundaryType=" + tempBoundaryType +
+                ", boundaryDirection=" + boundaryDirection +
+                '}';
+    }
 }

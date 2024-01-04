@@ -17,16 +17,17 @@ import util.Velocity;
 public class Cell {
     public int x;
     public int y;
-    public FluidFlowD2Q9 model;
-    public TemperatureD2Q9 temperatureModel;
+    public ModelD2Q9 model;
+    public ModelD2Q9 temperatureModel;
     public CellBoundaryType cellBoundaryType;
     public float density;
     public Velocity velocity;
     public float temperature;
+    public boolean isHeatSource;
 
 
 
-    public Cell(int x, int y, float density, float temperature, Velocity velocity, FluidBoundaryType fluidBoundaryType, TempBoundaryType tempBoundaryType, BoundaryDirection direction, FluidFlowD2Q9 model, TemperatureD2Q9 temperatureModel) {
+    public Cell(int x, int y, float density, float temperature, Velocity velocity, FluidBoundaryType fluidBoundaryType, TempBoundaryType tempBoundaryType, BoundaryDirection direction, ModelD2Q9 model, ModelD2Q9 temperatureModel) {
         this.x = x;
         this.y = y;
         this.model = model;
@@ -47,6 +48,10 @@ public class Cell {
         this.velocity = new Velocity(cell.velocity);
     }
 
+    public void setCellBoundaryType(FluidBoundaryType fluidBoundaryType, TempBoundaryType tempBoundaryType, BoundaryDirection boundaryDirection) {
+        this.cellBoundaryType = new CellBoundaryType(fluidBoundaryType,tempBoundaryType,boundaryDirection);
+    }
+
     public void equilibriumFunction() {
         this.model.calcEquilibriumFunctions(this.velocity, this.density);
     }
@@ -54,8 +59,12 @@ public class Cell {
 
     private float calcDensity() {
         float d = 0;
-        for (int i =0 ; i < 9; i++) {
-            d += model.fin.get(i);
+        try {
+            for (int i = 0; i < 9; i++) {
+                d += model.fin.get(i);
+            }
+        }catch (NullPointerException e) {
+            System.out.println("[" + x + "," + y + "]");
         }
         return d;
     }

@@ -10,8 +10,6 @@ import javafx.fxml.Initializable;
 import javafx.scene.control.*;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.HBox;
-import lbm.GlobalValues;
-import lbm.Lattice;
 import lbm.Simulation;
 import util.Velocity;
 
@@ -60,7 +58,8 @@ public class MainSceneController implements Initializable {
     public void initialize(URL url, ResourceBundle resourceBundle) {
         Platform.runLater(() -> visualCanvas.scaleLattice(latticeBox.getWidth(),latticeBox.getHeight()));
         menu_view.getItems().get(0).setDisable(true);
-        simulation = new Simulation((int)visualCanvas.getWidth(),(int)visualCanvas.getHeight());
+        simulation = new Simulation();
+        simulation.initLBM((int)visualCanvas.getWidth(),(int)visualCanvas.getHeight());
         setGradientBarValues(Vmin.ux,Vmax.ux);
         AnimationTimer animationTimer = new AnimationTimer() {
             @Override
