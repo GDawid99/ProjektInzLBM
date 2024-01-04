@@ -100,11 +100,11 @@ public class TemperatureD2Q9 extends ModelD2Q9{
                         fin.set(1, (1 - alphaT) * fin.get(5) + alphaT * (4f * cell.temperature -  fin.get(5)));
                         fin.set(2, (1 - alphaT) * fin.get(4) + alphaT * (cell.temperature -  fin.get(4)));
                     }
-                    case NORTHWEST_CONVEX -> {
+                    case SOUTHEAST_CONVEX -> {
                         alphaT = 0f;
                         fin.set(8, (1 - alphaT) * fin.get(4) + alphaT * (cell.temperature -  fin.get(4)));
                     }
-                    case NORTHEAST_CONVEX -> {
+                    case SOUTHWEST_CONVEX -> {
                         alphaT = 0f;
                         fin.set(2, (1 - alphaT) * fin.get(6) + alphaT * (cell.temperature -  fin.get(6)));
                     }

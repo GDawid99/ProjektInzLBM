@@ -91,10 +91,10 @@ public class FluidFlowD2Q9 extends ModelD2Q9 {
                         fin.set(1, fout.get(5));
                         fin.set(2, fout.get(4));
                     }
-                    case NORTHWEST_CONVEX -> {
+                    case SOUTHEAST_CONVEX -> {
                         fin.set(8, fout.get(4));
                     }
-                    case NORTHEAST_CONVEX -> {
+                    case SOUTHWEST_CONVEX -> {
                         fin.set(2, fout.get(6));
                     }
                 }
