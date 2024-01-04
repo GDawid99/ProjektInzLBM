@@ -31,7 +31,7 @@ temp_boundary_type=BOUNCE_BACK_BC;
 WEST:
 density=1f;
 temperature=0.0f;
-velocity=[0.02f,0f];   #linear(max=[0.05f,0f],min=[0f,0f];
+velocity=[0f,0f];   #linear(max=[0.05f,0f],min=[0f,0f];
 fluid_boundary_type=OPEN_VELOCITY_BC;
 temp_boundary_type=OPEN_TEMPERATURE_BC;
 
@@ -64,70 +64,14 @@ velocity=[0f,0f];
 fluid_boundary_type=BOUNCE_BACK_BC;
 temp_boundary_type=BOUNCE_BACK_BC;
 
-#dodatkowe dane dotyczące 3 różnych sytuacji:
+#dodatkowe dane dotyczące 2 różnych sytuacji:
 #-prostokątna przeszkoda
 #-trójkątna przeszkoda
-#-niestandardowa podłoga
 -ADDITION DATA-
--SHAPE:RECTANGLE(59,80,69,127);
--INITIAL BOUNDARY CONDITIONS:
--WALLS:
-NORTH: none;
+-SHAPE:FLOOR(30,100);
 
-EAST:
-density=1f;
-temperature=1.0f;
-velocity=[0f,0f];
-fluid_boundary_type=BOUNCE_BACK_BC;
-temp_boundary_type=BOUNCE_BACK_BC;
-
-SOUTH:
-density=1f;
-temperature=0.0f;
-velocity=[0f,0f];
-fluid_boundary_type=BOUNCE_BACK_BC;
-temp_boundary_type=BOUNCE_BACK_BC;
-
-WEST:
-density=1f;
-temperature=0.0f;
-velocity=[0f,0f];
-fluid_boundary_type=BOUNCE_BACK_BC;
-temp_boundary_type=BOUNCE_BACK_BC;
-
--CORNERS:
-NORTHWEST_CONCAVE: none;
-
-NORTHWEST_CONVEX: none;
-
-NORTHEAST_CONCAVE: none;
-
-NORTHEAST_CONVEX: none;
-
-SOUTHWEST_CONCAVE:
-density=1f;
-temperature=0.0f;
-velocity=[0f,0f];
-fluid_boundary_type=BOUNCE_BACK_BC;
-temp_boundary_type=BOUNCE_BACK_BC;
-
-SOUTHWEST_CONVEX:
-density=1f;
-temperature=0.0f;
-velocity=[0f,0f];
-fluid_boundary_type=BOUNCE_BACK_BC;
-temp_boundary_type=BOUNCE_BACK_BC;
-
-SOUTHEAST_CONCAVE:
-density=1f;
-temperature=0.0f;
-velocity=[0f,0f];
-fluid_boundary_type=BOUNCE_BACK_BC;
-temp_boundary_type=BOUNCE_BACK_BC;
-
-SOUTHEAST_CONVEX:
-density=1f;
-temperature=0.0f;
-velocity=[0f,0f];
-fluid_boundary_type=BOUNCE_BACK_BC;
-temp_boundary_type=BOUNCE_BACK_BC;
+#źródła ciepła
+#source(od_x, od_y, do_x, do_y)
+-HEAT SOURCES-:
+source(0,127,30,127);
+source(100,127,127,127);

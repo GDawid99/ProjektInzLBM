@@ -12,7 +12,6 @@ import lbm.model.TemperatureD2Q9;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
-import java.util.List;
 
 public class LatticeInitializer {
     public Cell[][] cells;
@@ -48,31 +47,14 @@ public class LatticeInitializer {
         return this;
     }
 
-
-    private BoundaryDirection setBoundaryConditionDirection(int x, int y) {
-//        for (int y = 0; y < latticeHeight; y++) {
-//            for (int x = 0; x < latticeWidth; x++) {
-        if (cells[y][x].getCellBoundaryType().isSolid()) return BoundaryDirection.NONE;
-                if (y == 0) {
-                    if (x == 0) return BoundaryDirection.NORTHEAST_CONCAVE;
-                    else if (x == latticeWidth-1) return BoundaryDirection.NORTHWEST_CONCAVE;
-                    else return BoundaryDirection.NORTH;
-                }
-                else if (y == latticeHeight) {
-                    if (x == 0) return BoundaryDirection.SOUTHEAST_CONCAVE;
-                    else if (x == latticeWidth-1) return BoundaryDirection.SOUTHWEST_CONCAVE;
-                    else return BoundaryDirection.SOUTH;
-                }
-                else {
-                    if (x == 0) return BoundaryDirection.EAST;
-                    if (x == latticeWidth-1) return BoundaryDirection.WEST;
-                }
-//            }
-//        }
-        return BoundaryDirection.NONE;
+    public LatticeInitializer withInitializeLattice(String path) {
+        cells = initialData(path);
+        cells = additionData(path);
+        cells = boundaryData(path);
+        return this;
     }
 
-    public Cell[][] initialData(String path) {
+    private Cell[][] initialData(String path) {
         float density = 0f, temperature = 0f;
         Velocity velocity = null;
         BufferedReader br;
@@ -106,7 +88,7 @@ public class LatticeInitializer {
         return cells;
     }
 
-    public Cell[][] wallData(String path) {
+    private Cell[][] additionData(String path) {
         BufferedReader br;
         boolean isUsedPartOfFile = false;
         try {
@@ -132,14 +114,7 @@ public class LatticeInitializer {
         return cells;
     }
 
-    public LatticeInitializer withInitializeLattice(String path) {
-        cells = initialData(path);
-        cells = wallData(path);
-        cells = boundaryData(path);
-        return this;
-    }
-
-    public int[] getWallData(String line, boolean generateWall) {
+    private int[] getWallData(String line, boolean generateWall) {
         String s = line.substring(line.indexOf("(")+1,line.indexOf(")"));
         switch (line.substring(line.indexOf(":") + 1, line.indexOf("("))) {
             case "RECTANGLE" -> {
@@ -172,15 +147,14 @@ public class LatticeInitializer {
                 int x1 = Integer.parseInt(s.substring(0, s.indexOf(",")));
                 s = s.substring(s.indexOf(",") + 1);
                 int x2 = Integer.parseInt(s);
-                if (generateWall) generateNonStandardFloor(x1, x2);
-                else return new int[]{x1, x2};
+                return new int[]{x1, x2};
             }
         }
         if (generateWall) return new int[0];
         throw new IllegalArgumentException("Niepoprawna nazwa kształtu.");
     }
 
-    public Cell[][] boundaryData(String path) {
+    private Cell[][] boundaryData(String path) {
         BufferedReader br;
         float density = 0f, temperature = 0f;
         Velocity velocity = null;
@@ -246,11 +220,6 @@ public class LatticeInitializer {
                                 y1 = values[1];
                                 x2 = values[2];
                                 y2 = values[3];
-                                //System.out.println(x1);
-                                //System.out.println(y1);
-                                //System.out.println(x2);
-                                //System.out.println(y2);
-
                             }
                             case "TRIANGLE": {
                                 break;
@@ -264,10 +233,6 @@ public class LatticeInitializer {
                         }
                     }
                     if (typeOfShape.equals("RECTANGLE")) {
-                        //System.out.println(x1);
-                        //System.out.println(y1);
-                        //System.out.println(x2);
-                        //System.out.println(y2);
                         if (line.contains("density")) density = Float.parseFloat(line.substring(line.indexOf("=")+1, line.indexOf(";")));
                         else if (line.contains("temperature")) temperature = Float.parseFloat(line.substring(line.indexOf("=")+1, line.indexOf(";")));
                         else if (line.contains("velocity")) {
@@ -326,7 +291,7 @@ public class LatticeInitializer {
     }
 
 
-    public Cell[][] generateRectangleWall(int x1, int y1, int x2, int y2) {
+    private Cell[][] generateRectangleWall(int x1, int y1, int x2, int y2) {
         //obsługa błędów
         if (x1 < 0) x1 = 0;
         if (x2 > latticeWidth-1) x2 = latticeWidth-1;
@@ -340,7 +305,7 @@ public class LatticeInitializer {
         return cells;
     }
 
-    public Cell[][] generateDefaultFluidCells(float density, float temperature, Velocity velocity) {
+    private Cell[][] generateDefaultFluidCells(float density, float temperature, Velocity velocity) {
         for (int y = 0; y < latticeHeight; y++) {
             for (int x = 0; x < latticeWidth; x++) {
                 cells[y][x] = setInitialValues(x,y,density,temperature,new Velocity(velocity),new CellBoundaryType(true));
@@ -349,7 +314,7 @@ public class LatticeInitializer {
         return cells;
     }
 
-    public Cell[][] generateBoundaryCellsForConstX(int startX, int startY, int length, float density, float temperature, Velocity velocity, CellBoundaryType boundaryType) {
+    private Cell[][] generateBoundaryCellsForConstX(int startX, int startY, int length, float density, float temperature, Velocity velocity, CellBoundaryType boundaryType) {
         if (startX < 0) startX = 0;
         if (startX > latticeWidth-1) startX = latticeWidth-1;
         if (startY < 0) startY = 0;
@@ -361,7 +326,7 @@ public class LatticeInitializer {
         return cells;
     }
 
-    public Cell[][] generateBoundaryCellsForConstY(int startX, int startY, int length, float density, float temperature, Velocity velocity, CellBoundaryType boundaryType) {
+    private Cell[][] generateBoundaryCellsForConstY(int startX, int startY, int length, float density, float temperature, Velocity velocity, CellBoundaryType boundaryType) {
         if (startX < 0) startX = 0;
         if (startX > latticeWidth-1) startX = latticeWidth-1;
         if (startY < 0) startY = 0;
@@ -373,7 +338,7 @@ public class LatticeInitializer {
         return cells;
     }
 
-    public Cell generateBoundaryCellCorner(int x, int y, float density, float temperature, Velocity velocity, CellBoundaryType boundaryType) {
+    private Cell generateBoundaryCellCorner(int x, int y, float density, float temperature, Velocity velocity, CellBoundaryType boundaryType) {
         if (x < 0) x = 0;
         if (x > latticeWidth-1) x = latticeWidth-1;
         if (y < 0) y = 0;
@@ -383,10 +348,6 @@ public class LatticeInitializer {
     }
 
     public Cell[][] generateTriangleWall(int x1, int y1, int x2, int y2, int x3, int y3) {
-        return cells;
-    }
-
-    public Cell[][] generateNonStandardFloor(int x1, int x2) {
         return cells;
     }
 

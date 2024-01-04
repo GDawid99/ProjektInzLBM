@@ -176,7 +176,7 @@ public class FluidFlowD2Q9 extends ModelD2Q9 {
                 }
             }
             case OPEN_VELOCITY_BC -> {
-                v = new Velocity(0f,0f);
+                v = cell.velocity;
                 switch (cell.getCellBoundaryType().getBoundaryDirection()) {
                     case NORTH -> {
                         density = (fin.get(0) + fin.get(3) + fin.get(7)
