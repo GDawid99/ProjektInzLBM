@@ -184,8 +184,9 @@ public class LatticeInitializer {
 
     private Cell[][] boundaryData(String path) {
         BufferedReader br;
-        float density = 0f, temperature = 0f;
+        float density = 0f, temperature = 0f, deltaDensity = 0f, deltaTemperature = 0f;
         Velocity velocity = null;
+        Velocity deltaVelocity = new Velocity(0f,0f);
         FluidBoundaryType fluidBoundaryType = FluidBoundaryType.FLUID;
         TempBoundaryType tempBoundaryType = TempBoundaryType.FLUID;
         BoundaryDirection bd = BoundaryDirection.NONE;
@@ -197,6 +198,10 @@ public class LatticeInitializer {
             br = new BufferedReader(new FileReader(path));
             String line;
             while ((line = br.readLine()) != null) {
+                if (line.contains("#")) {
+                    if (line.charAt(0) == '#') continue;
+                    else line = line.substring(0,line.indexOf('#'));
+                }
                 if (line.contains("-INITIAL BOUNDARY CONDITIONS")) isBCPartOfFile = true;
                 if (line.contains("-ADDITION DATA-")) {
                     isBCPartOfFile = false;
@@ -217,21 +222,52 @@ public class LatticeInitializer {
                     if (line.contains("SOUTHEAST_CONVEX")) bd = BoundaryDirection.SOUTHEAST_CONVEX;
                 }
                 if (!isAdditionPartOfFile && isBCPartOfFile) {
-                    if (line.contains("density")) density = Float.parseFloat(line.substring(line.indexOf("=")+1, line.indexOf(";")));
-                    else if (line.contains("temperature")) temperature = Float.parseFloat(line.substring(line.indexOf("=")+1, line.indexOf(";")));
+                    if (line.contains("density")) {
+                        if (line.contains("linear")) {
+                            density = Float.parseFloat(line.substring(line.indexOf("(") + 1, line.indexOf(",")));
+                            line = line.substring(line.indexOf(",") + 1, line.indexOf(")"));
+                            float maxDensity = Float.parseFloat(line);
+                            deltaDensity = (maxDensity-density)/(latticeHeight-1);
+                        }
+                        else density = Float.parseFloat(line.substring(line.indexOf("=")+1, line.indexOf(";")));
+                    }
+                    else if (line.contains("temperature")) {
+                        if (line.contains("linear")) {
+                            temperature = Float.parseFloat(line.substring(line.indexOf("(") + 1, line.indexOf(",")));
+                            line = line.substring(line.indexOf(",") + 1, line.indexOf(")"));
+                            float maxTemperature = Float.parseFloat(line);
+                            deltaTemperature = (maxTemperature-temperature)/(latticeHeight-1);
+                        }
+                        temperature = Float.parseFloat(line.substring(line.indexOf("=")+1, line.indexOf(";")));
+                    }
                     else if (line.contains("velocity")) {
-                        float ux = Float.parseFloat(line.substring(line.indexOf("[")+1,line.indexOf(",")));
-                        float uy = Float.parseFloat(line.substring(line.indexOf(",")+1,line.indexOf("]")));
-                        velocity = new Velocity(ux,uy);
+                        if (line.contains("linear")) {
+                            System.out.println(line);
+                            line = line.substring(line.indexOf("(") + 1, line.indexOf(")"));
+                            float ux = Float.parseFloat(line.substring(line.indexOf("[") + 1, line.indexOf(",")));
+                            float uy = Float.parseFloat(line.substring(line.indexOf(",") + 1, line.indexOf("]")));
+                            velocity = new Velocity(ux, uy);
+                            line = line.replace(line.substring(line.indexOf("["), line.indexOf("]")+2), "");
+                            System.out.println(line);
+                            ux = Float.parseFloat(line.substring(line.indexOf("[") + 1, line.indexOf(",")));
+                            uy = Float.parseFloat(line.substring(line.indexOf(",") + 1, line.indexOf("]")));
+                            Velocity maxVelocity = new Velocity(ux,uy);
+                            deltaVelocity = new Velocity((maxVelocity.ux - velocity.ux)/(latticeHeight-1),(maxVelocity.uy - velocity.uy)/(latticeHeight-1));
+                        }
+                        else {
+                            float ux = Float.parseFloat(line.substring(line.indexOf("[") + 1, line.indexOf(",")));
+                            float uy = Float.parseFloat(line.substring(line.indexOf(",") + 1, line.indexOf("]")));
+                            velocity = new Velocity(ux, uy);
+                        }
                     }
                     else if (line.contains("fluid_boundary_type")) fluidBoundaryType = FluidBoundaryType.valueOf(line.substring(line.indexOf("=")+1,line.indexOf(";")));
                     else if (line.contains("temp_boundary_type")) {
                         tempBoundaryType = TempBoundaryType.valueOf(line.substring(line.indexOf("=")+1,line.indexOf(";")));
                         switch (bd) {
-                            case NORTH -> generateBoundaryCellsForConstY(1,0,latticeWidth-1,density,temperature,velocity,new CellBoundaryType(fluidBoundaryType,tempBoundaryType,bd));
-                            case SOUTH -> generateBoundaryCellsForConstY(1,latticeHeight-1,latticeWidth-1,density,temperature,velocity,new CellBoundaryType(fluidBoundaryType,tempBoundaryType,bd));
-                            case EAST -> generateBoundaryCellsForConstX(latticeWidth-1,1,latticeHeight-1,density,temperature,velocity,new CellBoundaryType(fluidBoundaryType,tempBoundaryType,bd));
-                            case WEST -> generateBoundaryCellsForConstX(0,1,latticeHeight-1,density,temperature,velocity,new CellBoundaryType(fluidBoundaryType,tempBoundaryType,bd));
+                            case NORTH -> generateBoundaryCellsForConstY(1,0,latticeWidth-1,density,deltaDensity,temperature,deltaTemperature,velocity,deltaVelocity,new CellBoundaryType(fluidBoundaryType,tempBoundaryType,bd));
+                            case SOUTH -> generateBoundaryCellsForConstY(1,latticeHeight-1,latticeWidth-1,density,deltaDensity,temperature,deltaTemperature,velocity,deltaVelocity,new CellBoundaryType(fluidBoundaryType,tempBoundaryType,bd));
+                            case EAST -> generateBoundaryCellsForConstX(latticeWidth-1,1,latticeHeight-1,density,deltaDensity,temperature,deltaTemperature,velocity,deltaVelocity,new CellBoundaryType(fluidBoundaryType,tempBoundaryType,bd));
+                            case WEST -> generateBoundaryCellsForConstX(0,1,latticeHeight-1,density,deltaDensity,temperature,deltaTemperature,velocity,deltaVelocity,new CellBoundaryType(fluidBoundaryType,tempBoundaryType,bd));
                             case NORTHEAST_CONCAVE -> generateBoundaryCellCorner(latticeWidth-1,0,density,temperature,velocity,new CellBoundaryType(fluidBoundaryType,tempBoundaryType,bd));
                             case NORTHWEST_CONCAVE -> generateBoundaryCellCorner(0,0,density,temperature,velocity,new CellBoundaryType(fluidBoundaryType,tempBoundaryType,bd));
                             case SOUTHEAST_CONCAVE -> generateBoundaryCellCorner(latticeWidth-1,latticeHeight-1,density,temperature,velocity,new CellBoundaryType(fluidBoundaryType,tempBoundaryType,bd));
@@ -272,15 +308,15 @@ public class LatticeInitializer {
                         else if (line.contains("temp_boundary_type")) {
                             System.out.println(bd);
                             switch (bd) {
-                                case NORTH -> generateBoundaryCellsForConstY(x1, y2 + 1, x1 + (x2 - x1 + 1), density, temperature, velocity, new CellBoundaryType(fluidBoundaryType,tempBoundaryType,bd));
+                                case NORTH -> generateBoundaryCellsForConstY(x1, y2 + 1, x1 + (x2 - x1 + 1),density,deltaDensity,temperature,deltaTemperature,velocity,deltaVelocity, new CellBoundaryType(fluidBoundaryType,tempBoundaryType,bd));
                                 case SOUTH -> {
                                     System.out.println("[" + x1 + "," + (y1-1) + "]");
                                     System.out.println(fluidBoundaryType);
                                     System.out.println(tempBoundaryType);
-                                    generateBoundaryCellsForConstY(x1, y1 - 1, x1 + (x2 - x1 + 1), density, temperature, velocity, new CellBoundaryType(fluidBoundaryType,tempBoundaryType,bd));
+                                    generateBoundaryCellsForConstY(x1, y1 - 1, x1 + (x2 - x1 + 1),density,deltaDensity,temperature,deltaTemperature,velocity,deltaVelocity, new CellBoundaryType(fluidBoundaryType,tempBoundaryType,bd));
                                 }
-                                case WEST -> generateBoundaryCellsForConstX(x2 + 1, y1, y1 + (y2 - y1 + 1), density, temperature, velocity, new CellBoundaryType(fluidBoundaryType,tempBoundaryType,bd));
-                                case EAST -> generateBoundaryCellsForConstX(x1 - 1, y1, y1 + (y2 - y1 + 1), density, temperature, velocity, new CellBoundaryType(fluidBoundaryType,tempBoundaryType,bd));
+                                case WEST -> generateBoundaryCellsForConstX(x2 + 1, y1, y1 + (y2 - y1 + 1),density,deltaDensity,temperature,deltaTemperature,velocity,deltaVelocity, new CellBoundaryType(fluidBoundaryType,tempBoundaryType,bd));
+                                case EAST -> generateBoundaryCellsForConstX(x1 - 1, y1, y1 + (y2 - y1 + 1),density,deltaDensity,temperature,deltaTemperature,velocity,deltaVelocity, new CellBoundaryType(fluidBoundaryType,tempBoundaryType,bd));
                                 case NORTHEAST_CONCAVE -> {
                                     if (y1 <= 0)
                                         generateBoundaryCellCorner(x1-1,y1-1, density, temperature, velocity, new CellBoundaryType(fluidBoundaryType,tempBoundaryType,bd));
@@ -376,17 +412,17 @@ public class LatticeInitializer {
 
     private Cell[][] generateDefaultFluidCells(float minDensity, float deltaDensity, float minTemperature, float deltaTemperature, Velocity minVelocity,  Velocity deltaVelocity) {
         for (int y = 0; y < latticeHeight; y++) {
-            minDensity += deltaDensity;
-            minTemperature += deltaTemperature;
-            minVelocity = new Velocity(minVelocity.ux + deltaVelocity.ux, minVelocity.uy + deltaVelocity.uy);
             for (int x = 0; x < latticeWidth; x++) {
                 cells[y][x] = setInitialValues(x,y,minDensity,minTemperature,new Velocity(minVelocity),new CellBoundaryType(true));
             }
+            minDensity += deltaDensity;
+            minTemperature += deltaTemperature;
+            minVelocity = new Velocity(minVelocity.ux + deltaVelocity.ux, minVelocity.uy + deltaVelocity.uy);
         }
         return cells;
     }
 
-    private Cell[][] generateBoundaryCellsForConstX(int startX, int startY, int length, float density, float temperature, Velocity velocity, CellBoundaryType boundaryType) {
+    private Cell[][] generateBoundaryCellsForConstX(int startX, int startY, int length, float density, float deltaDensity, float temperature, float deltaTemperature, Velocity velocity, Velocity deltaVelocity, CellBoundaryType boundaryType) {
         if (startX < 0) startX = 0;
         if (startX > latticeWidth-1) startX = latticeWidth-1;
         if (startY < 0) startY = 0;
@@ -394,11 +430,14 @@ public class LatticeInitializer {
         if (length > 128) length = 128;
         for (int i = startY; i < length; i++) {
             if (!cells[i][startX].getCellBoundaryType().isSolid()) cells[i][startX] = setInitialValues(startX,i,density,temperature,velocity,boundaryType);
+            density += deltaDensity;
+            temperature += deltaTemperature;
+            velocity = new Velocity(velocity.ux + deltaVelocity.ux, velocity.uy + deltaVelocity.uy);
         }
         return cells;
     }
 
-    private Cell[][] generateBoundaryCellsForConstY(int startX, int startY, int length, float density, float temperature, Velocity velocity, CellBoundaryType boundaryType) {
+    private Cell[][] generateBoundaryCellsForConstY(int startX, int startY, int length, float density, float deltaDensity, float temperature, float deltaTemperature, Velocity velocity, Velocity deltaVelocity, CellBoundaryType boundaryType) {
         if (startX < 0) startX = 0;
         if (startX > latticeWidth-1) startX = latticeWidth-1;
         if (startY < 0) startY = 0;
@@ -406,6 +445,9 @@ public class LatticeInitializer {
         if (length > 128) length = 128;
         for (int i = startX; i < length; i++) {
             if (!cells[startY][i].getCellBoundaryType().isSolid()) cells[startY][i] = setInitialValues(i,startY,density,temperature,velocity,boundaryType);
+            density += deltaDensity;
+            temperature += deltaTemperature;
+            velocity = new Velocity(velocity.ux + deltaVelocity.ux, velocity.uy + deltaVelocity.uy);
         }
         return cells;
     }

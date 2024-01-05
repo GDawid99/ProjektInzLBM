@@ -19,7 +19,7 @@
 -INITIAL CONDITIONS:
 density=1.0f;
 temperature=0f;
-velocity=linear([0f,0f],[0.02f,0f]);
+velocity=[0f,0f];
 
 -INITIAL BOUNDARY CONDITIONS:
 -WALLS:
@@ -47,7 +47,7 @@ temp_boundary_type=BOUNCE_BACK_BC;
 WEST:
 density=1f;
 temperature=0.0f;
-velocity=[0f,0f];   #linear(max=[0.05f,0f],min=[0f,0f];
+velocity=[0f,0f];   #linear([0.05f,0f],[0f,0f])
 fluid_boundary_type=OPEN_VELOCITY_BC;
 temp_boundary_type=OPEN_TEMPERATURE_BC;
 
