@@ -1,7 +1,6 @@
 package lbm;
 
 import util.LatticeInitializer;
-import util.Velocity;
 
 public class Simulation {
     private Lattice lattice;
@@ -18,9 +17,9 @@ public class Simulation {
                 .withTau(1f)
                 .withTempTau(1f)
                 .withTimeStep(1f)
-                .withInitializeLattice("data2.txt")
+                .withInitializeLattice("data1.txt")
                 .build();
-        this.lattice.printValues();
+        //this.lattice.printValues();
     }
 
     public int loopLBM() {

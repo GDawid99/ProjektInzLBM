@@ -131,3 +131,10 @@ temperature=0.0f;
 velocity=[0f,0f];
 fluid_boundary_type=BOUNCE_BACK_BC;
 temp_boundary_type=BOUNCE_BACK_BC;
+
+#źródła ciepła
+#source(od_x, od_y, do_x, do_y, temperatura)
+-HEAT SOURCES-:
+source(0,127,58,127,1f);
+source(58,80,58,127,1f);
+source(58,79,70,79,0.8f);

@@ -20,9 +20,6 @@ public class Lattice {
     private final float tau;
     private final float tempTau;
     private float timeStep;
-    public int positionXLeftWall = 58;
-    public int positionXRightWall = 70;
-    public int positionYWall = 79;
 
     public Lattice(int width, int height, float tau, float tempTau, float timeStep) {
         this.latticeWidth = width;
@@ -46,18 +43,18 @@ public class Lattice {
     }
 
 
-    public void printValues() {
-        for (int y = 0; y < latticeHeight; y++) {
-            for (int x = 0; x < latticeWidth; x++) {
-                //if (cells[y][x].getCellBoundaryType().isBoundary()) System.out.print("[" + "#" + "]");
-                //else if (cells[y][x].getCellBoundaryType().isSolid()) System.out.print("[0]");
-                //else System.out.print("[" + " " + "]");
-                System.out.print("[" + cells[y][x].getCellBoundaryType().getBoundaryDirection() + "]");
-            }
-            System.out.println();
-        }
-        System.out.println(cells[79][60].getCellBoundaryType());
-    }
+//    public void printValues() {
+//        for (int y = 0; y < latticeHeight; y++) {
+//            for (int x = 0; x < latticeWidth; x++) {
+//                //if (cells[y][x].getCellBoundaryType().isBoundary()) System.out.print("[" + "#" + "]");
+//                //else if (cells[y][x].getCellBoundaryType().isSolid()) System.out.print("[0]");
+//                //else System.out.print("[" + " " + "]");
+//                System.out.print("[" + cells[y][x].getCellBoundaryType().getBoundaryDirection() + "]");
+//            }
+//            System.out.println();
+//        }
+//        System.out.println(cells[79][60].getCellBoundaryType());
+//    }
 
     public void executeOperations(float gravity) {
 
@@ -66,24 +63,9 @@ public class Lattice {
             for (int x = 0; x < latticeWidth; x++) {
                 Cell cell = cells[y][x];
                 if (cell.getCellBoundaryType().isSolid()) continue;
-                cell.calcMacroscopicDensity();
-                //źródło ciepła
-                if (cell.isHeatSource) cell.calcMacroscopicTemperature(cell.temperature);
-                else cell.calcMacroscopicTemperature();
-                cell.calcMacroscopicVelocity(gravity);
-                cell.equilibriumFunction();
-                cell.model.calcOutputFunctions(
-                        (ArrayList<Float>) cell.model.fin,
-                        (ArrayList<Float>) cell.model.feq,
-                        timeStep,
-                        tau);
-
-                cell.temperatureModel.calcEquilibriumFunctions(cell.velocity, cell.temperature);
-                cell.temperatureModel.calcOutputFunctions(
-                        (ArrayList<Float>) cell.temperatureModel.fin,
-                        (ArrayList<Float>) cell.temperatureModel.feq,
-                        timeStep,
-                        tempTau);
+                cell.calcMacroscopicValues(gravity);
+                cell.calcEquilibriumFunction();
+                cell.calcCollisionOperation(timeStep,tau,tempTau);
             }
         }
         //drugi etap: obliczenie operacji streaming i warunki brzegowe

@@ -10,6 +10,8 @@ import lbm.model.ModelD2Q9;
 import lbm.model.TemperatureD2Q9;
 import util.Velocity;
 
+import java.util.ArrayList;
+
 /**
  * Klasa {@code Cell} reprezentująca komórkę w przestrzeni<br>
  * 2D,
@@ -52,10 +54,21 @@ public class Cell {
         this.cellBoundaryType = new CellBoundaryType(fluidBoundaryType,tempBoundaryType,boundaryDirection);
     }
 
-    public void equilibriumFunction() {
+    public void calcEquilibriumFunction() {
         this.model.calcEquilibriumFunctions(this.velocity, this.density);
+        this.temperatureModel.calcEquilibriumFunctions(this.velocity, this.temperature);
     }
 
+    public void calcCollisionOperation(float timeStep, float tau, float tempTau) {
+        this.model.calcOutputFunctions((ArrayList<Float>) this.model.fin,
+                (ArrayList<Float>) this.model.feq,
+                timeStep,
+                tau);
+        this.temperatureModel.calcOutputFunctions((ArrayList<Float>) this.temperatureModel.fin,
+                (ArrayList<Float>) this.temperatureModel.feq,
+                timeStep,
+                tempTau);
+    }
 
     private float calcDensity() {
         float d = 0;
@@ -88,20 +101,10 @@ public class Cell {
         return new Velocity(ux, uy);
     }
 
-    public void calcMacroscopicDensity() {
+    public void calcMacroscopicValues(float gravity) {
         this.density = calcDensity();
-    }
-
-    public void calcMacroscopicVelocity(float gravity) {
+        if (!isHeatSource) this.temperature = calcTemperature();
         this.velocity = calcVelocity(gravity);
-    }
-
-    public void calcMacroscopicTemperature() {
-        this.temperature = calcTemperature();
-    }
-
-    public void calcMacroscopicTemperature(float temperature) {
-        this.temperature = temperature;
     }
 
     public CellBoundaryType getCellBoundaryType() {
