@@ -71,7 +71,7 @@ temp_boundary_type=BOUNCE_BACK_BC;
 -SHAPE:FLOOR(30,100);
 
 #źródła ciepła
-#source(od_x, od_y, do_x, do_y)
+#source(od_x, od_y, do_x, do_y, temperatura)
 -HEAT SOURCES-:
-source(0,127,30,127);
-source(100,127,127,127);
+source(0,127,30,127,1f);
+source(100,127,127,127,1f);

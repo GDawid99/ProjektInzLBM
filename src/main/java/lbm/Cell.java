@@ -108,6 +108,7 @@ public class Cell {
         return cellBoundaryType;
     }
 
+
     @Override
     public String toString() {
         return "Cell{" +

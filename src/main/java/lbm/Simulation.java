@@ -18,7 +18,7 @@ public class Simulation {
                 .withTau(1f)
                 .withTempTau(1f)
                 .withTimeStep(1f)
-                .withInitializeLattice("data.txt")
+                .withInitializeLattice("data2.txt")
                 .build();
         this.lattice.printValues();
     }

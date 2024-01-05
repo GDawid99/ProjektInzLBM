@@ -68,9 +68,7 @@ public class Lattice {
                 if (cell.getCellBoundaryType().isSolid()) continue;
                 cell.calcMacroscopicDensity();
                 //źródło ciepła
-                if ((x == positionXLeftWall && y > positionYWall) ||
-                        (x > positionXLeftWall && x < positionXRightWall && y == positionYWall) ||
-                        (y == latticeHeight-1 && x < positionXLeftWall)) cell.calcMacroscopicTemperature(cell.temperature);
+                if (cell.isHeatSource) cell.calcMacroscopicTemperature(cell.temperature);
                 else cell.calcMacroscopicTemperature();
                 cell.calcMacroscopicVelocity(gravity);
                 cell.equilibriumFunction();

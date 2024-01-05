@@ -51,6 +51,7 @@ public class LatticeInitializer {
         cells = initialData(path);
         cells = additionData(path);
         cells = boundaryData(path);
+        cells = heatSourceData(path);
         return this;
     }
 
@@ -276,6 +277,47 @@ public class LatticeInitializer {
                             }
                         }
                     }
+                }
+            }
+        }
+        catch (IOException e) {
+            System.err.println("I/O: Blad z plikiem.");
+            System.exit(-1);
+        }
+        return cells;
+    }
+
+    private Cell[][] heatSourceData(String path) {
+        BufferedReader br;
+        try {
+            br = new BufferedReader(new FileReader(path));
+            String line;
+            while ((line = br.readLine()) != null) {
+                if (line.contains("#")) {
+                    if (line.charAt(0) == '#') continue;
+                    else line = line.substring(0,line.indexOf('#'));
+                }
+                if (line.contains("source")) {
+                    line = line.substring(line.indexOf("(")+1,line.indexOf(")"));
+                    int x1 = Integer.parseInt(line.substring(0, line.indexOf(",")));
+                    line = line.substring(line.indexOf(",") + 1);
+                    int y1 = Integer.parseInt(line.substring(0, line.indexOf(",")));
+                    line = line.substring(line.indexOf(",") + 1);
+                    int x2 = Integer.parseInt(line.substring(0, line.indexOf(",")));
+                    line = line.substring(line.indexOf(",") + 1);
+                    int y2 = Integer.parseInt(line.substring(0, line.indexOf(",")));
+                    line = line.substring(line.indexOf(",") + 1);
+                    float temperature = Float.parseFloat(line);
+                    if (x1 == x2) for (int i = y1; i < y1 + (y2 - y1 + 1); i++) {
+                        cells[i][x1].isHeatSource = true;
+                        cells[i][x1].temperature = temperature;
+                    }
+                    else if (y1 == y2) for (int i = x1; i < x1 + (x2 - x1 + 1); i++) {
+                        cells[y1][i].isHeatSource = true;
+                        cells[y1][i].temperature = temperature;
+                    }
+                    //DO POPRAWY
+                    else throw new IllegalArgumentException("Bledne dane w pliku w sekcji HEAT SOURCE: linie muszą być prostopadłe do ścian siatki.");
                 }
             }
         }
