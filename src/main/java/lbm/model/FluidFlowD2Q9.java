@@ -37,8 +37,8 @@ public class FluidFlowD2Q9 extends ModelD2Q9 {
 
     @Override
     public void calcBoundaryConditions(Cell cell) {
-        float density = 1f;
-        Velocity v = new Velocity(0f,0f);
+        float density = cell.density;
+        Velocity v = cell.velocity;
         switch (cell.getCellBoundaryType().getFluidBoundaryType()) {
             case CONST_BC -> calcInputFunctions(fout);
             case BOUNCE_BACK_BC -> {
@@ -152,7 +152,6 @@ public class FluidFlowD2Q9 extends ModelD2Q9 {
                 }
             }
             case OPEN_DENSITY_BC -> {
-                density = cell.density;
                 switch (cell.getCellBoundaryType().getBoundaryDirection()) {
                     case NORTH -> {
                         v.uy = -1 + (fin.get(0) + fin.get(3) + fin.get(7)
@@ -177,7 +176,6 @@ public class FluidFlowD2Q9 extends ModelD2Q9 {
                 }
             }
             case OPEN_VELOCITY_BC -> {
-                v = cell.velocity;
                 switch (cell.getCellBoundaryType().getBoundaryDirection()) {
                     case NORTH -> {
                         density = (fin.get(0) + fin.get(3) + fin.get(7)

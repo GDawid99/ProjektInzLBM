@@ -17,38 +17,38 @@
 #Dane podstawowe dla symulacji bez żadnych dodatków
 -DOMAIN DATA-
 -INITIAL CONDITIONS:
-density=linear(0.98f,1.02f);
+density=linear(0.99f,1.03f);
 temperature=0.0f;
 velocity=[0f,0f];
 
 -INITIAL BOUNDARY CONDITIONS:
 -WALLS:
 NORTH:
-density=1f;
+density=0.99f;
 temperature=0.0f;
 velocity=[0f,0f];
 fluid_boundary_type=SYMMETRY_BC;
 temp_boundary_type=SYMMETRY_BC;
 
 EAST:
-density=linear(0.98f,1.02f);
+density=linear(0.99f,1.03f);
 temperature=0.0f;
 velocity=[0f,0f];
-fluid_boundary_type=OPEN_DENSITY_BC;
+fluid_boundary_type=OPEN_VELOCITY_BC;
 temp_boundary_type=OPEN_TEMPERATURE_BC;
 
 SOUTH:
-density=1f;
+density=1.03f;
 temperature=0.0f;
 velocity=[0f,0f];
 fluid_boundary_type=BOUNCE_BACK_BC;
 temp_boundary_type=BOUNCE_BACK_BC;
 
 WEST:
-density=linear(0.98f,1.02f);
+density=linear(0.99f,1.03f);
 temperature=0.0f;
 velocity=[0f,0f];  #linear([0.05f,0f],[0f,0f]);
-fluid_boundary_type=OPEN_DENSITY_BC;
+fluid_boundary_type=OPEN_VELOCITY_BC;
 temp_boundary_type=OPEN_TEMPERATURE_BC;
 
 -CORNERS:
@@ -89,4 +89,4 @@ temp_boundary_type=BOUNCE_BACK_BC;
 #źródła ciepła
 #source(od_x, od_y, do_x, do_y, temperatura)
 -HEAT SOURCES-:
-source(30,127,90,127,1f);
+source(30,127,97,127,1f);
