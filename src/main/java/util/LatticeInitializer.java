@@ -56,8 +56,9 @@ public class LatticeInitializer {
     }
 
     private Cell[][] initialData(String path) {
-        float density = 0f, temperature = 0f;
+        float density = 0f, temperature = 0f, deltaDensity = 0f, deltaTemperature = 0f;
         Velocity velocity = null;
+        Velocity deltaVelocity = new Velocity(0f,0f);
         BufferedReader br;
         try {
             br = new BufferedReader(new FileReader(path));
@@ -69,18 +70,44 @@ public class LatticeInitializer {
                 }
                 if (line.contains("-INITIAL BOUNDARY CONDITIONS")) break;
                 if (line.contains("density")) {
-                    density = Float.parseFloat(line.substring(line.indexOf("=")+1,line.indexOf(";")));
+                    if (line.contains("linear")) {
+                        density = Float.parseFloat(line.substring(line.indexOf("(") + 1, line.indexOf(",")));
+                        line = line.substring(line.indexOf(",") + 1, line.indexOf(")"));
+                        float maxDensity = Float.parseFloat(line);
+                        deltaDensity = (maxDensity-density)/(latticeHeight-1);
+                    }
+                    else density = Float.parseFloat(line.substring(line.indexOf("=")+1,line.indexOf(";")));
                 }
                 else if (line.contains("temperature")) {
-                    temperature = Float.parseFloat(line.substring(line.indexOf("=")+1,line.indexOf(";")));
+                    if (line.contains("linear")) {
+                        temperature = Float.parseFloat(line.substring(line.indexOf("(") + 1, line.indexOf(",")));
+                        line = line.substring(line.indexOf(",") + 1, line.indexOf(")"));
+                        float maxTemperature = Float.parseFloat(line);
+                        deltaTemperature = (maxTemperature-temperature)/(latticeHeight-1);
+                    }
+                    else temperature = Float.parseFloat(line.substring(line.indexOf("=")+1,line.indexOf(";")));
                 }
                 else if (line.contains("velocity")) {
-                    float ux = Float.parseFloat(line.substring(line.indexOf("[")+1,line.indexOf(",")));
-                    float uy = Float.parseFloat(line.substring(line.indexOf(",")+1,line.indexOf("]")));
-                    velocity = new Velocity(ux,uy);
+                    if (line.contains("linear")) {
+                        line = line.substring(line.indexOf("(") + 1, line.indexOf(")"));
+                        float ux = Float.parseFloat(line.substring(line.indexOf("[") + 1, line.indexOf(",")));
+                        float uy = Float.parseFloat(line.substring(line.indexOf(",") + 1, line.indexOf("]")));
+                        velocity = new Velocity(ux, uy);
+                        line = line.replace(line.substring(line.indexOf("["), line.indexOf("]")+2), "");
+                        System.out.println(line);
+                        ux = Float.parseFloat(line.substring(line.indexOf("[") + 1, line.indexOf(",")));
+                        uy = Float.parseFloat(line.substring(line.indexOf(",") + 1, line.indexOf("]")));
+                        Velocity maxVelocity = new Velocity(ux,uy);
+                        deltaVelocity = new Velocity((maxVelocity.ux - velocity.ux)/(latticeHeight-1),(maxVelocity.uy - velocity.uy)/(latticeHeight-1));
+                    }
+                    else {
+                        float ux = Float.parseFloat(line.substring(line.indexOf("[") + 1, line.indexOf(",")));
+                        float uy = Float.parseFloat(line.substring(line.indexOf(",") + 1, line.indexOf("]")));
+                        velocity = new Velocity(ux, uy);
+                    }
                 }
             }
-            cells = generateDefaultFluidCells(density,temperature,velocity);
+            cells = generateDefaultFluidCells(density,deltaDensity,temperature,deltaTemperature,velocity,deltaVelocity);
         }
         catch (IOException e) {
             System.err.println("I/O: Blad z plikiem.");
@@ -189,7 +216,7 @@ public class LatticeInitializer {
                     if (line.contains("SOUTHWEST_CONVEX")) bd = BoundaryDirection.SOUTHWEST_CONVEX;
                     if (line.contains("SOUTHEAST_CONVEX")) bd = BoundaryDirection.SOUTHEAST_CONVEX;
                 }
-                if (!isAdditionPartOfFile) {
+                if (!isAdditionPartOfFile && isBCPartOfFile) {
                     if (line.contains("density")) density = Float.parseFloat(line.substring(line.indexOf("=")+1, line.indexOf(";")));
                     else if (line.contains("temperature")) temperature = Float.parseFloat(line.substring(line.indexOf("=")+1, line.indexOf(";")));
                     else if (line.contains("velocity")) {
@@ -347,10 +374,13 @@ public class LatticeInitializer {
         return cells;
     }
 
-    private Cell[][] generateDefaultFluidCells(float density, float temperature, Velocity velocity) {
+    private Cell[][] generateDefaultFluidCells(float minDensity, float deltaDensity, float minTemperature, float deltaTemperature, Velocity minVelocity,  Velocity deltaVelocity) {
         for (int y = 0; y < latticeHeight; y++) {
+            minDensity += deltaDensity;
+            minTemperature += deltaTemperature;
+            minVelocity = new Velocity(minVelocity.ux + deltaVelocity.ux, minVelocity.uy + deltaVelocity.uy);
             for (int x = 0; x < latticeWidth; x++) {
-                cells[y][x] = setInitialValues(x,y,density,temperature,new Velocity(velocity),new CellBoundaryType(true));
+                cells[y][x] = setInitialValues(x,y,minDensity,minTemperature,new Velocity(minVelocity),new CellBoundaryType(true));
             }
         }
         return cells;
@@ -405,4 +435,6 @@ public class LatticeInitializer {
         cell.temperatureModel.calcInputFunctions(cell.temperatureModel.feq);
         return cell;
     }
+
+
 }

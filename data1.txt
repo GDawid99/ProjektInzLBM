@@ -1,9 +1,25 @@
-#dane podstawowe dla symulacji bez żadnych dodatków
+#Plik inicjujący dane do symulacji LBM.
+#Ważne! Przy podawaniu argumentów należy nie umieszczać spacji między znakami.
+#Symbol kratki oznacza komentarz.
+#
+#Plik dzieli się na 4 sekcje:
+# - inicjalizacja danych dla całej siatki poza przeszkodami i brzegami siatki;
+# - inicjalizacja warunków brzegowych dla całej siatki poza przeszkodami;
+# - inicjalizacja przeszkody i warunków brzegowych przy przeszkodzie;
+# - inicjalizacja źródeł ciepła.
+#
+#Funkcje i operacje:
+#linear(min_wartość,max_wartość) - liniowa zmiana wartości wzdłuż całej siatki.
+#RECTANGLE(x1,y1,x2,y2) - generowanie prostokątnej przeszkody, argumenty: współrzędne komórki będące na przeciwko siebie; x1, y1 - w lewym górnym rogu; x2, y2 - w prawym dolnym rogu.
+#TRIANGLE(x1,y1,x2,y2,x3,y3) - generowanie trójkątnej przeszkody.
+#source(x1,y1,x2,y2,temperatura) - generowanie źródła ciepła od punktu (x1,y1) do punktu (x2,y2) o danej temperaturze.
+#
+#Dane podstawowe dla symulacji bez żadnych dodatków
 -DOMAIN DATA-
 -INITIAL CONDITIONS:
 density=1.0f;
-temperature=0.0f;
-velocity=[0f,0f];
+temperature=0f;
+velocity=linear([0f,0f],[0.02f,0f]);
 
 -INITIAL BOUNDARY CONDITIONS:
 -WALLS:
@@ -31,7 +47,7 @@ temp_boundary_type=BOUNCE_BACK_BC;
 WEST:
 density=1f;
 temperature=0.0f;
-velocity=[0.02f,0f];   #linear(max=[0.05f,0f],min=[0f,0f];
+velocity=[0f,0f];   #linear(max=[0.05f,0f],min=[0f,0f];
 fluid_boundary_type=OPEN_VELOCITY_BC;
 temp_boundary_type=OPEN_TEMPERATURE_BC;
 
