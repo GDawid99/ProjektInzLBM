@@ -37,6 +37,8 @@ public class MainSceneController implements Initializable {
     @FXML
     public Label val5_label;
     @FXML
+    public Slider lineSlider;
+    @FXML
     protected VisualCanvas visualCanvas;
     @FXML
     protected HBox latticeBox;
@@ -46,7 +48,7 @@ public class MainSceneController implements Initializable {
     private String currentVisualValue = "Velocity [Vx]";
 
     private Velocity Vmin = new Velocity(-0.02f,-0.02f);
-    private Velocity Vmax = new Velocity(0.02f, 0.02f); //new Velocity(GlobalValues.UX,GlobalValues.UY);
+    private Velocity Vmax = new Velocity(0.02f, 0.02f);
     private float minDensity = 0.995f;
     private float maxDensity = 1.005f;
     private float minTemperature = 0f;
@@ -66,7 +68,7 @@ public class MainSceneController implements Initializable {
             public void handle(long l) {
                 simulation.loopLBM();
                 visualCanvas.draw(simulation.getLattice(),currentVisualValue, gradientMin, gradientMax);
-                if (show_flowlines_button.isSelected()) visualCanvas.drawLines(simulation.getLattice());
+                if (show_flowlines_button.isSelected()) visualCanvas.drawLines(simulation.getLattice(),lineSlider.getValue());
                 gradient_bar.draw(currentVisualValue, gradientMin, gradientMax);
             }
         };

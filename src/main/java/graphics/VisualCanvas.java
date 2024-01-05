@@ -29,7 +29,7 @@ public class VisualCanvas extends Canvas {
     }
 
 
-    public void drawLines(Lattice lattice) {
+    public void drawLines(Lattice lattice, double length) {
         Cell cell;
         for (int y = 2; y < this.getHeight(); y+=5) {
             for (int x = 2; x < this.getWidth(); x+=5) {
@@ -38,7 +38,7 @@ public class VisualCanvas extends Canvas {
                 this.getGraphicsContext2D().setStroke(Color.BLACK);
                 this.getGraphicsContext2D().setFill(Color.BLACK);
                 this.getGraphicsContext2D().setLineWidth(0.1d);
-                this.getGraphicsContext2D().strokeLine(x,y,x+100*cell.velocity.ux,y-100*cell.velocity.uy);
+                this.getGraphicsContext2D().strokeLine(x,y,x+length*100*cell.velocity.ux,y-length*100*cell.velocity.uy);
             }
         }
     }
