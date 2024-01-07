@@ -24,7 +24,7 @@ velocity=[0f,0f];
 -INITIAL BOUNDARY CONDITIONS:
 -WALLS:
 NORTH:
-density=0.999f;
+density=1f;
 temperature=0.0f;
 velocity=[0f,0f];
 fluid_boundary_type=OPEN_DENSITY_BC;

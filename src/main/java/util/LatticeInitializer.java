@@ -297,12 +297,43 @@ public class LatticeInitializer {
                         }
                     }
                     if (typeOfShape.equals("RECTANGLE")) {
-                        if (line.contains("density")) density = Float.parseFloat(line.substring(line.indexOf("=")+1, line.indexOf(";")));
-                        else if (line.contains("temperature")) temperature = Float.parseFloat(line.substring(line.indexOf("=")+1, line.indexOf(";")));
+                        if (line.contains("density")) {
+                            if (line.contains("linear")) {
+                                density = Float.parseFloat(line.substring(line.indexOf("(") + 1, line.indexOf(",")));
+                                line = line.substring(line.indexOf(",") + 1, line.indexOf(")"));
+                                float maxDensity = Float.parseFloat(line);
+                                deltaDensity = (maxDensity-density)/(latticeHeight-1);
+                            }
+                            else density = Float.parseFloat(line.substring(line.indexOf("=")+1, line.indexOf(";")));
+                        }
+                        else if (line.contains("temperature")) {
+                            if (line.contains("linear")) {
+                                temperature = Float.parseFloat(line.substring(line.indexOf("(") + 1, line.indexOf(",")));
+                                line = line.substring(line.indexOf(",") + 1, line.indexOf(")"));
+                                float maxTemperature = Float.parseFloat(line);
+                                deltaTemperature = (maxTemperature-temperature)/(latticeHeight-1);
+                            }
+                            temperature = Float.parseFloat(line.substring(line.indexOf("=")+1, line.indexOf(";")));
+                        }
                         else if (line.contains("velocity")) {
-                            float ux = Float.parseFloat(line.substring(line.indexOf("[")+1,line.indexOf(",")));
-                            float uy = Float.parseFloat(line.substring(line.indexOf(",")+1,line.indexOf("]")));
-                            velocity = new Velocity(ux,uy);
+                            if (line.contains("linear")) {
+                                System.out.println(line);
+                                line = line.substring(line.indexOf("(") + 1, line.indexOf(")"));
+                                float ux = Float.parseFloat(line.substring(line.indexOf("[") + 1, line.indexOf(",")));
+                                float uy = Float.parseFloat(line.substring(line.indexOf(",") + 1, line.indexOf("]")));
+                                velocity = new Velocity(ux, uy);
+                                line = line.replace(line.substring(line.indexOf("["), line.indexOf("]")+2), "");
+                                System.out.println(line);
+                                ux = Float.parseFloat(line.substring(line.indexOf("[") + 1, line.indexOf(",")));
+                                uy = Float.parseFloat(line.substring(line.indexOf(",") + 1, line.indexOf("]")));
+                                Velocity maxVelocity = new Velocity(ux,uy);
+                                deltaVelocity = new Velocity((maxVelocity.ux - velocity.ux)/(latticeHeight-1),(maxVelocity.uy - velocity.uy)/(latticeHeight-1));
+                            }
+                            else {
+                                float ux = Float.parseFloat(line.substring(line.indexOf("[") + 1, line.indexOf(",")));
+                                float uy = Float.parseFloat(line.substring(line.indexOf(",") + 1, line.indexOf("]")));
+                                velocity = new Velocity(ux, uy);
+                            }
                         }
                         else if (line.contains("fluid_boundary_type")) fluidBoundaryType = FluidBoundaryType.valueOf(line.substring(line.indexOf("=")+1,line.indexOf(";")));
                         else if (line.contains("temp_boundary_type")) {
