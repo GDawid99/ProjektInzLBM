@@ -117,12 +117,12 @@ public class Cell {
         return "Cell{" +
                 "x=" + x +
                 ", y=" + y +
-                ", model=" + model +
-                ", temperatureModel=" + temperatureModel +
-                ", cellBoundaryType=" + cellBoundaryType +
                 ", density=" + density +
                 ", velocity=" + velocity +
                 ", temperature=" + temperature +
-                '}';
+                ", cellBoundaryType=[" + cellBoundaryType.getFluidBoundaryType() +
+                ", " + cellBoundaryType.getTempBoundaryType() +
+                ", " + cellBoundaryType.getBoundaryDirection() +
+                "]}";
     }
 }

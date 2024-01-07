@@ -12,6 +12,8 @@ import util.Velocity;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class Lattice {
     public Cell[][] cells;
@@ -58,34 +60,48 @@ public class Lattice {
 
     public void executeOperations(float gravity) {
 
-        //pierwszy etap: obliczenie danych makroskopowych, feq i kolizje
+        //int numberOfThreads = 4;
+        //ExecutorService ex = Executors.newFixedThreadPool(numberOfThreads);
+
         for (int y = 0; y < latticeHeight; y++) {
             for (int x = 0; x < latticeWidth; x++) {
                 Cell cell = cells[y][x];
                 if (cell.getCellBoundaryType().isSolid()) continue;
-                cell.calcMacroscopicValues(gravity);
-                cell.calcEquilibriumFunction();
-                cell.calcCollisionOperation(timeStep,tau,tempTau);
+                //ex.execute(() -> {
+                    cell.calcMacroscopicValues(gravity);
+                    cell.calcEquilibriumFunction();
+                    cell.calcCollisionOperation(timeStep, tau, tempTau);
+                //});
             }
         }
+        //ex.shutdown();
+        //while(!ex.isTerminated()) {}
+        //ex = Executors.newFixedThreadPool(numberOfThreads);
         //drugi etap: obliczenie operacji streaming i warunki brzegowe
         for (int y = 0; y < latticeHeight; y++) {
             for (int x = 0; x < latticeWidth; x++) {
                 Cell cell = cells[y][x];
+                final int localX = x;
+                final int localY = y;
                 if (cell.getCellBoundaryType().isSolid()) continue;
-                List<Cell> neighbourhood = new LinkedList<>();
-                for (int i = 0; i < 9; i++) {
-                    int deltaX = x - ModelD2Q9.c.get(i).get(0);
-                    int deltaY = y + ModelD2Q9.c.get(i).get(1);
-                    if (deltaY >= 0 && deltaY <= latticeHeight-1 && deltaX >= 0 && deltaX <= latticeWidth-1) neighbourhood.add(cells[deltaY][deltaX]);
-                    else neighbourhood.add(null);
-                }
-                cell.model.calcStreaming(neighbourhood);
-                cell.temperatureModel.calcStreaming(neighbourhood);
-                cell.model.calcBoundaryConditions(cell);
-                cell.temperatureModel.calcBoundaryConditions(cell);
+                //ex.execute(() -> {
+                    List<Cell> neighbourhood = new LinkedList<>();
+                    for (int i = 0; i < 9; i++) {
+                        int deltaX = localX - ModelD2Q9.c.get(i).get(0);
+                        int deltaY = localY + ModelD2Q9.c.get(i).get(1);
+                        if (deltaY >= 0 && deltaY <= latticeHeight - 1 && deltaX >= 0 && deltaX <= latticeWidth - 1)
+                            neighbourhood.add(cells[deltaY][deltaX]);
+                        else neighbourhood.add(null);
+                    }
+                    cell.model.calcStreaming(neighbourhood);
+                    cell.temperatureModel.calcStreaming(neighbourhood);
+                    cell.model.calcBoundaryConditions(cell);
+                    cell.temperatureModel.calcBoundaryConditions(cell);
+                //});
             }
         }
+        //ex.shutdown();
+        //while(!ex.isTerminated()) {}
     }
 
     public Cell[][] getCells() {

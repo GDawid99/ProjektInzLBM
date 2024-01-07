@@ -80,7 +80,7 @@
    <center>
       <HBox fx:id="latticeBox" alignment="CENTER" minHeight="400.0" minWidth="400.0" prefHeight="400.0" prefWidth="400.0" BorderPane.alignment="CENTER">
          <children>
-            <VisualCanvas fx:id="visualCanvas" height="128.0" width="128.0" />
+            <VisualCanvas fx:id="visualCanvas" height="128.0" onMouseClicked="#getCellData" width="128.0" />
          </children>
       </HBox>
    </center>

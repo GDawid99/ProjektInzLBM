@@ -204,6 +204,10 @@ public class MainSceneController implements Initializable {
     }
 
 
-
-
+    public void getCellData(MouseEvent mouseEvent) {
+        int x = (int)Math.floor(mouseEvent.getX());
+        int y = (int)Math.floor(mouseEvent.getY());
+        System.out.println("[" + x + "," + y + "]");
+        System.out.println(simulation.getLattice().cells[y][x].toString());
+    }
 }
