@@ -1,6 +1,7 @@
 package lbm.model;
 
 import lbm.Cell;
+import lbm.boundary.BoundaryDirection;
 import lbm.boundary.FluidBoundaryType;
 import util.Velocity;
 
@@ -37,8 +38,11 @@ public class FluidFlowD2Q9 extends ModelD2Q9 {
 
     @Override
     public void calcBoundaryConditions(Cell cell) {
-        float density = cell.density;
-        Velocity v = new Velocity(cell.velocity);
+        float density = 1f + (1.003818f-1f)/127f*cell.y;
+        //float density = 1f;
+        //if (cell.cellBoundaryType.getBoundaryDirection() == BoundaryDirection.NORTH) density = 1f;
+        //Velocity v = new Velocity((-0.02f/127f)*(cell.y),0f);
+        Velocity v = new Velocity(0f,0f);
         switch (cell.getCellBoundaryType().getFluidBoundaryType()) {
             case CONST_BC -> calcInputFunctions(fout);
             case BOUNCE_BACK_BC -> {
@@ -172,9 +176,8 @@ public class FluidFlowD2Q9 extends ModelD2Q9 {
                     case WEST -> density = (fin.get(0) + fin.get(1) + fin.get(5)
                             + 2 * fin.get(6) + 2 * fin.get(7) + 2 * fin.get(8))/(1 - v.ux);
                     case EAST -> density = (fin.get(0) + fin.get(1) + fin.get(5)
-                            + 2 * fin.get(2) + 2 * fin.get(3) + 2 * fin.get(4))/(1 + v.ux);
+                        + 2 * fin.get(2) + 2 * fin.get(3) + 2 * fin.get(4))/(1 + v.ux);
                 }
-                //cell.density = density;
             }
         }
         if (cell.cellBoundaryType.getFluidBoundaryType() == FluidBoundaryType.OPEN_VELOCITY_BC || cell.cellBoundaryType.getFluidBoundaryType() == FluidBoundaryType.OPEN_DENSITY_BC) {
@@ -182,16 +185,17 @@ public class FluidFlowD2Q9 extends ModelD2Q9 {
                 case NORTH -> {
                     v.ux = 6*(fin.get(3) - fin.get(7) + fin.get(8) - fin.get(2))/(density*(5-3*v.uy));
                     //v.ux = 0f;
-                    fin.set(4,fin.get(8) + density*(v.ux+v.uy)/6);
+                    fin.set(4,fin.get(8) + density*(v.ux-v.uy)/6);
                     fin.set(5,fin.get(1) - 2*density*v.uy/3);
-                    fin.set(6,fin.get(2) - density*(v.ux-v.uy)/6);
+                    fin.set(6,fin.get(2) - density*(v.ux+v.uy)/6);
+                    //System.out.println("NORTH: " + density);
                 }
                 case SOUTH -> {
                     v.ux = 6*(fin.get(3) - fin.get(7) + fin.get(6) - fin.get(4))/(density*(5+3*v.uy));
                     //v.ux = 0f;
-                    fin.set(8,fin.get(4) + density*(v.ux+v.uy)/6);
+                    fin.set(8,fin.get(4) + density*(v.ux-v.uy)/6);
                     fin.set(1,fin.get(5) + 2*density*v.uy/3);
-                    fin.set(2,fin.get(6) - density*(v.ux-v.uy)/6);
+                    fin.set(2,fin.get(6) - density*(v.ux+v.uy)/6);
                 }
                 case WEST -> {
                     v.uy = 6*(fin.get(1) - fin.get(5) + fin.get(8) - fin.get(6))/(density*(5+3*v.ux));
@@ -199,6 +203,7 @@ public class FluidFlowD2Q9 extends ModelD2Q9 {
                     fin.set(2,fin.get(6) + density*(v.ux-v.uy)/6);
                     fin.set(3,fin.get(7) + 2*density*v.ux/3);
                     fin.set(4,fin.get(8) + density*(v.ux+v.uy)/6);
+                    //System.out.println("WEST: " + density);
                 }
                 case EAST -> {
                     v.uy = 6*(fin.get(1) - fin.get(5) + fin.get(2) - fin.get(4))/(density*(5-3*v.ux));

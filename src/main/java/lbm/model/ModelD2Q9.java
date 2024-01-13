@@ -54,10 +54,10 @@ public abstract class ModelD2Q9 implements LBMDistributionFunctionOperation{
     }
 
     @Override
-    public void calcOutputFunctions(ArrayList<Float> inFunction, ArrayList<Float> eqFunction, float time, float tau) {
+    public void calcOutputFunctions(ArrayList<Float> inFunction, ArrayList<Float> eqFunction, float time, float tau, float T, float density) {
         fout.clear();
         for (int i = 0; i < 9; i++) {
-            fout.add(inFunction.get(i) + time*((eqFunction.get(i) - inFunction.get(i))/tau));
+            fout.add(inFunction.get(i) + time*((eqFunction.get(i) - inFunction.get(i))/tau) + 3f*w.get(i)*density*0.00001f*50f*T*c.get(i).get(1));
         }
     }
 

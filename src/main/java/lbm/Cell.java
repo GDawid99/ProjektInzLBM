@@ -63,11 +63,11 @@ public class Cell {
         this.model.calcOutputFunctions((ArrayList<Float>) this.model.fin,
                 (ArrayList<Float>) this.model.feq,
                 timeStep,
-                tau);
+                tau, temperature, density);
         this.temperatureModel.calcOutputFunctions((ArrayList<Float>) this.temperatureModel.fin,
                 (ArrayList<Float>) this.temperatureModel.feq,
                 timeStep,
-                tempTau);
+                tempTau, 0f, density);
     }
 
     private float calcDensity() {
@@ -97,7 +97,7 @@ public class Cell {
             uy += model.fin.get(i) * ModelD2Q9.c.get(i).get(1);
         }
         ux /= this.density;
-        uy = (uy/this.density)-gravity*(1-2f*temperature);
+        uy = (uy/this.density);
         return new Velocity(ux, uy);
     }
 

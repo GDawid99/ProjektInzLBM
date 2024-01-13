@@ -404,7 +404,7 @@ public class LatticeInitializer {
                     float temperature = Float.parseFloat(line);
                     if (x1 == x2) for (int i = y1; i < y1 + (y2 - y1 + 1); i++) {
                         cells[i][x1].isHeatSource = true;
-                        cells[i][x1].temperature = temperature;
+                        cells[i][x1].temperature = temperature;//i*(temperature/127);
                     }
                     else if (y1 == y2) for (int i = x1; i < x1 + (x2 - x1 + 1); i++) {
                         cells[y1][i].isHeatSource = true;
