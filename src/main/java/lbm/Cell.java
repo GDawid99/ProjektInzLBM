@@ -5,9 +5,7 @@ import lbm.boundary.BoundaryDirection;
 import lbm.boundary.CellBoundaryType;
 import lbm.boundary.FluidBoundaryType;
 import lbm.boundary.TempBoundaryType;
-import lbm.model.FluidFlowD2Q9;
-import lbm.model.ModelD2Q9;
-import lbm.model.TemperatureD2Q9;
+import lbm.model.*;
 import util.Velocity;
 
 import java.util.ArrayList;
@@ -63,11 +61,13 @@ public class Cell {
         this.model.calcOutputFunctions((ArrayList<Float>) this.model.fin,
                 (ArrayList<Float>) this.model.feq,
                 timeStep,
-                tau, temperature, density);
+                tau,
+                new BuoyancyForceD2Q9(density, 0.00001f, 40f, temperature, 0f));
         this.temperatureModel.calcOutputFunctions((ArrayList<Float>) this.temperatureModel.fin,
                 (ArrayList<Float>) this.temperatureModel.feq,
                 timeStep,
-                tempTau, 0f, density);
+                tempTau,
+                new GravityForceD2Q9());
     }
 
     private float calcDensity() {
