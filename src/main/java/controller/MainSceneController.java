@@ -38,6 +38,14 @@ public class MainSceneController implements Initializable {
     public Label val5_label;
     @FXML
     public Slider lineSlider;
+    public Label cellXLabel;
+    public Label cellYLabel;
+    public Label cellDensityLabel;
+    public Label cellTemperatureLabel;
+    public Label cellVelocityLabel;
+    public Label iterationLabel;
+    public Label runSimulationLabel;
+    public Button runButton;
     @FXML
     protected VisualCanvas visualCanvas;
     @FXML
@@ -55,24 +63,27 @@ public class MainSceneController implements Initializable {
     private float maxTemperature = minTemperature+1f;
     private float gradientMin = Vmin.ux;
     private float gradientMax = Vmax.ux;
+    private AnimationTimer animationTimer;
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         Platform.runLater(() -> visualCanvas.scaleLattice(latticeBox.getWidth(),latticeBox.getHeight()));
-        menu_view.getItems().get(0).setDisable(true);
         simulation = new Simulation();
         simulation.initLBM((int)visualCanvas.getWidth(),(int)visualCanvas.getHeight());
+        menu_view.getItems().get(0).setDisable(true);
         setGradientBarValues(Vmin.ux,Vmax.ux);
-        AnimationTimer animationTimer = new AnimationTimer() {
+        animationTimer = new AnimationTimer() {
             @Override
             public void handle(long l) {
-                simulation.loopLBM();
+                int it = simulation.loopLBM();
+                iterationLabel.setText("Iteration: " + it);
                 visualCanvas.draw(simulation.getLattice(),currentVisualValue, gradientMin, gradientMax);
                 if (show_flowlines_button.isSelected()) visualCanvas.drawLines(simulation.getLattice(),lineSlider.getValue());
                 gradient_bar.draw(currentVisualValue, gradientMin, gradientMax);
             }
         };
         animationTimer.start();
+
     }
 
     public void setGradientBarValues(float min, float max) {
@@ -207,7 +218,23 @@ public class MainSceneController implements Initializable {
     public void getCellData(MouseEvent mouseEvent) {
         int x = (int)Math.floor(mouseEvent.getX());
         int y = (int)Math.floor(mouseEvent.getY());
-        System.out.println("[" + x + "," + y + "]");
-        System.out.println(simulation.getLattice().cells[y][x].toString());
+        cellXLabel.setText("x = " + simulation.getLattice().cells[y][x].x);
+        cellYLabel.setText("y = " + simulation.getLattice().cells[y][x].y);
+        cellDensityLabel.setText("Density = " + simulation.getLattice().cells[y][x].density);
+        cellTemperatureLabel.setText("Temperature = " + simulation.getLattice().cells[y][x].temperature);
+        cellVelocityLabel.setText("Velocity = \n[" + simulation.getLattice().cells[y][x].velocity.ux + ", " + simulation.getLattice().cells[y][x].velocity.uy + "]");
+    }
+
+    public void onMouseClickedStopOrRunSimulation(MouseEvent mouseEvent) {
+        if (runSimulationLabel.getText().contains("Stop")) {
+            animationTimer.stop();
+            runSimulationLabel.setText("Run simulation: ");
+            runButton.setText("Run");
+        }
+        else {
+            animationTimer.start();
+            runSimulationLabel.setText("Stop simulation: ");
+            runButton.setText("Stop");
+        }
     }
 }

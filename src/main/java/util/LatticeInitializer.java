@@ -20,6 +20,7 @@ public class LatticeInitializer {
     public float tau;
     public float tempTau;
     public float timeStep;
+    public float gravity;
 
 
     private LatticeInitializer(int latticeWidth, int latticeHeight) {
@@ -30,16 +31,6 @@ public class LatticeInitializer {
 
     public static LatticeInitializer initialize(int latticeWidth, int latticeHeight) {
         return new LatticeInitializer(latticeWidth,latticeHeight);
-    }
-
-    public LatticeInitializer withTau(float tau) {
-        this.tau = tau;
-        return this;
-    }
-
-    public LatticeInitializer withTempTau(float tempTau) {
-        this.tempTau = tempTau;
-        return this;
     }
 
     public LatticeInitializer withTimeStep(float timeStep) {
@@ -77,6 +68,15 @@ public class LatticeInitializer {
                         deltaDensity = (maxDensity-density)/(latticeHeight-1);
                     }
                     else density = Float.parseFloat(line.substring(line.indexOf("=")+1,line.indexOf(";")));
+                }
+                if (line.contains("gravity")) {
+                    gravity = Float.parseFloat(line.substring(line.indexOf("=")+1,line.indexOf(";")));
+                }
+                if (line.contains("tau")) {
+                    tau = Float.parseFloat(line.substring(line.indexOf("=")+1,line.indexOf(";")));
+                }
+                if (line.contains("tau_temp")) {
+                    tempTau = Float.parseFloat(line.substring(line.indexOf("=")+1,line.indexOf(";")));
                 }
                 else if (line.contains("temperature")) {
                     if (line.contains("linear")) {
@@ -404,7 +404,7 @@ public class LatticeInitializer {
                     float temperature = Float.parseFloat(line);
                     if (x1 == x2) for (int i = y1; i < y1 + (y2 - y1 + 1); i++) {
                         cells[i][x1].isHeatSource = true;
-                        cells[i][x1].temperature = temperature;//i*(temperature/127);
+                        cells[i][x1].temperature = temperature;//i*(temperature/(latticeHeight-1));
                     }
                     else if (y1 == y2) for (int i = x1; i < x1 + (x2 - x1 + 1); i++) {
                         cells[y1][i].isHeatSource = true;
@@ -458,9 +458,14 @@ public class LatticeInitializer {
         if (startX > latticeWidth-1) startX = latticeWidth-1;
         if (startY < 0) startY = 0;
         if (startY > latticeHeight-1) startY = latticeHeight-1;
-        if (length > 128) length = 128;
+        if (length > latticeHeight) length = latticeHeight;
         for (int i = startY; i < length; i++) {
-            if (!cells[i][startX].getCellBoundaryType().isSolid()) cells[i][startX] = setInitialValues(startX,i,density,temperature,velocity,boundaryType);
+            if (!cells[i][startX].getCellBoundaryType().isSolid()) {
+                cells[i][startX] = setInitialValues(startX, i, density, temperature, velocity, boundaryType);
+                cells[i][startX].model.constDensity = density;
+                cells[i][startX].model.constVelocity = new Velocity(velocity);
+                cells[i][startX].temperatureModel.constTemperature = temperature;
+            }
             density += deltaDensity;
             temperature += deltaTemperature;
             velocity = new Velocity(velocity.ux + deltaVelocity.ux, velocity.uy + deltaVelocity.uy);
@@ -473,9 +478,14 @@ public class LatticeInitializer {
         if (startX > latticeWidth-1) startX = latticeWidth-1;
         if (startY < 0) startY = 0;
         if (startY > latticeHeight-1) startY = latticeHeight-1;
-        if (length > 128) length = 128;
+        if (length > latticeWidth) length = latticeWidth;
         for (int i = startX; i < length; i++) {
-            if (!cells[startY][i].getCellBoundaryType().isSolid()) cells[startY][i] = setInitialValues(i,startY,density,temperature,velocity,boundaryType);
+            if (!cells[startY][i].getCellBoundaryType().isSolid()) {
+                cells[startY][i] = setInitialValues(i, startY, density, temperature, velocity, boundaryType);
+                cells[startY][i].model.constDensity = density;
+                cells[startY][i].model.constVelocity = new Velocity(velocity);
+                cells[startY][i].temperatureModel.constTemperature = temperature;
+            }
             density += deltaDensity;
             temperature += deltaTemperature;
             velocity = new Velocity(velocity.ux + deltaVelocity.ux, velocity.uy + deltaVelocity.uy);
@@ -489,6 +499,9 @@ public class LatticeInitializer {
         if (y < 0) y = 0;
         if (y > latticeHeight-1) y = latticeHeight-1;
         cells[y][x] = setInitialValues(x,y,density,temperature,velocity,boundaryType);
+        cells[y][x].model.constDensity = density;
+        cells[y][x].model.constVelocity = new Velocity(velocity);
+        cells[y][x].temperatureModel.constTemperature = temperature;
         return cells[y][x];
     }
 

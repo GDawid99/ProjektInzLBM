@@ -38,11 +38,6 @@ public class FluidFlowD2Q9 extends ModelD2Q9 {
 
     @Override
     public void calcBoundaryConditions(Cell cell) {
-        float density = 1f + (1.003818f-1f)/127f*cell.y;
-        //float density = 1f;
-        //if (cell.cellBoundaryType.getBoundaryDirection() == BoundaryDirection.NORTH) density = 1f;
-        //Velocity v = new Velocity((-0.02f/127f)*(cell.y),0f);
-        Velocity v = new Velocity(0f,0f);
         switch (cell.getCellBoundaryType().getFluidBoundaryType()) {
             case CONST_BC -> calcInputFunctions(fout);
             case BOUNCE_BACK_BC -> {
@@ -101,6 +96,12 @@ public class FluidFlowD2Q9 extends ModelD2Q9 {
                     case SOUTHWEST_CONVEX -> {
                         fin.set(2, fout.get(6));
                     }
+                    case NORTHEAST_CONVEX -> {
+                        fin.set(6, fout.get(2));
+                    }
+                    case NORTHWEST_CONVEX -> {
+                        fin.set(4, fout.get(8));
+                    }
                 }
             }
             case SYMMETRY_BC -> {
@@ -157,60 +158,61 @@ public class FluidFlowD2Q9 extends ModelD2Q9 {
             }
             case OPEN_DENSITY_BC -> {
                 switch (cell.getCellBoundaryType().getBoundaryDirection()) {
-                    case NORTH -> v.uy = -1 + (fin.get(0) + fin.get(3) + fin.get(7)
-                            + 2 * fin.get(8) + 2 * fin.get(1) + 2 * fin.get(2))/density;
-                    case SOUTH -> v.uy = 1 - (fin.get(0) + fin.get(3) + fin.get(7)
-                            + 2 * fin.get(4) + 2 * fin.get(5) + 2 * fin.get(6))/density;
-                    case WEST -> v.ux = 1 - (fin.get(0) + fin.get(1) + fin.get(5)
-                            + 2 * fin.get(6) + 2 * fin.get(7) + 2 * fin.get(8))/density;
-                    case EAST -> v.ux = -1 + (fin.get(0) + fin.get(1) + fin.get(5)
-                            + 2 * fin.get(2) + 2 * fin.get(3) + 2 * fin.get(4))/density;
+                    case NORTH -> constVelocity.uy = -1 + (fin.get(0) + fin.get(3) + fin.get(7)
+                            + 2 * fin.get(8) + 2 * fin.get(1) + 2 * fin.get(2))/constDensity;
+                    case SOUTH -> constVelocity.uy = 1 - (fin.get(0) + fin.get(3) + fin.get(7)
+                            + 2 * fin.get(4) + 2 * fin.get(5) + 2 * fin.get(6))/constDensity;
+                    case WEST -> constVelocity.ux = 1 - (fin.get(0) + fin.get(1) + fin.get(5)
+                            + 2 * fin.get(6) + 2 * fin.get(7) + 2 * fin.get(8))/constDensity;
+                    case EAST -> constVelocity.ux = -1 + (fin.get(0) + fin.get(1) + fin.get(5)
+                            + 2 * fin.get(2) + 2 * fin.get(3) + 2 * fin.get(4))/constDensity;
                 }
             }
             case OPEN_VELOCITY_BC -> {
                 switch (cell.getCellBoundaryType().getBoundaryDirection()) {
-                    case NORTH -> density = (fin.get(0) + fin.get(3) + fin.get(7)
-                            + 2 * fin.get(8) + 2 * fin.get(1) + 2 * fin.get(2))/(1 + v.uy);
-                    case SOUTH -> density = (fin.get(0) + fin.get(3) + fin.get(7)
-                            + 2 * fin.get(4) + 2 * fin.get(5) + 2 * fin.get(6))/(1 - v.uy);
-                    case WEST -> density = (fin.get(0) + fin.get(1) + fin.get(5)
-                            + 2 * fin.get(6) + 2 * fin.get(7) + 2 * fin.get(8))/(1 - v.ux);
-                    case EAST -> density = (fin.get(0) + fin.get(1) + fin.get(5)
-                        + 2 * fin.get(2) + 2 * fin.get(3) + 2 * fin.get(4))/(1 + v.ux);
+                    case NORTH -> constDensity = (fin.get(0) + fin.get(3) + fin.get(7)
+                            + 2 * fin.get(8) + 2 * fin.get(1) + 2 * fin.get(2))/(1 + constVelocity.uy);
+                    case SOUTH -> constDensity = (fin.get(0) + fin.get(3) + fin.get(7)
+                            + 2 * fin.get(4) + 2 * fin.get(5) + 2 * fin.get(6))/(1 - constVelocity.uy);
+                    case WEST -> constDensity = (fin.get(0) + fin.get(1) + fin.get(5)
+                            + 2 * fin.get(6) + 2 * fin.get(7) + 2 * fin.get(8))/(1 - constVelocity.ux);
+                    case EAST -> constDensity = (fin.get(0) + fin.get(1) + fin.get(5)
+                        + 2 * fin.get(2) + 2 * fin.get(3) + 2 * fin.get(4))/(1 + constVelocity.ux);
                 }
             }
         }
         if (cell.cellBoundaryType.getFluidBoundaryType() == FluidBoundaryType.OPEN_VELOCITY_BC || cell.cellBoundaryType.getFluidBoundaryType() == FluidBoundaryType.OPEN_DENSITY_BC) {
             switch (cell.getCellBoundaryType().getBoundaryDirection()) {
                 case NORTH -> {
-                    v.ux = 6*(fin.get(3) - fin.get(7) + fin.get(8) - fin.get(2))/(density*(5-3*v.uy));
-                    //v.ux = 0f;
-                    fin.set(4,fin.get(8) + density*(v.ux-v.uy)/6);
-                    fin.set(5,fin.get(1) - 2*density*v.uy/3);
-                    fin.set(6,fin.get(2) - density*(v.ux+v.uy)/6);
+                    constVelocity.ux = 6*(fin.get(3) - fin.get(7) + fin.get(8) - fin.get(2))/(constDensity*(5-3*constVelocity.uy));
+                    //constVelocity.ux = 0f;
+                    fin.set(4,fin.get(8) + constDensity*(constVelocity.ux-constVelocity.uy)/6);
+                    fin.set(5,fin.get(1) - 2*constDensity*constVelocity.uy/3);
+                    fin.set(6,fin.get(2) - constDensity*(constVelocity.ux+constVelocity.uy)/6);
+
                     //System.out.println("NORTH: " + density);
                 }
                 case SOUTH -> {
-                    v.ux = 6*(fin.get(3) - fin.get(7) + fin.get(6) - fin.get(4))/(density*(5+3*v.uy));
-                    //v.ux = 0f;
-                    fin.set(8,fin.get(4) + density*(v.ux-v.uy)/6);
-                    fin.set(1,fin.get(5) + 2*density*v.uy/3);
-                    fin.set(2,fin.get(6) - density*(v.ux+v.uy)/6);
+                    constVelocity.ux = 6*(fin.get(3) - fin.get(7) + fin.get(6) - fin.get(4))/(constDensity*(5+3*constVelocity.uy));
+                    //constVelocity.ux = 0f;
+                    fin.set(8,fin.get(4) + constDensity*(constVelocity.ux-constVelocity.uy)/6);
+                    fin.set(1,fin.get(5) + 2*constDensity*constVelocity.uy/3);
+                    fin.set(2,fin.get(6) - constDensity*(constVelocity.ux+constVelocity.uy)/6);
                 }
                 case WEST -> {
-                    v.uy = 6*(fin.get(1) - fin.get(5) + fin.get(8) - fin.get(6))/(density*(5+3*v.ux));
-                    //v.uy = 0f;
-                    fin.set(2,fin.get(6) + density*(v.ux-v.uy)/6);
-                    fin.set(3,fin.get(7) + 2*density*v.ux/3);
-                    fin.set(4,fin.get(8) + density*(v.ux+v.uy)/6);
+                    constVelocity.uy = 6*(fin.get(1) - fin.get(5) + fin.get(8) - fin.get(6))/(constDensity*(5+3*constVelocity.ux));
+                    //constVelocity.uy = 0f;
+                    fin.set(2,fin.get(6) + constDensity*(constVelocity.ux-constVelocity.uy)/6);
+                    fin.set(3,fin.get(7) + 2*constDensity*constVelocity.ux/3);
+                    fin.set(4,fin.get(8) + constDensity*(constVelocity.ux+constVelocity.uy)/6);
                     //System.out.println("WEST: " + density);
                 }
                 case EAST -> {
-                    v.uy = 6*(fin.get(1) - fin.get(5) + fin.get(2) - fin.get(4))/(density*(5-3*v.ux));
-                    //v.uy = 0f;
-                    fin.set(6,fin.get(2) - density*(v.ux-v.uy)/6);
-                    fin.set(7,fin.get(3) - 2*density*v.ux/3);
-                    fin.set(8,fin.get(4) - density*(v.ux+v.uy)/6);
+                    constVelocity.uy = 6*(fin.get(1) - fin.get(5) + fin.get(2) - fin.get(4))/(constDensity*(5-3*constVelocity.ux));
+                    //constVelocity.uy = 0f;
+                    fin.set(6,fin.get(2) - constDensity*(constVelocity.ux-constVelocity.uy)/6);
+                    fin.set(7,fin.get(3) - 2*constDensity*constVelocity.ux/3);
+                    fin.set(8,fin.get(4) - constDensity*(constVelocity.ux+constVelocity.uy)/6);
                 }
             }
         }

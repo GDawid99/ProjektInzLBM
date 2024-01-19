@@ -36,6 +36,7 @@ public class Cell {
         this.density = density;
         this.temperature = temperature;
         this.velocity = velocity;
+        if (this.x == 0 && this.y == 0) isHeatSource = true;
     }
 
     public Cell(Cell cell) {
@@ -57,13 +58,14 @@ public class Cell {
         this.temperatureModel.calcEquilibriumFunctions(this.velocity, this.temperature);
     }
 
-    public void calcCollisionOperation(float timeStep, float tau, float tempTau) {
+    public void calcCollisionOperation(float timeStep, float tau, float tempTau, float gravity) {
         this.model.calcOutputFunctions((ArrayList<Float>) this.model.fin,
                 (ArrayList<Float>) this.model.feq,
                 timeStep,
                 tau,
-                new BuoyancyForceD2Q9(density, 0.00001f, 40f, temperature, 0f));
-        this.temperatureModel.calcOutputFunctions((ArrayList<Float>) this.temperatureModel.fin,
+                //new GravityForceD2Q9(density, 0.00001f));
+                new BuoyancyForceD2Q9(density, gravity, 0.000034f, temperature, 0f));
+                this.temperatureModel.calcOutputFunctions((ArrayList<Float>) this.temperatureModel.fin,
                 (ArrayList<Float>) this.temperatureModel.feq,
                 timeStep,
                 tempTau,
@@ -90,7 +92,7 @@ public class Cell {
         return t;
     }
 
-    private Velocity calcVelocity(float gravity) {
+    private Velocity calcVelocity() {
         float ux = 0f, uy = 0f;
         for (int i = 0; i < 9; i++) {
             ux += model.fin.get(i) * ModelD2Q9.c.get(i).get(0);
@@ -101,10 +103,14 @@ public class Cell {
         return new Velocity(ux, uy);
     }
 
-    public void calcMacroscopicValues(float gravity) {
+    public void calcMacroscopicValues() {
         this.density = calcDensity();
         if (!isHeatSource) this.temperature = calcTemperature();
-        this.velocity = calcVelocity(gravity);
+        else {
+            for (int i =0 ; i < 9; i++) temperatureModel.feq.set(i, temperature * ModelD2Q9.w.get(i));
+            temperatureModel.calcInputFunctions(temperatureModel.feq);
+        }
+        this.velocity = calcVelocity();
     }
 
     public CellBoundaryType getCellBoundaryType() {

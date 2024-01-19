@@ -21,6 +21,16 @@
     <left>
       <VBox minHeight="400.0" minWidth="200.0" prefHeight="400.0" prefWidth="200.0" BorderPane.alignment="CENTER">
          <children>
+            <HBox prefHeight="25.0" prefWidth="150.0">
+               <children>
+                  <Label fx:id="runSimulationLabel" prefHeight="25.0" prefWidth="140.0" text="Stop simulation:">
+                     <font>
+                        <Font size="18.0" />
+                     </font>
+                  </Label>
+                  <Button fx:id="runButton" mnemonicParsing="false" onMouseClicked="#onMouseClickedStopOrRunSimulation" prefHeight="25.0" prefWidth="60.0" text="Stop" />
+               </children>
+            </HBox>
             <HBox fx:id="flow_line_box" minHeight="25.0" minWidth="150.0" prefHeight="25.0" prefWidth="150.0">
                <children>
                   <Label minHeight="25.0" minWidth="140.0" prefHeight="26.0" prefWidth="140.0" text="Flow lines:">
@@ -31,7 +41,7 @@
                   <ToggleButton fx:id="show_flowlines_button" minHeight="25.0" minWidth="60.0" mnemonicParsing="false" onMouseClicked="#onMouseClickedChangeVisibleOfLines" prefHeight="25.0" prefWidth="60.0" selected="true" text="Hide" />
                </children>
             </HBox>
-            <HBox prefHeight="100.0" prefWidth="200.0">
+            <HBox prefHeight="50.0" prefWidth="200.0">
                <children>
                   <Label minHeight="25.0" minWidth="140.0" prefHeight="26.0" prefWidth="140.0" text="Lines length:">
                      <font>
@@ -41,6 +51,41 @@
                   <Slider fx:id="lineSlider" blockIncrement="1.0" max="10.0" min="1.0" minHeight="25.0" minWidth="60.0" prefHeight="25.0" prefWidth="60.0" value="1.0" />
                </children>
             </HBox>
+            <Label fx:id="iterationLabel" prefHeight="50.0" text="Iteration: ">
+               <font>
+                  <Font size="14.0" />
+               </font>
+            </Label>
+            <Label text="Cell data:">
+               <font>
+                  <Font size="18.0" />
+               </font>
+            </Label>
+            <Label fx:id="cellXLabel" text="x = ">
+               <font>
+                  <Font size="14.0" />
+               </font>
+            </Label>
+            <Label fx:id="cellYLabel" text="y = ">
+               <font>
+                  <Font size="14.0" />
+               </font>
+            </Label>
+            <Label fx:id="cellDensityLabel" text="Density = ">
+               <font>
+                  <Font size="14.0" />
+               </font>
+            </Label>
+            <Label fx:id="cellTemperatureLabel" text="Temperature = ">
+               <font>
+                  <Font size="14.0" />
+               </font>
+            </Label>
+            <Label fx:id="cellVelocityLabel" text="Velocity = []">
+               <font>
+                  <Font size="14.0" />
+               </font>
+            </Label>
          </children></VBox>
    </left>
    <right>
@@ -80,7 +125,7 @@
    <center>
       <HBox fx:id="latticeBox" alignment="CENTER" minHeight="400.0" minWidth="400.0" prefHeight="400.0" prefWidth="400.0" BorderPane.alignment="CENTER">
          <children>
-            <VisualCanvas fx:id="visualCanvas" height="128.0" onMouseClicked="#getCellData" width="128.0" />
+            <VisualCanvas fx:id="visualCanvas" height="70.0" onMouseClicked="#getCellData" width="200.0" />
          </children>
       </HBox>
    </center>

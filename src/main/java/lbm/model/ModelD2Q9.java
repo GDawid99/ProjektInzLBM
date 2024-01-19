@@ -10,6 +10,10 @@ import java.util.LinkedList;
 import java.util.List;
 
 public abstract class ModelD2Q9 implements LBMDistributionFunctionOperation{
+
+    public float constDensity;
+    public Velocity constVelocity;
+    public float constTemperature;
     public static final List<ArrayList<Integer>> c;
     public static final List<Float> w;
     public List<Float> fin;
@@ -57,7 +61,7 @@ public abstract class ModelD2Q9 implements LBMDistributionFunctionOperation{
     public void calcOutputFunctions(ArrayList<Float> inFunction, ArrayList<Float> eqFunction, float time, float tau, Force force) {
         fout.clear();
         for (int i = 0; i < 9; i++) {
-            fout.add(inFunction.get(i) + time*((eqFunction.get(i) - inFunction.get(i))/tau) + force.calcForce(i));
+            fout.add(inFunction.get(i) + time*(eqFunction.get(i) - inFunction.get(i))/tau + time*force.calcForce(i));
         }
     }
 
