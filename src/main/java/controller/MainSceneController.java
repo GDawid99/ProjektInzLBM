@@ -13,6 +13,9 @@ import javafx.scene.layout.HBox;
 import lbm.Simulation;
 import util.Velocity;
 
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
 import java.net.URL;
 import java.util.ResourceBundle;
 
@@ -64,12 +67,14 @@ public class MainSceneController implements Initializable {
     private float gradientMin = Vmin.ux;
     private float gradientMax = Vmax.ux;
     private AnimationTimer animationTimer;
+    private String path = "data5.txt";
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         Platform.runLater(() -> visualCanvas.scaleLattice(latticeBox.getWidth(),latticeBox.getHeight()));
         simulation = new Simulation();
-        simulation.initLBM((int)visualCanvas.getWidth(),(int)visualCanvas.getHeight());
+        setLatticeSize(path);
+        simulation.initLBM((int)visualCanvas.getWidth(),(int)visualCanvas.getHeight(), path);
         menu_view.getItems().get(0).setDisable(true);
         setGradientBarValues(Vmin.ux,Vmax.ux);
         animationTimer = new AnimationTimer() {
@@ -84,6 +89,30 @@ public class MainSceneController implements Initializable {
         };
         animationTimer.start();
 
+    }
+
+    private void setLatticeSize(String path) {
+        BufferedReader br;
+        try {
+            br = new BufferedReader(new FileReader(path));
+            String line;
+            while ((line = br.readLine()) != null) {
+                if (line.contains("#")) {
+                    if (line.charAt(0) == '#') continue;
+                    else line = line.substring(0, line.indexOf('#'));
+                }
+                if (line.contains("width")) {
+                    visualCanvas.setWidth(Double.parseDouble(line.substring(line.indexOf("=")+1,line.indexOf(";"))));
+                }
+                if (line.contains("height")) {
+                    visualCanvas.setHeight(Double.parseDouble(line.substring(line.indexOf("=")+1,line.indexOf(";"))));
+                }
+            }
+        }
+        catch (IOException e) {
+            System.err.println("I/O: Blad z plikiem.");
+            System.exit(-1);
+        }
     }
 
     public void setGradientBarValues(float min, float max) {

@@ -1,7 +1,6 @@
 package lbm.model;
 
 import lbm.Cell;
-import lbm.boundary.BoundaryDirection;
 import lbm.boundary.FluidBoundaryType;
 import util.Velocity;
 

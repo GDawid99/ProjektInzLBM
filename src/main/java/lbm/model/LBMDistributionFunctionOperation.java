@@ -1,6 +1,7 @@
 package lbm.model;
 
 import lbm.Cell;
+import lbm.force.Force;
 import util.Velocity;
 
 import java.util.ArrayList;

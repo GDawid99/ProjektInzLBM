@@ -1,6 +1,8 @@
-package lbm.model;
+package lbm.force;
 
-public class GravityForceD2Q9 implements Force{
+import lbm.model.ModelD2Q9;
+
+public class GravityForceD2Q9 implements Force {
     private float density;
     private float gravity;
     private boolean isUsed;
@@ -16,6 +18,6 @@ public class GravityForceD2Q9 implements Force{
     @Override
     public float calcForce(int id) {
         if (!isUsed) return 0f;
-        return -3f*ModelD2Q9.w.get(id)*density*gravity*ModelD2Q9.c.get(id).get(1);
+        return -3f* ModelD2Q9.w.get(id)*density*gravity*ModelD2Q9.c.get(id).get(1);
     }
 }

@@ -17,6 +17,8 @@
 #Dane podstawowe dla symulacji bez żadnych dodatków
 -DOMAIN DATA-
 -INITIAL CONDITIONS:
+width=200;
+height=200;
 density=1f;
 temperature=0.0f;
 velocity=[0f,0f];
@@ -92,4 +94,4 @@ temp_boundary_type=BOUNCE_BACK_BC;
 #źródła ciepła
 #source(od_x, od_y, do_x, do_y, temperatura)
 -HEAT SOURCES-:
-source(60,799,739,799,20f);
+source(0,30,0,169,1f);

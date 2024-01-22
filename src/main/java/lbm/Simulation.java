@@ -11,13 +11,11 @@ public class Simulation {
         this.iteration = 0;
     }
 
-    public boolean initLBM(int width, int height) {
-        System.out.println(width + " " + height);
+    public boolean initLBM(int width, int height, String path) {
         this.lattice = LatticeInitializer.initialize(width,height)
                 .withTimeStep(1f)
-                .withInitializeLattice("data6.txt")
+                .withInitializeLattice(path)
                 .build();
-        this.lattice.printValues();
         return true;
     }
 

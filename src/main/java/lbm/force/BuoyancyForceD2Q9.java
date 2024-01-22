@@ -1,6 +1,8 @@
-package lbm.model;
+package lbm.force;
 
-public class BuoyancyForceD2Q9 implements Force{
+import lbm.model.ModelD2Q9;
+
+public class BuoyancyForceD2Q9 implements Force {
     private float density;
     private float temperature;
     private float beta;
@@ -22,6 +24,6 @@ public class BuoyancyForceD2Q9 implements Force{
     @Override
     public float calcForce(int id) {
         if (!isUsed) return 0f;
-        return 3f*ModelD2Q9.w.get(id)*density*gravity*beta*ModelD2Q9.c.get(id).get(1)*(temperature-temperature_ref);
+        return 3f* ModelD2Q9.w.get(id)*density*gravity*beta*ModelD2Q9.c.get(id).get(1)*(temperature-temperature_ref);
     }
 }

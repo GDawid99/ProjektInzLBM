@@ -6,14 +6,13 @@ import lbm.boundary.CellBoundaryType;
 import lbm.boundary.FluidBoundaryType;
 import lbm.boundary.TempBoundaryType;
 import lbm.model.*;
+import lbm.force.BuoyancyForceD2Q9;
+import lbm.force.GravityForceD2Q9;
 import util.Velocity;
 
 import java.util.ArrayList;
 
-/**
- * Klasa {@code Cell} reprezentująca komórkę w przestrzeni<br>
- * 2D,
- */
+
 public class Cell {
     public int x;
     public int y;
@@ -49,10 +48,6 @@ public class Cell {
         this.velocity = new Velocity(cell.velocity);
     }
 
-    public void setCellBoundaryType(FluidBoundaryType fluidBoundaryType, TempBoundaryType tempBoundaryType, BoundaryDirection boundaryDirection) {
-        this.cellBoundaryType = new CellBoundaryType(fluidBoundaryType,tempBoundaryType,boundaryDirection);
-    }
-
     public void calcEquilibriumFunction() {
         this.model.calcEquilibriumFunctions(this.velocity, this.density);
         this.temperatureModel.calcEquilibriumFunctions(this.velocity, this.temperature);
@@ -74,12 +69,8 @@ public class Cell {
 
     private float calcDensity() {
         float d = 0;
-        try {
-            for (int i = 0; i < 9; i++) {
-                d += model.fin.get(i);
-            }
-        }catch (NullPointerException e) {
-            System.out.println("[" + x + "," + y + "]");
+        for (int i = 0; i < 9; i++) {
+            d += model.fin.get(i);
         }
         return d;
     }
@@ -99,7 +90,7 @@ public class Cell {
             uy += model.fin.get(i) * ModelD2Q9.c.get(i).get(1);
         }
         ux /= this.density;
-        uy = (uy/this.density);
+        uy /= this.density;
         return new Velocity(ux, uy);
     }
 

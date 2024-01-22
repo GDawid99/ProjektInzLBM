@@ -17,6 +17,8 @@
 #Dane podstawowe dla symulacji bez żadnych dodatków
 -DOMAIN DATA-
 -INITIAL CONDITIONS:
+width=200;
+height=200;
 density=1f;
 temperature=0.0f;
 velocity=[0f,0f];

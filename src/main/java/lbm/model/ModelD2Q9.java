@@ -1,7 +1,6 @@
 package lbm.model;
 
-import lbm.Cell;
-import lbm.boundary.FluidBoundaryType;
+import lbm.force.Force;
 import util.Velocity;
 
 import java.util.ArrayList;
@@ -10,7 +9,6 @@ import java.util.LinkedList;
 import java.util.List;
 
 public abstract class ModelD2Q9 implements LBMDistributionFunctionOperation{
-
     public float constDensity;
     public Velocity constVelocity;
     public float constTemperature;

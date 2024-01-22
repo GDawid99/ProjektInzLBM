@@ -17,11 +17,13 @@
 #Dane podstawowe dla symulacji bez żadnych dodatków
 -DOMAIN DATA-
 -INITIAL CONDITIONS:
+width=400;
+height=40;
 density=1f;
 temperature=0.0f;
 velocity=[0f,0f];
-gravity=0.00001f;
-tau=0.54f;
+gravity=0f;
+tau=0.51f;
 tau_temp=0.55f;
 
 -INITIAL BOUNDARY CONDITIONS:
@@ -50,7 +52,7 @@ temp_boundary_type=BOUNCE_BACK_BC;
 WEST:
 density=1f;
 temperature=0.0f;
-velocity=linear([0.02f,0f],[0f,0f]);  #linear([0.05f,0f],[0f,0f]);
+velocity=linear([0.08f,0f],[0f,0f]); #[0.005f,0f];
 fluid_boundary_type=OPEN_VELOCITY_BC;
 temp_boundary_type=BOUNCE_BACK_BC;
 
@@ -87,7 +89,7 @@ temp_boundary_type=BOUNCE_BACK_BC;
 #-prostokątna przeszkoda
 #-trójkątna przeszkoda
 -ADDITION DATA-
--SHAPE:RECTANGLE(40,30,50,40);
+-SHAPE:RECTANGLE(60,17,66,23);
 -INITIAL BOUNDARY CONDITIONS:
 -WALLS:
 NORTH:

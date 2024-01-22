@@ -17,9 +17,14 @@
 #Dane podstawowe dla symulacji bez żadnych dodatków
 -DOMAIN DATA-
 -INITIAL CONDITIONS:
+width=1000;
+height=1000;
 density=1f;
 temperature=0.0f;
 velocity=[0f,0f];
+gravity=1068f;
+tau=0.55f;
+tau_temp=0.56f;
 
 -INITIAL BOUNDARY CONDITIONS:
 -WALLS:
@@ -27,14 +32,14 @@ NORTH:
 density=1f;
 temperature=0.0f;
 velocity=[0f,0f];
-fluid_boundary_type=OPEN_DENSITY_BC;
-temp_boundary_type=SYMMETRY_BC;
+fluid_boundary_type=SYMMETRY_BC;
+temp_boundary_type=BOUNCE_BACK_BC;
 
 EAST:
 density=1f;
 temperature=0.0f;
-velocity=[0f,0f];
-fluid_boundary_type=SYMMETRY_BC;
+velocity=[0f,0f];#linear([0f,0f],[-0.02f,0f]);
+fluid_boundary_type=OPEN_VELOCITY_BC;
 temp_boundary_type=BOUNCE_BACK_BC;
 
 SOUTH:
@@ -47,8 +52,8 @@ temp_boundary_type=BOUNCE_BACK_BC;
 WEST:
 density=1f;
 temperature=0.0f;
-velocity=[0f,0f];  #linear([0.05f,0f],[0f,0f]);
-fluid_boundary_type=SYMMETRY_BC;
+velocity=linear([0f,0f],[0f,0f]);
+fluid_boundary_type=OPEN_VELOCITY_BC;
 temp_boundary_type=BOUNCE_BACK_BC;
 
 -CORNERS:
@@ -80,13 +85,14 @@ velocity=[0f,0f];
 fluid_boundary_type=BOUNCE_BACK_BC;
 temp_boundary_type=BOUNCE_BACK_BC;
 
-#dodatkowe dane dotyczące 2 różnych sytuacji:
+#dodatkowe dane dotyczące 3 różnych sytuacji:
 #-prostokątna przeszkoda
 #-trójkątna przeszkoda
+#-niestandardowa podłoga
 -ADDITION DATA-
--SHAPE:FLOOR(30,100);
+-SHAPE:FLOOR(0,40);
 
 #źródła ciepła
 #source(od_x, od_y, do_x, do_y, temperatura)
 -HEAT SOURCES-:
-#source(30,127,97,127,1f);
+source(19,199,900,179,1f);

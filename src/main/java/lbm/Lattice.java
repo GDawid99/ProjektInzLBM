@@ -26,13 +26,6 @@ public class Lattice {
     private float timeStep;
     private float gravity;
 
-    public Lattice(int width, int height, float tau, float tempTau, float timeStep) {
-        this.latticeWidth = width;
-        this.latticeHeight = height;
-        this.tau = tau;
-        this.tempTau = tempTau;
-        this.timeStep = timeStep;
-    }
 
     public Lattice(LatticeInitializer latticeInitializer) {
         if (latticeInitializer.cells == null) throw new IllegalArgumentException("Nie utworzono siatki.");
@@ -48,49 +41,13 @@ public class Lattice {
         this.gravity = latticeInitializer.gravity;
     }
 
-
-    public void printValues() {
-        for (int y = 0; y < latticeHeight; y++) {
-            for (int x = 0; x < latticeWidth; x++) {
-                if (cells[y][x].getCellBoundaryType().isBoundary()) System.out.print("[" + "#" + "]");
-                else if (cells[y][x].getCellBoundaryType().isSolid()) System.out.print("[0]");
-                else System.out.print("[" + " " + "]");
-                //System.out.print("[" + cells[y][x].getCellBoundaryType().getBoundaryDirection() + "]");
-            }
-            System.out.println();
-        }
-    }
-
     public void executeOperations() {
-
-//        int numberOfThreads = 4;
-//        ExecutorService ex = Executors.newFixedThreadPool(numberOfThreads);
-
-
-
-
         Arrays.stream(cells).parallel().flatMap(arr -> Arrays.stream(arr)).filter(e -> !e.getCellBoundaryType().isSolid()).forEach(cell -> {
             cell.calcMacroscopicValues();
             cell.calcEquilibriumFunction();
             cell.calcCollisionOperation(timeStep, tau, tempTau, gravity);
         });
 
-
-//        for (int y = 0; y < latticeHeight; y++) {
-//            for (int x = 0; x < latticeWidth; x++) {
-//                Cell cell = cells[y][x];
-//                if (cell.getCellBoundaryType().isSolid()) continue;
-//                ex.execute(() -> {
-//                    cell.calcMacroscopicValues();
-//                    cell.calcEquilibriumFunction();
-//                    cell.calcCollisionOperation(timeStep, tau, tempTau, gravity);
-//                });
-//            }
-//        }
-//        ex.shutdown();
-//        while(!ex.isTerminated()) {}
-//        ex = Executors.newFixedThreadPool(numberOfThreads);
-        //drugi etap: obliczenie operacji streaming i warunki brzegowe
 
         Arrays.stream(cells).parallel().flatMap(arr -> Arrays.stream(arr)).filter(e -> !e.getCellBoundaryType().isSolid()).forEach(cell -> {
             int localX = cell.x;
@@ -108,31 +65,6 @@ public class Lattice {
             cell.model.calcBoundaryConditions(cell);
             cell.temperatureModel.calcBoundaryConditions(cell);
         });
-
-//        for (int y = 0; y < latticeHeight; y++) {
-//            for (int x = 0; x < latticeWidth; x++) {
-//                Cell cell = cells[y][x];
-//                final int localX = x;
-//                final int localY = y;
-//                if (cell.getCellBoundaryType().isSolid()) continue;
-//                ex.execute(() -> {
-//                    List<Cell> neighbourhood = new LinkedList<>();
-//                    for (int i = 0; i < 9; i++) {
-//                        int deltaX = localX - ModelD2Q9.c.get(i).get(0);
-//                        int deltaY = localY + ModelD2Q9.c.get(i).get(1);
-//                        if (deltaY >= 0 && deltaY <= latticeHeight - 1 && deltaX >= 0 && deltaX <= latticeWidth - 1)
-//                            neighbourhood.add(cells[deltaY][deltaX]);
-//                        else neighbourhood.add(null);
-//                    }
-//                    cell.model.calcStreaming(neighbourhood);
-//                    cell.temperatureModel.calcStreaming(neighbourhood);
-//                    cell.model.calcBoundaryConditions(cell);
-//                    cell.temperatureModel.calcBoundaryConditions(cell);
-//                });
-//            }
-//        }
-//        ex.shutdown();
-//        while(!ex.isTerminated()) {}
     }
 
     public Cell[][] getCells() {

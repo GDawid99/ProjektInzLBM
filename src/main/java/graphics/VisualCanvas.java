@@ -3,7 +3,6 @@ package graphics;
 import javafx.scene.paint.Color;
 import lbm.*;
 import javafx.scene.canvas.Canvas;
-import lbm.boundary.FluidBoundaryType;
 
 
 public class VisualCanvas extends Canvas {
@@ -41,30 +40,6 @@ public class VisualCanvas extends Canvas {
                 this.getGraphicsContext2D().strokeLine(x,y,x+length*100*cell.velocity.ux,y-length*100*cell.velocity.uy);
             }
         }
-    }
-
-    public void drawParticleTrajectory(Cell cell, float gravity) {
-        float mass = 0.5f;
-        this.getGraphicsContext2D().setLineWidth(0.5d);
-        Particle oldParticle = new Particle(0,25,mass,cell.velocity);
-        Particle newParticle = new Particle(0,25,mass,cell.velocity);
-        while (newParticle.getX() >= 0 && newParticle.getX() < 127 && newParticle.getY() >= 0 && newParticle.getY() < 127) {
-            newParticle.getVelocity().ux = oldParticle.getMass()* oldParticle.getVelocity().ux + (1 - oldParticle.getMass())*cell.velocity.ux;
-            newParticle.getVelocity().uy = oldParticle.getMass()* oldParticle.getVelocity().uy + (1 - oldParticle.getMass())*cell.velocity.uy - gravity*200;
-            float x = oldParticle.getX() + 100f * (newParticle.getVelocity().ux + oldParticle.getVelocity().ux)/2;
-            float y = oldParticle.getY() - 100f * (newParticle.getVelocity().uy + oldParticle.getVelocity().uy)/2;
-            newParticle.setPosition(x,y);
-            this.getGraphicsContext2D().setStroke(Color.CYAN);
-            this.getGraphicsContext2D().setFill(Color.CYAN);
-            this.getGraphicsContext2D().strokeLine(
-                    4*oldParticle.getX(),
-                    4*oldParticle.getY(),
-                    4*newParticle.getX(),
-                    4*newParticle.getY()
-            );
-            oldParticle = new Particle(newParticle);
-        }
-        //System.out.println(oldParticle.getX() + ", " + oldParticle.getY() + ", " + newParticle.getX() + ", " + newParticle.getY());
     }
 
     public void scaleLattice(double width, double height) {
