@@ -11,6 +11,7 @@ import lbm.force.GravityForceD2Q9;
 import util.Velocity;
 
 import java.util.ArrayList;
+import java.util.List;
 
 
 public class Cell {
@@ -65,6 +66,16 @@ public class Cell {
                 timeStep,
                 tempTau,
                 new GravityForceD2Q9());
+    }
+
+    public void calcStreaming(List<Cell> neighbourhood) {
+        model.calcStreaming(neighbourhood);
+        temperatureModel.calcStreaming(neighbourhood);
+    }
+
+    public void calcBC() {
+        model.calcBoundaryConditions(this);
+        temperatureModel.calcBoundaryConditions(this);
     }
 
     private float calcDensity() {

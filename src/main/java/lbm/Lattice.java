@@ -1,21 +1,10 @@
 package lbm;
 
-import lbm.boundary.BoundaryDirection;
-import lbm.boundary.FluidBoundaryType;
-import lbm.boundary.TempBoundaryType;
-import lbm.model.FluidFlowD2Q9;
 import lbm.model.ModelD2Q9;
-import lbm.model.TemperatureD2Q9;
 import util.LatticeInitializer;
-import util.Velocity;
-
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.stream.Stream;
 
 public class Lattice {
     public Cell[][] cells;
@@ -60,10 +49,8 @@ public class Lattice {
                     neighbourhood.add(cells[deltaY][deltaX]);
                 else neighbourhood.add(null);
             }
-            cell.model.calcStreaming(neighbourhood);
-            cell.temperatureModel.calcStreaming(neighbourhood);
-            cell.model.calcBoundaryConditions(cell);
-            cell.temperatureModel.calcBoundaryConditions(cell);
+            cell.calcStreaming(neighbourhood);
+            cell.calcBC();
         });
     }
 
