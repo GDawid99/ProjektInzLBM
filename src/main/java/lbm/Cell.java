@@ -60,7 +60,7 @@ public class Cell {
                 timeStep,
                 tau,
                 //new GravityForceD2Q9(density, gravity));
-                statunew BuoyancyForceD2Q9(density, gravity, beta, temperature, 0f));
+                new BuoyancyForceD2Q9(density, gravity, beta, temperature, 0f));
                 this.temperatureModel.calcOutputFunctions((ArrayList<Float>) this.temperatureModel.fin,
                 (ArrayList<Float>) this.temperatureModel.feq,
                 timeStep,
