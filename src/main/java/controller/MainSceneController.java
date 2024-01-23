@@ -67,7 +67,7 @@ public class MainSceneController implements Initializable {
     private float gradientMin = Vmin.ux;
     private float gradientMax = Vmax.ux;
     private AnimationTimer animationTimer;
-    private String path = "data5.txt";
+    private String path = "data8.txt";
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
@@ -165,6 +165,8 @@ public class MainSceneController implements Initializable {
             }
         }
         setLabelValues(gradientMin,gradientMax);
+        visualCanvas.draw(simulation.getLattice(),currentVisualValue, gradientMin, gradientMax);
+        gradient_bar.draw(currentVisualValue, gradientMin, gradientMax);
     }
 
 
@@ -241,6 +243,8 @@ public class MainSceneController implements Initializable {
             }
         }
         setLabelValues(gradientMin,gradientMax);
+        visualCanvas.draw(simulation.getLattice(),currentVisualValue, gradientMin, gradientMax);
+        gradient_bar.draw(currentVisualValue, gradientMin, gradientMax);
     }
 
 
@@ -265,5 +269,9 @@ public class MainSceneController implements Initializable {
             runSimulationLabel.setText("Stop simulation: ");
             runButton.setText("Stop");
         }
+    }
+
+    public void onMousePressedSetLinesLength(MouseEvent mouseEvent) {
+        visualCanvas.drawLines(simulation.getLattice(),lineSlider.getValue());
     }
 }

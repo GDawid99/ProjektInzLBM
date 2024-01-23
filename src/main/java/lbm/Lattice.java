@@ -14,6 +14,7 @@ public class Lattice {
     private final float tempTau;
     private float timeStep;
     private float gravity;
+    private float beta;
 
 
     public Lattice(LatticeInitializer latticeInitializer) {
@@ -28,13 +29,14 @@ public class Lattice {
         this.tempTau = latticeInitializer.tempTau;
         this.timeStep = latticeInitializer.timeStep;
         this.gravity = latticeInitializer.gravity;
+        this.beta = latticeInitializer.beta;
     }
 
     public void executeOperations() {
         Arrays.stream(cells).parallel().flatMap(arr -> Arrays.stream(arr)).filter(e -> !e.getCellBoundaryType().isSolid()).forEach(cell -> {
             cell.calcMacroscopicValues();
             cell.calcEquilibriumFunction();
-            cell.calcCollisionOperation(timeStep, tau, tempTau, gravity);
+            cell.calcCollisionOperation(timeStep, tau, tempTau, gravity, beta);
         });
 
 

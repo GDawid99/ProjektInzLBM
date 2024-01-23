@@ -4,7 +4,7 @@ public enum TempBoundaryType {
     FLUID,
     SOLID,
     CONST_BC,
-    BOUNCE_BACK_BC,
-    SYMMETRY_BC,
+    ADIABATIC_BC,
+    CONST_TEMPERATURE_BC,
     OPEN_TEMPERATURE_BC
 }

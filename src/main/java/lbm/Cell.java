@@ -54,13 +54,13 @@ public class Cell {
         this.temperatureModel.calcEquilibriumFunctions(this.velocity, this.temperature);
     }
 
-    public void calcCollisionOperation(float timeStep, float tau, float tempTau, float gravity) {
+    public void calcCollisionOperation(float timeStep, float tau, float tempTau, float gravity, float beta) {
         this.model.calcOutputFunctions((ArrayList<Float>) this.model.fin,
                 (ArrayList<Float>) this.model.feq,
                 timeStep,
                 tau,
-                //new GravityForceD2Q9(density, 0.00001f));
-                new BuoyancyForceD2Q9(density, gravity, 0.000034f, temperature, 0f));
+                //new GravityForceD2Q9(density, gravity));
+                statunew BuoyancyForceD2Q9(density, gravity, beta, temperature, 0f));
                 this.temperatureModel.calcOutputFunctions((ArrayList<Float>) this.temperatureModel.fin,
                 (ArrayList<Float>) this.temperatureModel.feq,
                 timeStep,

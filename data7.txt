@@ -17,14 +17,15 @@
 #Dane podstawowe dla symulacji bez żadnych dodatków
 -DOMAIN DATA-
 -INITIAL CONDITIONS:
-width=200;
-height=80;
-density=1f;
+width=150;
+height=150;
+density=linear(1f,1.011237f);
 temperature=0.0f;
 velocity=[0f,0f];
-gravity=0f;
-tau=0.51f;
-tau_temp=0.55f;
+gravity=0.000025f;
+thermal_exp_coeff=2f;
+tau=1f;
+tau_temp=1f;
 
 -INITIAL BOUNDARY CONDITIONS:
 -WALLS:
@@ -32,29 +33,29 @@ NORTH:
 density=1f;
 temperature=0.0f;
 velocity=[0f,0f];
-fluid_boundary_type=BOUNCE_BACK_BC;
-temp_boundary_type=ADIABATIC_BC;
+fluid_boundary_type=SYMMETRY_BC;
+temp_boundary_type=CONST_TEMPERATURE_BC;
 
 EAST:
-density=1f;
+density=linear(1f,1.011237f);
 temperature=0.0f;
-velocity=[0f,0f];#linear([-0.01f,0f],[0f,0f]);
-fluid_boundary_type=OPEN_DENSITY_BC;
-temp_boundary_type=ADIABATIC_BC;
+velocity=linear([0f,0f],[-0.05f,0f]);
+fluid_boundary_type=OPEN_VELOCITY_BC;
+temp_boundary_type=CONST_TEMPERATURE_BC;
 
 SOUTH:
-density=1f;
+density=1.011237f;
 temperature=0.0f;
 velocity=[0f,0f];
 fluid_boundary_type=BOUNCE_BACK_BC;
 temp_boundary_type=ADIABATIC_BC;
 
 WEST:
-density=1f;
+density=linear(1f,1.011237f);
 temperature=0.0f;
-velocity=[0.02f,0f]; #linear([0.08f,0f],[0f,0f]);
-fluid_boundary_type=OPEN_VELOCITY_BC;
-temp_boundary_type=ADIABATIC_BC;
+velocity=[0f,0f]; #linear([0f,0f],[0f,0f]);
+fluid_boundary_type=OPEN_DENSITY_BC;
+temp_boundary_type=OPEN_TEMPERATURE_BC;
 
 -CORNERS:
 NORTHWEST_CONCAVE:
@@ -62,118 +63,100 @@ density=1f;
 temperature=0.0f;
 velocity=[0f,0f];
 fluid_boundary_type=SYMMETRY_BC;
-temp_boundary_type=ADIABATIC_BC;
+temp_boundary_type=CONST_TEMPERATURE_BC;
 
 NORTHEAST_CONCAVE:
 density=1f;
 temperature=0.0f;
 velocity=[0f,0f];
 fluid_boundary_type=SYMMETRY_BC;
-temp_boundary_type=ADIABATIC_BC;
+temp_boundary_type=CONST_TEMPERATURE_BC;
 
 SOUTHWEST_CONCAVE:
-density=1f;
+density=1.011237f;
 temperature=0.0f;
 velocity=[0f,0f];
 fluid_boundary_type=BOUNCE_BACK_BC;
 temp_boundary_type=ADIABATIC_BC;
 
 SOUTHEAST_CONCAVE:
-density=1f;
+density=1.011237f;
 temperature=0.0f;
 velocity=[0f,0f];
 fluid_boundary_type=BOUNCE_BACK_BC;
 temp_boundary_type=ADIABATIC_BC;
 
-#dodatkowe dane dotyczące 2 różnych sytuacji:
+#dodatkowe dane dotyczące 3 różnych sytuacji:
 #-prostokątna przeszkoda
 #-trójkątna przeszkoda
+#-niestandardowa podłoga
 -ADDITION DATA-
--SHAPE:RECTANGLE(40,30,60,50);
+-SHAPE:RECTANGLE(70,90,80,149);
 -INITIAL BOUNDARY CONDITIONS:
 -WALLS:
-NORTH:
-density=1f;
-temperature=0.0f;
-velocity=[0f,0f];
-fluid_boundary_type=BOUNCE_BACK_BC;
-temp_boundary_type=ADIABATIC_BC;
+NORTH: none;
 
 EAST:
-density=1f;
+density=linear(1.006772f,1.011237f);
 temperature=0.0f;
 velocity=[0f,0f];
 fluid_boundary_type=BOUNCE_BACK_BC;
 temp_boundary_type=ADIABATIC_BC;
 
 SOUTH:
-density=1f;
+density=1.006772f;
 temperature=0.0f;
 velocity=[0f,0f];
 fluid_boundary_type=BOUNCE_BACK_BC;
 temp_boundary_type=ADIABATIC_BC;
 
 WEST:
-density=1f;
+density=linear(1.006772f,1.011237f);
 temperature=0.0f;
 velocity=[0f,0f];
 fluid_boundary_type=BOUNCE_BACK_BC;
 temp_boundary_type=ADIABATIC_BC;
 
 -CORNERS:
-NORTHWEST_CONCAVE:
-density=1f;
-temperature=0.0f;
-velocity=[0f,0f];
-fluid_boundary_type=BOUNCE_BACK_BC;
-temp_boundary_type=ADIABATIC_BC;
+NORTHWEST_CONCAVE: none;
 
-NORTHWEST_CONVEX:
-density=1f;
-temperature=0.0f;
-velocity=[0f,0f];
-fluid_boundary_type=BOUNCE_BACK_BC;
-temp_boundary_type=ADIABATIC_BC;
+NORTHWEST_CONVEX: none;
 
-NORTHEAST_CONCAVE:
-density=1f;
-temperature=0.0f;
-velocity=[0f,0f];
-fluid_boundary_type=BOUNCE_BACK_BC;
-temp_boundary_type=ADIABATIC_BC;
+NORTHEAST_CONCAVE: none;
 
-NORTHEAST_CONVEX:
-density=1f;
-temperature=0.0f;
-velocity=[0f,0f];
-fluid_boundary_type=BOUNCE_BACK_BC;
-temp_boundary_type=ADIABATIC_BC;
+NORTHEAST_CONVEX: none;
 
 SOUTHWEST_CONCAVE:
-density=1f;
+density=1.011237f;
 temperature=0.0f;
 velocity=[0f,0f];
 fluid_boundary_type=BOUNCE_BACK_BC;
 temp_boundary_type=ADIABATIC_BC;
 
 SOUTHWEST_CONVEX:
-density=1f;
+density=1.006772f;
 temperature=0.0f;
 velocity=[0f,0f];
 fluid_boundary_type=BOUNCE_BACK_BC;
 temp_boundary_type=ADIABATIC_BC;
 
 SOUTHEAST_CONCAVE:
-density=1f;
+density=1.011237f;
 temperature=0.0f;
 velocity=[0f,0f];
 fluid_boundary_type=BOUNCE_BACK_BC;
 temp_boundary_type=ADIABATIC_BC;
 
 SOUTHEAST_CONVEX:
-density=1f;
+density=1.006772f;
 temperature=0.0f;
 velocity=[0f,0f];
 fluid_boundary_type=BOUNCE_BACK_BC;
 temp_boundary_type=ADIABATIC_BC;
 
+#źródła ciepła
+#source(od_x, od_y, do_x, do_y, temperatura)
+-HEAT SOURCES-:
+source(1,149,69,149,1f);
+source(69,90,69,149,1f);
+source(70,89,80,89,1f);

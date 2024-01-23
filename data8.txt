@@ -22,8 +22,8 @@ height=150;
 density=1f;
 temperature=0.0f;
 velocity=[0f,0f];
-gravity=0.00157f;
-thermal_exp_coeff=0.0034f;
+gravity=0.0005f;
+thermal_exp_coeff=2f;
 tau=0.6f;
 tau_temp=0.64f;
 
@@ -33,43 +33,43 @@ NORTH:
 density=1f;
 temperature=0.0f;
 velocity=[0f,0f];
-fluid_boundary_type=SYMMETRY_BC;
+fluid_boundary_type=OPEN_DENSITY_BC;
 temp_boundary_type=ADIABATIC_BC;
 
 EAST:
 density=1f;
 temperature=0.0f;
-velocity=[0f,0f];#linear([-0.01f,0f],[0f,0f]);
-fluid_boundary_type=SYMMETRY_BC;
-temp_boundary_type=CONST_TEMPERATURE_BC;
+velocity=[0f,0f];#linear([0f,0f],[-0.05f,0f]);
+fluid_boundary_type=OPEN_VELOCITY_BC;
+temp_boundary_type=ADIABATIC_BC;
 
 SOUTH:
 density=1f;
 temperature=0.0f;
 velocity=[0f,0f];
-fluid_boundary_type=SYMMETRY_BC;
+fluid_boundary_type=BOUNCE_BACK_BC;
 temp_boundary_type=ADIABATIC_BC;
 
 WEST:
 density=1f;
 temperature=0.0f;
-velocity=[0f,0f];  #linear([0.05f,0f],[0f,0f]);
-fluid_boundary_type=SYMMETRY_BC;
-temp_boundary_type=CONST_TEMPERATURE_BC;
+velocity=[0f,0f]; #linear([0f,0f],[0f,0f]);
+fluid_boundary_type=OPEN_VELOCITY_BC;
+temp_boundary_type=ADIABATIC_BC;
 
 -CORNERS:
 NORTHWEST_CONCAVE:
 density=1f;
 temperature=0.0f;
 velocity=[0f,0f];
-fluid_boundary_type=BOUNCE_BACK_BC;
+fluid_boundary_type=SYMMETRY_BC;
 temp_boundary_type=ADIABATIC_BC;
 
 NORTHEAST_CONCAVE:
 density=1f;
 temperature=0.0f;
 velocity=[0f,0f];
-fluid_boundary_type=BOUNCE_BACK_BC;
+fluid_boundary_type=SYMMETRY_BC;
 temp_boundary_type=ADIABATIC_BC;
 
 SOUTHWEST_CONCAVE:
@@ -86,13 +86,7 @@ velocity=[0f,0f];
 fluid_boundary_type=BOUNCE_BACK_BC;
 temp_boundary_type=ADIABATIC_BC;
 
-#dodatkowe dane dotyczące 2 różnych sytuacji:
-#-prostokątna przeszkoda
-#-trójkątna przeszkoda
--ADDITION DATA-
--SHAPE:FLOOR(30,70);
 
 #źródła ciepła
 #source(od_x, od_y, do_x, do_y, temperatura)
 -HEAT SOURCES-:
-source(0,0,0,149,1f);

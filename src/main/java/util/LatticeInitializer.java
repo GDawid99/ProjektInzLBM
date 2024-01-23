@@ -21,6 +21,7 @@ public class LatticeInitializer {
     public float tempTau;
     public float timeStep;
     public float gravity;
+    public float beta;
 
 
     private LatticeInitializer(int latticeWidth, int latticeHeight) {
@@ -71,6 +72,9 @@ public class LatticeInitializer {
                 }
                 if (line.contains("gravity")) {
                     gravity = Float.parseFloat(line.substring(line.indexOf("=")+1,line.indexOf(";")));
+                }
+                if (line.contains("thermal_exp_coeff")) {
+                    beta = Float.parseFloat(line.substring(line.indexOf("=")+1,line.indexOf(";")));
                 }
                 if (line.contains("tau")) {
                     tau = Float.parseFloat(line.substring(line.indexOf("=")+1,line.indexOf(";")));

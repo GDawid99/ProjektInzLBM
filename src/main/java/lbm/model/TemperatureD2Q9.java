@@ -38,86 +38,73 @@ public class TemperatureD2Q9 extends ModelD2Q9{
 
     @Override
     public void calcBoundaryConditions(Cell cell) {
-        float alphaT = 1;
         switch (cell.getCellBoundaryType().getTempBoundaryType()) {
             case CONST_BC -> calcInputFunctions(fout);
-            case BOUNCE_BACK_BC -> {
+            case CONST_TEMPERATURE_BC -> {
                 switch (cell.getCellBoundaryType().getBoundaryDirection()) {
                     case NORTH -> {
-                        alphaT = 1f;
-                        fin.set(4, (1 - alphaT) * fin.get(8) + alphaT * (constTemperature -  fin.get(8)));
-                        fin.set(5, (1 - alphaT) * fin.get(1) + alphaT * (4f * constTemperature -  fin.get(1)));
-                        fin.set(6, (1 - alphaT) * fin.get(2) + alphaT * (constTemperature -  fin.get(2)));
+                        fin.set(4, constTemperature -  fin.get(8));
+                        fin.set(5, 4f * constTemperature -  fin.get(1));
+                        fin.set(6, constTemperature -  fin.get(2));
                     }
                     case SOUTH -> {
-                        alphaT = 1f;
-                        fin.set(8, (1 - alphaT) * fin.get(4) + alphaT * (constTemperature -  fin.get(4)));
-                        fin.set(1, (1 - alphaT) * fin.get(5) + alphaT * (4f * constTemperature -  fin.get(5)));
-                        fin.set(2, (1 - alphaT) * fin.get(6) + alphaT * (constTemperature -  fin.get(6)));
+                        fin.set(8, constTemperature -  fin.get(4));
+                        fin.set(1, 4f * constTemperature -  fin.get(5));
+                        fin.set(2, constTemperature -  fin.get(6));
                     }
                     case WEST -> {
-                        alphaT = 1f;
-                        fin.set(2, (1 - alphaT) * fin.get(6) + alphaT * (constTemperature -  fin.get(6)));
-                        fin.set(3, (1 - alphaT) * fin.get(7) + alphaT * (4f * constTemperature -  fin.get(7)));
-                        fin.set(4, (1 - alphaT) * fin.get(8) + alphaT * (constTemperature -  fin.get(8)));
+                        fin.set(2, constTemperature -  fin.get(6));
+                        fin.set(3, 4f * constTemperature -  fin.get(7));
+                        fin.set(4, constTemperature -  fin.get(8));
                     }
                     case EAST -> {
-                        alphaT = 1f;
-                        fin.set(6, (1 - alphaT) * fin.get(2) + alphaT * (constTemperature -  fin.get(2)));
-                        fin.set(7, (1 - alphaT) * fin.get(3) + alphaT * (4f * constTemperature -  fin.get(3)));
-                        fin.set(8, (1 - alphaT) * fin.get(4) + alphaT * (constTemperature -  fin.get(4)));
+                        fin.set(6, constTemperature -  fin.get(2));
+                        fin.set(7, 4f * constTemperature -  fin.get(3));
+                        fin.set(8, constTemperature -  fin.get(4));
                     }
                     case NORTHWEST_CONCAVE -> {
-                        alphaT = 1f;
-                        fin.set(2, (1 - alphaT) * fin.get(8) + alphaT * (constTemperature -  fin.get(8)));
-                        fin.set(3, (1 - alphaT) * fin.get(7) + alphaT * (4f * constTemperature -  fin.get(7)));
-                        fin.set(4, (1 - alphaT) * fin.get(8) + alphaT * (constTemperature -  fin.get(8)));
-                        fin.set(5, (1 - alphaT) * fin.get(1) + alphaT * (4f * constTemperature -  fin.get(1)));
-                        fin.set(6, (1 - alphaT) * fin.get(8) + alphaT * (constTemperature -  fin.get(8)));
+                        fin.set(2, constTemperature -  fin.get(8));
+                        fin.set(3, 4f * constTemperature -  fin.get(7));
+                        fin.set(4, constTemperature -  fin.get(8));
+                        fin.set(5, 4f * constTemperature -  fin.get(1));
+                        fin.set(6, constTemperature -  fin.get(8));
                     }
                     case NORTHEAST_CONCAVE -> {
-                        alphaT = 1f;
-                        fin.set(4, (1 - alphaT) * fin.get(2) + alphaT * (constTemperature -  fin.get(2)));
-                        fin.set(5, (1 - alphaT) * fin.get(1) + alphaT * (4f * constTemperature -  fin.get(1)));
-                        fin.set(6, (1 - alphaT) * fin.get(2) + alphaT * (constTemperature -  fin.get(2)));
-                        fin.set(7, (1 - alphaT) * fin.get(3) + alphaT * (4f * constTemperature -  fin.get(3)));
-                        fin.set(8, (1 - alphaT) * fin.get(2) + alphaT * (constTemperature -  fin.get(2)));
+                        fin.set(4, constTemperature -  fin.get(2));
+                        fin.set(5, 4f * constTemperature -  fin.get(1));
+                        fin.set(6, constTemperature -  fin.get(2));
+                        fin.set(7, 4f * constTemperature -  fin.get(3));
+                        fin.set(8, constTemperature -  fin.get(2));
                     }
                     case SOUTHWEST_CONCAVE -> {
-                        alphaT = 1f;
-                        fin.set(8, (1 - alphaT) * fin.get(6) + alphaT * (constTemperature -  fin.get(6)));
-                        fin.set(1, (1 - alphaT) * fin.get(5) + alphaT * (4f * constTemperature -  fin.get(5)));
-                        fin.set(2, (1 - alphaT) * fin.get(6) + alphaT * (constTemperature -  fin.get(6)));
-                        fin.set(3, (1 - alphaT) * fin.get(7) + alphaT * (4f * constTemperature -  fin.get(7)));
-                        fin.set(4, (1 - alphaT) * fin.get(6) + alphaT * (constTemperature -  fin.get(6)));
+                        fin.set(8, constTemperature -  fin.get(6));
+                        fin.set(1, 4f * constTemperature -  fin.get(5));
+                        fin.set(2, constTemperature -  fin.get(6));
+                        fin.set(3, 4f * constTemperature -  fin.get(7));
+                        fin.set(4, constTemperature -  fin.get(6));
                     }
                     case SOUTHEAST_CONCAVE -> {
-                        alphaT = 1f;
-                        fin.set(6, (1 - alphaT) * fin.get(4) + alphaT * (constTemperature -  fin.get(4)));
-                        fin.set(7, (1 - alphaT) * fin.get(3) + alphaT * (4f * constTemperature -  fin.get(3)));
-                        fin.set(8, (1 - alphaT) * fin.get(4) + alphaT * (constTemperature -  fin.get(4)));
-                        fin.set(1, (1 - alphaT) * fin.get(5) + alphaT * (4f * constTemperature -  fin.get(5)));
-                        fin.set(2, (1 - alphaT) * fin.get(4) + alphaT * (constTemperature -  fin.get(4)));
+                        fin.set(6, constTemperature -  fin.get(4));
+                        fin.set(7, 4f * constTemperature -  fin.get(3));
+                        fin.set(8, constTemperature -  fin.get(4));
+                        fin.set(1, 4f * constTemperature -  fin.get(5));
+                        fin.set(2, constTemperature -  fin.get(4));
                     }
                     case SOUTHEAST_CONVEX -> {
-                        alphaT = 1f;
-                        fin.set(8, (1 - alphaT) * fin.get(4) + alphaT * (constTemperature -  fin.get(4)));
+                        fin.set(8, constTemperature -  fin.get(4));
                     }
                     case SOUTHWEST_CONVEX -> {
-                        alphaT = 1f;
-                        fin.set(2, (1 - alphaT) * fin.get(6) + alphaT * (constTemperature -  fin.get(6)));
+                        fin.set(2, constTemperature -  fin.get(6));
                     }
                     case NORTHEAST_CONVEX -> {
-                        alphaT = 1f;
-                        fin.set(6, (1 - alphaT) * fin.get(2) + alphaT * (constTemperature -  fin.get(2)));
+                        fin.set(6, constTemperature -  fin.get(2));
                     }
                     case NORTHWEST_CONVEX -> {
-                        alphaT = 1f;
-                        fin.set(4, (1 - alphaT) * fin.get(8) + alphaT * (constTemperature -  fin.get(8)));
+                        fin.set(4, constTemperature -  fin.get(8));
                     }
                 }
             }
-            case SYMMETRY_BC -> {
+            case ADIABATIC_BC -> {
                 switch (cell.getCellBoundaryType().getBoundaryDirection()) {
                     case NORTH -> {
                         fin.set(4, fout.get(2));
@@ -166,6 +153,18 @@ public class TemperatureD2Q9 extends ModelD2Q9{
                         fin.set(8, fout.get(4));
                         fin.set(1, fout.get(5));
                         fin.set(2, fout.get(4));
+                    }
+                    case SOUTHEAST_CONVEX -> {
+                        fin.set(8, fout.get(4));
+                    }
+                    case SOUTHWEST_CONVEX -> {
+                        fin.set(2, fout.get(6));
+                    }
+                    case NORTHEAST_CONVEX -> {
+                        fin.set(6, fout.get(2));
+                    }
+                    case NORTHWEST_CONVEX -> {
+                        fin.set(4, fout.get(8));
                     }
                 }
             }
